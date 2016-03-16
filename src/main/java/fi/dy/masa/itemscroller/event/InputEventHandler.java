@@ -16,7 +16,6 @@ import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.SlotItemHandler;
 
 import fi.dy.masa.itemscroller.config.Configs;
 
@@ -189,11 +188,6 @@ public class InputEventHandler
 
     private static boolean areSlotsInSameInventory(Slot slot1, Slot slot2)
     {
-        if ((slot1 instanceof SlotItemHandler) && (slot2 instanceof SlotItemHandler))
-        {
-            return ((SlotItemHandler)slot1).itemHandler == ((SlotItemHandler)slot2).itemHandler;
-        }
-
         return slot1.inventory == slot2.inventory;
     }
 
