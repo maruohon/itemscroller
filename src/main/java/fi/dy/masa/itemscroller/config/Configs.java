@@ -1,10 +1,12 @@
 package fi.dy.masa.itemscroller.config;
 
 import java.io.File;
+
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import fi.dy.masa.itemscroller.Reference;
 
 public class Configs
@@ -17,8 +19,11 @@ public class Configs
     public static boolean enableScrollingSingle;
     public static boolean enableScrollingStacks;
     public static boolean enableScrollingVillager;
+    public static boolean enableShiftDropItems;
+    public static boolean enableShiftPlaceItems;
     public static boolean reverseScrollDirectionSingle;
     public static boolean reverseScrollDirectionStacks;
+    public static boolean useSlotPositionAwareScrollDirection;
 
     public static File configurationFile;
     public static Configuration config;
@@ -37,7 +42,7 @@ public class Configs
     public static void loadConfigsFromFile(File configFile)
     {
         configurationFile = configFile;
-        config = new Configuration(configFile, null, true);
+        config = new Configuration(configFile, null, false);
         config.load();
 
         loadConfigs(config);
@@ -79,6 +84,14 @@ public class Configs
         prop.comment = "Enable special handling for Villager GUI (normally you can't shift+click items into them).";
         enableScrollingVillager = prop.getBoolean();
 
+        prop = conf.get(CATEGORY_GENERIC, "enableShiftDropItems", true).setRequiresMcRestart(false);
+        prop.comment = "Enable dropping items while holding shift to drop all the matching items at once.";
+        enableShiftDropItems = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "enableShiftPlaceItems", true).setRequiresMcRestart(false);
+        prop.comment = "Enable placing items to an empty slot while holding shift to move all the mathing items to that inventory.";
+        enableShiftPlaceItems = prop.getBoolean();
+
         prop = conf.get(CATEGORY_GENERIC, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
         prop.comment = "Reverse the scrolling direction for single item mode.";
         reverseScrollDirectionSingle = prop.getBoolean();
@@ -86,6 +99,10 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "reverseScrollDirectionStacks", false).setRequiresMcRestart(false);
         prop.comment = "Reverse the scrolling direction for full stacks mode.";
         reverseScrollDirectionStacks = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "useSlotPositionAwareScrollDirection", false).setRequiresMcRestart(false);
+        prop.comment = "When enabled, the item movement direction depends on the slots' y-position on screen. Might be derpy with more complex inventories, use with caution!";
+        useSlotPositionAwareScrollDirection = prop.getBoolean();
 
         if (conf.hasChanged() == true)
         {
