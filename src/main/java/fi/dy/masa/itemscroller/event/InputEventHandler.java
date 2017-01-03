@@ -101,7 +101,7 @@ public class InputEventHandler
             return false;
         }
 
-        return slot != null && gui.inventorySlots.inventorySlots.contains(slot) == true && (requireItems == false || slot.getHasStack() == true);
+        return slot != null && gui.inventorySlots.inventorySlots.contains(slot) && (requireItems == false || slot.getHasStack());
     }
 
     /**
@@ -247,7 +247,7 @@ public class InputEventHandler
         }
 
         // Check that either mouse button is down
-        if (cancel == false && (isShiftDown == true || isControlDown == true) && eitherMouseButtonDown == true)
+        if (cancel == false && (isShiftDown || isControlDown) && eitherMouseButtonDown)
         {
             int distX = mouseX - this.lastPosX;
             int distY = mouseY - this.lastPosY;
@@ -367,7 +367,7 @@ public class InputEventHandler
 
     private boolean tryMoveItemsVillager(GuiMerchant gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown)
     {
-        if (isShiftDown == true)
+        if (isShiftDown)
         {
             // Try to fill the merchant's buy slots from the player inventory
             if (moveToOtherInventory == false)
@@ -375,7 +375,7 @@ public class InputEventHandler
                 this.tryMoveItemsToMerchantBuySlots(gui, true);
             }
             // Move items from sell slot to player inventory
-            else if (slot.getHasStack() == true)
+            else if (slot.getHasStack())
             {
                 this.tryMoveStacks(slot, gui, true, true, true);
             }
@@ -393,7 +393,7 @@ public class InputEventHandler
                 this.tryMoveItemsToMerchantBuySlots(gui, false);
             }
             // Scrolling items from this slot/inventory into the other inventory
-            else if (slot.getHasStack() == true)
+            else if (slot.getHasStack())
             {
                 this.tryMoveSingleItemToOtherInventory(slot, gui);
             }
@@ -408,7 +408,7 @@ public class InputEventHandler
         boolean isCtrlDown = GuiContainer.isCtrlKeyDown();
         boolean isShiftDown = GuiContainer.isShiftKeyDown();
         // Villager handling only happens when scrolling over the trade output slot
-        boolean villagerHandling = Configs.enableScrollingVillager == true && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
+        boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
 
         // Check that the cursor is empty, and the slot is valid (don't require items in case of the villager output slot)
         if (gui.mc.player.inventory.getItemStack() != null || this.isValidSlot(slot, gui, villagerHandling ? false : true) == false)
@@ -424,8 +424,8 @@ public class InputEventHandler
             moveToOtherInventory = above == scrollingUp; // so basically: (above && scrollingUp) || (above == false && scrollingUp == false)
         }
 
-        if ((Configs.reverseScrollDirectionSingle == true && isShiftDown == false) ||
-            (Configs.reverseScrollDirectionStacks == true && isShiftDown == true))
+        if ((Configs.reverseScrollDirectionSingle && isShiftDown == false) ||
+            (Configs.reverseScrollDirectionStacks && isShiftDown))
         {
             moveToOtherInventory = ! moveToOtherInventory;
         }
@@ -436,17 +436,17 @@ public class InputEventHandler
         }
 
         if ((Configs.enableScrollingSingle == false && isShiftDown == false && isCtrlDown == false) ||
-            (Configs.enableScrollingStacks == false && isShiftDown == true && isCtrlDown == false) ||
-            (Configs.enableScrollingMatchingStacks == false && isShiftDown == false && isCtrlDown == true) ||
-            (Configs.enableScrollingEverything == false && isShiftDown == true && isCtrlDown == true))
+            (Configs.enableScrollingStacks == false && isShiftDown && isCtrlDown == false) ||
+            (Configs.enableScrollingMatchingStacks == false && isShiftDown == false && isCtrlDown) ||
+            (Configs.enableScrollingEverything == false && isShiftDown && isCtrlDown))
         {
             return false;
         }
 
-        if (isShiftDown == true)
+        if (isShiftDown)
         {
             // Ctrl + Shift + scroll: move everything
-            if (isCtrlDown == true)
+            if (isCtrlDown)
             {
                 this.tryMoveStacks(slot, gui, false, moveToOtherInventory, false);
             }
@@ -457,7 +457,7 @@ public class InputEventHandler
             }
         }
         // Ctrl + scroll: Move all matching stacks
-        else if (isCtrlDown == true)
+        else if (isCtrlDown)
         {
             this.tryMoveStacks(slot, gui, true, moveToOtherInventory, false);
         }
@@ -467,7 +467,7 @@ public class InputEventHandler
             ItemStack stack = slot.getStack();
 
             // Scrolling items from this slot/inventory into the other inventory
-            if (moveToOtherInventory == true)
+            if (moveToOtherInventory)
             {
                 this.tryMoveSingleItemToOtherInventory(slot, gui);
             }
@@ -560,7 +560,7 @@ public class InputEventHandler
         // Find some other slot where to store one of the items temporarily
         for (Slot slotTmp : container.inventorySlots)
         {
-            if (slotTmp.slotNumber != slot.slotNumber && slotTmp.isItemValid(stackInCursor) == true)
+            if (slotTmp.slotNumber != slot.slotNumber && slotTmp.isItemValid(stackInCursor))
             {
                 ItemStack stackInSlot = slotTmp.getStack();
 
@@ -623,11 +623,11 @@ public class InputEventHandler
             Slot slotTmp = container.inventorySlots.get(slotNum);
 
             if (areSlotsInSameInventory(slotTmp, slot) == false &&
-                slotTmp.getHasStack() == true && slotTmp.canTakeStack(gui.mc.player) == true &&
-                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack()) == true))
+                slotTmp.getHasStack() && slotTmp.canTakeStack(gui.mc.player) &&
+                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack())))
             {
                 ItemStack stackTmp = slotTmp.getStack();
-                if (areStacksEqual(stackTmp, stackOrig) == true)
+                if (areStacksEqual(stackTmp, stackOrig))
                 {
                     this.clickSlotsToMoveSingleItem(container, gui.mc, slotTmp.slotNumber, slot.slotNumber);
                     return;
@@ -640,11 +640,11 @@ public class InputEventHandler
         for (Slot slotTmp : container.inventorySlots)
         {
             if (slotTmp.slotNumber != slot.slotNumber &&
-                slotTmp.getHasStack() == true && slotTmp.canTakeStack(gui.mc.player) == true &&
-                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack()) == true))
+                slotTmp.getHasStack() && slotTmp.canTakeStack(gui.mc.player) &&
+                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack())))
             {
                 ItemStack stackTmp = slotTmp.getStack();
-                if (areStacksEqual(stackTmp, stackOrig) == true)
+                if (areStacksEqual(stackTmp, stackOrig))
                 {
                     this.clickSlotsToMoveSingleItem(container, gui.mc, slotTmp.slotNumber, slot.slotNumber);
                     return;
@@ -662,7 +662,7 @@ public class InputEventHandler
         {
             if (slotTmp.slotNumber != slot.slotNumber &&
                 areSlotsInSameInventory(slotTmp, slot) == toOtherInventory &&
-                (matchingOnly == false || areStacksEqual(stack, slotTmp.getStack()) == true))
+                (matchingOnly == false || areStacksEqual(stack, slotTmp.getStack())))
             {
                 boolean success = this.shiftClickSlotWithCheck(container, gui.mc, slotTmp.slotNumber);
 
@@ -672,7 +672,7 @@ public class InputEventHandler
                     this.clickSlotsToMoveItems(slot, container, gui.mc, matchingOnly, toOtherInventory);
                 }
 
-                if (firstOnly == true)
+                if (firstOnly)
                 {
                     return;
                 }
@@ -749,9 +749,9 @@ public class InputEventHandler
                 continue;
             }
 
-            if (slot.inventory == invSrc && areStacksEqual(stackTemplate, slot.getStack()) == true)
+            if (slot.inventory == invSrc && areStacksEqual(stackTemplate, slot.getStack()))
             {
-                if (fillStacks == true)
+                if (fillStacks)
                 {
                     if (this.clickSlotsToMoveItems(container, gui.mc, slot.slotNumber, slotTo) == false)
                     {
