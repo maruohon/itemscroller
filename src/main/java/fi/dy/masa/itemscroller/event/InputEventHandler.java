@@ -379,7 +379,7 @@ public class InputEventHandler
     private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, boolean leaveOneItem, boolean moveOnlyOne)
     {
         Slot slot = this.getSlotAtPosition(gui, x, y);
-        boolean cancel = false;
+        boolean cancel = leaveOneItem || moveOnlyOne;
 
         if (slot != null && slot.slotNumber != this.slotNumberLast && this.isValidSlot(slot, gui, true))
         {
