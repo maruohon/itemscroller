@@ -1,5 +1,6 @@
 package fi.dy.masa.itemscroller.event;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,6 +44,8 @@ public class InputEventHandler
     private final Field fieldGuiTop;
     private final Field fieldGuiXSize;
     private final Field fieldGuiYSize;
+    private ItemStack stackInCursorLast = null;
+    private WeakReference<Object> sourceInventory = new WeakReference<Object>(null);
 
     public InputEventHandler()
     {
@@ -53,7 +56,7 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    public void onMouseInputEvent(GuiScreenEvent.MouseInputEvent.Pre event)
+    public void onMouseInputEventPre(GuiScreenEvent.MouseInputEvent.Pre event)
     {
         int dWheel = Mouse.getEventDWheel();
         GuiScreen gui = event.getGui();
@@ -66,6 +69,7 @@ public class InputEventHandler
         if (gui instanceof GuiContainer)
         {
             boolean cancel = false;
+            this.stackInCursorLast = gui.mc.player.inventory.getItemStack();
 
             if (dWheel != 0)
             {
@@ -92,6 +96,47 @@ public class InputEventHandler
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onMouseInputEventPost(GuiScreenEvent.MouseInputEvent.Post event)
+    {
+        if (Mouse.getEventButtonState() && event.getGui() instanceof GuiContainer)
+        {
+            GuiScreen gui = event.getGui();
+
+            // Left or right mouse button was pressed
+            if (Mouse.getEventButton() == 0 || Mouse.getEventButton() == 1)
+            {
+                ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+
+                if (stackCursor == null)
+                {
+                    this.sourceInventory.clear();
+                }
+                // Picked up or swapped items to the cursor, grab a reference to the inventory that the items came from
+                else if (areStacksEqual(this.stackInCursorLast, stackCursor) == false)
+                {
+                    Object inv = getInventoryFromSlot(((GuiContainer) gui).getSlotUnderMouse());
+                    this.sourceInventory = new WeakReference<Object>(inv);
+                }
+            }
+        }
+    }
+
+    public static void debugPrintSlotInfo(GuiContainer gui, Slot slot)
+    {
+        if (slot == null)
+        {
+            System.out.printf("slot was null\n");
+            return;
+        }
+
+        boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
+        Object inv = getInventoryFromSlot(slot);
+        System.out.printf("slot: slotNum: %3d - invIndex: %4d - Container has slot: %s - Slot#hasStack(): %5s - class: %s - inv: %s - stack: %s\n",
+                slot.slotNumber, slot.getSlotIndex(), hasSlot ? " true" : "false", slot.getHasStack(), slot.getClass().getName(),
+                inv != null ? inv.getClass().getName() : "null", slot.getStack());
     }
 
     private boolean isValidSlot(Slot slot, GuiContainer gui, boolean requireItems)
@@ -149,7 +194,8 @@ public class InputEventHandler
 
     private boolean canShiftDropItems(GuiContainer gui)
     {
-        if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0)
+        if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0 ||
+            gui.mc.player.inventory.getItemStack() == null)
         {
             return false;
         }
@@ -177,22 +223,32 @@ public class InputEventHandler
 
         boolean isOutsideGui = mouseAbsX < left || mouseAbsY < top || mouseAbsX >= left + xSize || mouseAbsY >= top + ySize;
 
-        return isOutsideGui && this.getSlotAtPosition(gui, mouseAbsX - left, mouseAbsY - top) == null &&
-                gui.mc.player.inventory.getItemStack() != null;
+        return isOutsideGui && this.getSlotAtPosition(gui, mouseAbsX - left, mouseAbsY - top) == null;
     }
 
     private void shiftDropItems(GuiContainer gui)
     {
         EntityPlayer player = gui.mc.player;
-        ItemStack stackCursor = player.inventory.getItemStack();
         Container container = gui.inventorySlots;
+
+        if (player.inventory.getItemStack() == null)
+        {
+            return;
+        }
+
+        ItemStack stackReference = player.inventory.getItemStack().copy();
 
         // First drop the existing stack from the cursor
         gui.mc.playerController.windowClick(container.windowId, -999, 0, ClickType.PICKUP, player);
 
         for (Slot slot : container.inventorySlots)
         {
-            if (areStacksEqual(slot.getStack(), stackCursor))
+            Object sourceInv = this.sourceInventory.get();
+            // If this slot is in the same inventory that the items were picked up to the cursor from
+            // and the stack is identical to the one in the cursor, then this stack will get dropped.
+            if (
+                (sourceInv != null && getInventoryFromSlot(slot) == sourceInv) &&
+                areStacksEqual(slot.getStack(), stackReference))
             {
                 // Pick up the items
                 gui.mc.playerController.windowClick(container.windowId, slot.slotNumber, 0, ClickType.PICKUP, player);
@@ -775,6 +831,11 @@ public class InputEventHandler
         }
 
         return slot1.inventory == slot2.inventory;
+    }
+
+    private static Object getInventoryFromSlot(Slot slot)
+    {
+        return slot instanceof SlotItemHandler ? ((SlotItemHandler) slot).getItemHandler() : slot.inventory;
     }
 
     private ItemStack[] getOriginalStacks(Container container)
