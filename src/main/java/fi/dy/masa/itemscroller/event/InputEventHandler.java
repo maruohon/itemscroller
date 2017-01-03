@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
@@ -45,7 +46,8 @@ public class InputEventHandler
     private final Field fieldGuiXSize;
     private final Field fieldGuiYSize;
     private ItemStack stackInCursorLast = null;
-    private WeakReference<Object> sourceInventory = new WeakReference<Object>(null);
+    private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
+    private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
 
     public InputEventHandler()
     {
@@ -58,36 +60,32 @@ public class InputEventHandler
     @SubscribeEvent
     public void onMouseInputEventPre(GuiScreenEvent.MouseInputEvent.Pre event)
     {
-        int dWheel = Mouse.getEventDWheel();
-        GuiScreen gui = event.getGui();
-
-        if (gui instanceof GuiContainerCreative)
+        if (event.getGui() instanceof GuiContainer && (event.getGui() instanceof GuiContainerCreative) == false)
         {
-            return;
-        }
-
-        if (gui instanceof GuiContainer)
-        {
+            GuiContainer gui = (GuiContainer) event.getGui();
             boolean cancel = false;
-            this.stackInCursorLast = gui.mc.player.inventory.getItemStack();
+            int dWheel = Mouse.getEventDWheel();
 
             if (dWheel != 0)
             {
-                this.tryMoveItems((GuiContainer) gui, dWheel > 0);
+                this.tryMoveItems(gui, dWheel > 0);
             }
             else
             {
-                if (Configs.enableShiftPlaceItems && this.canShiftPlaceItems((GuiContainer) gui))
+                this.checkForItemPickup(gui);
+                this.storeSourceSlotCandidate(gui);
+
+                if (Configs.enableShiftPlaceItems && this.canShiftPlaceItems(gui))
                 {
-                    cancel = this.shiftPlaceItems((GuiContainer) gui);
+                    cancel = this.shiftPlaceItems(gui);
                 }
-                else if (Configs.enableShiftDropItems && this.canShiftDropItems((GuiContainer) gui))
+                else if (Configs.enableShiftDropItems && this.canShiftDropItems(gui))
                 {
-                    this.shiftDropItems((GuiContainer) gui);
+                    this.shiftDropItems(gui);
                 }
                 else if (Configs.enableDragMovingShiftLeft || Configs.enableDragMovingShiftRight || Configs.enableDragMovingControlLeft)
                 {
-                    cancel = this.dragMoveItems((GuiContainer) gui);
+                    cancel = this.dragMoveItems(gui);
                 }
             }
 
@@ -99,28 +97,55 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    public void onMouseInputEventPost(GuiScreenEvent.MouseInputEvent.Post event)
+    public void onKeyInputEventPre(GuiScreenEvent.KeyboardInputEvent.Pre event)
     {
-        if (Mouse.getEventButtonState() && event.getGui() instanceof GuiContainer)
+        if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
+            GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() && event.getGui() instanceof GuiContainer &&
+            event.getGui().mc.gameSettings.keyBindDrop.isActiveAndMatches(Keyboard.getEventKey()))
         {
-            GuiScreen gui = event.getGui();
+            GuiContainer gui = (GuiContainer) event.getGui();
+            Slot slot = gui.getSlotUnderMouse();
 
-            // Left or right mouse button was pressed
-            if (Mouse.getEventButton() == 0 || Mouse.getEventButton() == 1)
+            if (slot != null && slot.getHasStack())
+            {
+                this.dropStacks(gui, slot.getStack(), slot);
+            }
+        }
+    }
+
+    private void storeSourceSlotCandidate(GuiContainer gui)
+    {
+        // Left or right mouse button was pressed
+        if (Mouse.getEventButtonState() && (Mouse.getEventButton() == 0 || Mouse.getEventButton() == 1))
+        {
+            Slot slot = gui.getSlotUnderMouse();
+
+            if (slot != null)
             {
                 ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+                ItemStack stack = null;
 
-                if (stackCursor == null)
+                if (stackCursor != null)
                 {
-                    this.sourceInventory.clear();
+                    // Do a cheap copy without NBT data
+                    stack = new ItemStack(stackCursor.getItem(), stackCursor.stackSize, stackCursor.getMetadata());
                 }
-                // Picked up or swapped items to the cursor, grab a reference to the inventory that the items came from
-                else if (areStacksEqual(this.stackInCursorLast, stackCursor) == false)
-                {
-                    Object inv = getInventoryFromSlot(((GuiContainer) gui).getSlotUnderMouse());
-                    this.sourceInventory = new WeakReference<Object>(inv);
-                }
+
+                this.stackInCursorLast = stack;
+                this.sourceSlotCandidate = new WeakReference<Slot>(slot);
             }
+        }
+    }
+
+    private void checkForItemPickup(GuiContainer gui)
+    {
+        ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+
+        // Picked up or swapped items to the cursor, grab a reference to the slot that the items came from
+        // Note that we are only checking the item and metadata here!
+        if (stackCursor != null && stackCursor.isItemEqual(this.stackInCursorLast) == false)
+        {
+            this.sourceSlot = new WeakReference<Slot>(this.sourceSlotCandidate.get());
         }
     }
 
@@ -133,7 +158,8 @@ public class InputEventHandler
         }
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
-        Object inv = getInventoryFromSlot(slot);
+        Object inv = slot instanceof SlotItemHandler ? ((SlotItemHandler) slot).getItemHandler() : slot.inventory;
+
         System.out.printf("slot: slotNum: %3d - invIndex: %4d - Container has slot: %s - Slot#hasStack(): %5s - class: %s - inv: %s - stack: %s\n",
                 slot.slotNumber, slot.getSlotIndex(), hasSlot ? " true" : "false", slot.getHasStack(), slot.getClass().getName(),
                 inv != null ? inv.getClass().getName() : "null", slot.getStack());
@@ -200,30 +226,24 @@ public class InputEventHandler
             return false;
         }
 
-        int left = 0;
-        int top = 0;
-        int xSize = 0;
-        int ySize = 0;
-        int mouseAbsX = 0;
-        int mouseAbsY = 0;
-
         try
         {
-            left = this.fieldGuiLeft.getInt(gui);
-            top = this.fieldGuiTop.getInt(gui);
-            xSize = this.fieldGuiXSize.getInt(gui);
-            ySize = this.fieldGuiYSize.getInt(gui);
-            mouseAbsX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
-            mouseAbsY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
+            int left = this.fieldGuiLeft.getInt(gui);
+            int top = this.fieldGuiTop.getInt(gui);
+            int xSize = this.fieldGuiXSize.getInt(gui);
+            int ySize = this.fieldGuiYSize.getInt(gui);
+            int mouseAbsX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
+            int mouseAbsY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
+            boolean isOutsideGui = mouseAbsX < left || mouseAbsY < top || mouseAbsX >= left + xSize || mouseAbsY >= top + ySize;
+
+            return isOutsideGui && this.getSlotAtPosition(gui, mouseAbsX - left, mouseAbsY - top) == null;
         }
         catch (IllegalAccessException e)
         {
             ItemScroller.logger.warn("Failed to reflect GuiContainer#guiLeft or guiTop or xSize or ySize");
         }
 
-        boolean isOutsideGui = mouseAbsX < left || mouseAbsY < top || mouseAbsX >= left + xSize || mouseAbsY >= top + ySize;
-
-        return isOutsideGui && this.getSlotAtPosition(gui, mouseAbsX - left, mouseAbsY - top) == null;
+        return false;
     }
 
     private void shiftDropItems(GuiContainer gui)
@@ -241,19 +261,24 @@ public class InputEventHandler
         // First drop the existing stack from the cursor
         gui.mc.playerController.windowClick(container.windowId, -999, 0, ClickType.PICKUP, player);
 
-        for (Slot slot : container.inventorySlots)
+        this.dropStacks(gui, stackReference, this.sourceSlot.get());
+    }
+
+    private void dropStacks(GuiContainer gui, ItemStack stackReference, Slot sourceInvSlot)
+    {
+        if (sourceInvSlot != null)
         {
-            Object sourceInv = this.sourceInventory.get();
-            // If this slot is in the same inventory that the items were picked up to the cursor from
-            // and the stack is identical to the one in the cursor, then this stack will get dropped.
-            if (
-                (sourceInv != null && getInventoryFromSlot(slot) == sourceInv) &&
-                areStacksEqual(slot.getStack(), stackReference))
+            Container container = gui.inventorySlots;
+
+            for (Slot slot : container.inventorySlots)
             {
-                // Pick up the items
-                gui.mc.playerController.windowClick(container.windowId, slot.slotNumber, 0, ClickType.PICKUP, player);
-                // Drop the items
-                gui.mc.playerController.windowClick(container.windowId, -999, 0, ClickType.PICKUP, player);
+                // If this slot is in the same inventory that the items were picked up to the cursor from
+                // and the stack is identical to the one in the cursor, then this stack will get dropped.
+                if (areSlotsInSameInventory(slot, sourceInvSlot) && areStacksEqual(slot.getStack(), stackReference))
+                {
+                    // Drop the stack
+                    gui.mc.playerController.windowClick(container.windowId, slot.slotNumber, 1, ClickType.THROW, gui.mc.player);
+                }
             }
         }
     }
@@ -831,11 +856,6 @@ public class InputEventHandler
         }
 
         return slot1.inventory == slot2.inventory;
-    }
-
-    private static Object getInventoryFromSlot(Slot slot)
-    {
-        return slot instanceof SlotItemHandler ? ((SlotItemHandler) slot).getItemHandler() : slot.inventory;
     }
 
     private ItemStack[] getOriginalStacks(Container container)
