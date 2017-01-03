@@ -383,7 +383,7 @@ public class InputEventHandler
     private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, boolean leaveOneItem, boolean moveOnlyOne)
     {
         Slot slot = this.getSlotAtPosition(gui, x, y);
-        boolean success = false;
+        boolean cancel = false;
 
         if (slot != null && slot.slotNumber != this.slotNumberLast && this.isValidSlot(slot, gui, true))
         {
@@ -391,26 +391,26 @@ public class InputEventHandler
             {
                 if (moveOnlyOne)
                 {
-                    success = this.tryMoveSingleItemToOtherInventory(slot, gui);
+                    cancel = this.tryMoveSingleItemToOtherInventory(slot, gui);
                 }
                 else if (leaveOneItem)
                 {
-                    success = this.tryMoveAllButOneItemToOtherInventory(slot, gui);
+                    cancel = this.tryMoveAllButOneItemToOtherInventory(slot, gui);
                 }
                 else
                 {
                     this.shiftClickSlot(gui.inventorySlots, gui.mc, slot.slotNumber);
-                    success = true;
+                    cancel = true;
                 }
 
                 this.draggedSlots.add(slot.slotNumber);
             }
 
             // Cancel the event to prevent further processing (and thus a transferStackInSlot() call)
-            return success;
+            return cancel;
         }
 
-        return success;
+        return cancel;
     }
 
     private Slot getSlotAtPosition(GuiContainer gui, int x, int y)
@@ -616,7 +616,7 @@ public class InputEventHandler
         if (stackOrig.stackSize == 1 || stackOrig.stackSize > stackOrig.getMaxStackSize() ||
             slot.canTakeStack(player) == false || slot.isItemValid(stackOrig) == false)
         {
-            return false;
+            return true;
         }
 
         Container container = gui.inventorySlots;
