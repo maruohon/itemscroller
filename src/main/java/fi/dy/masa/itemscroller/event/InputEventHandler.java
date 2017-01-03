@@ -122,9 +122,7 @@ public class InputEventHandler
 
     private boolean canShiftPlaceItems(GuiContainer gui)
     {
-        boolean eventKeyIsLeftButton = (Mouse.getEventButton() - 100) == gui.mc.gameSettings.keyBindAttack.getKeyCode();
-
-        if (GuiScreen.isShiftKeyDown() == false || eventKeyIsLeftButton == false)
+        if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0)
         {
             return false;
         }
@@ -151,9 +149,7 @@ public class InputEventHandler
 
     private boolean canShiftDropItems(GuiContainer gui)
     {
-        boolean eventKeyIsLeftButton = (Mouse.getEventButton() - 100) == gui.mc.gameSettings.keyBindAttack.getKeyCode();
-
-        if (GuiScreen.isShiftKeyDown() == false || eventKeyIsLeftButton == false)
+        if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0)
         {
             return false;
         }
@@ -213,14 +209,13 @@ public class InputEventHandler
             return false;
         }
 
+        boolean eventKeyIsLeftButton = Mouse.getEventButton() == 0;
+        boolean eventKeyIsRightButton = Mouse.getEventButton() == 1;
         boolean leftButtonDown = Mouse.isButtonDown(0);
         boolean rightButtonDown = Mouse.isButtonDown(1);
         boolean isShiftDown = GuiScreen.isShiftKeyDown();
         boolean isControlDown = GuiScreen.isCtrlKeyDown();
         boolean eitherMouseButtonDown = leftButtonDown || rightButtonDown;
-        boolean eventKeyIsLeftButton = (Mouse.getEventButton() - 100) == gui.mc.gameSettings.keyBindAttack.getKeyCode();
-        boolean eventKeyIsRightButton = (Mouse.getEventButton() - 100) == gui.mc.gameSettings.keyBindUseItem.getKeyCode();
-        boolean eventButtonState = Mouse.getEventButtonState();
 
         if ((isShiftDown && leftButtonDown && Configs.enableDragMovingShiftLeft == false) ||
             (isShiftDown && rightButtonDown && Configs.enableDragMovingShiftRight == false) ||
@@ -235,7 +230,7 @@ public class InputEventHandler
         int mouseY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
         boolean cancel = false;
 
-        if (eventButtonState == true)
+        if (Mouse.getEventButtonState())
         {
             if (((eventKeyIsLeftButton || eventKeyIsRightButton) && isControlDown && Configs.enableDragMovingControlLeft) ||
                 (eventKeyIsRightButton && isShiftDown && Configs.enableDragMovingShiftRight))
