@@ -63,12 +63,12 @@ public class InputEventHandler
         if (event.getGui() instanceof GuiContainer && (event.getGui() instanceof GuiContainerCreative) == false)
         {
             GuiContainer gui = (GuiContainer) event.getGui();
-            boolean cancel = false;
             int dWheel = Mouse.getEventDWheel();
+            boolean cancel = false;
 
             if (dWheel != 0)
             {
-                this.tryMoveItems(gui, dWheel > 0);
+                cancel = this.tryMoveItems(gui, dWheel > 0);
             }
             else
             {
@@ -81,7 +81,7 @@ public class InputEventHandler
                 }
                 else if (Configs.enableShiftDropItems && this.canShiftDropItems(gui))
                 {
-                    this.shiftDropItems(gui);
+                    cancel = this.shiftDropItems(gui);
                 }
                 else if (Configs.enableDragMovingShiftLeft || Configs.enableDragMovingShiftRight || Configs.enableDragMovingControlLeft)
                 {
@@ -255,7 +255,7 @@ public class InputEventHandler
         return false;
     }
 
-    private void shiftDropItems(GuiContainer gui)
+    private boolean shiftDropItems(GuiContainer gui)
     {
         ItemStack stackReference = gui.mc.player.inventory.getItemStack();
 
@@ -267,7 +267,10 @@ public class InputEventHandler
             this.dropItemsFromCursor(gui);
 
             this.dropStacks(gui, stackReference, this.sourceSlot.get());
+            return true;
         }
+
+        return false;
     }
 
     private void dropStacks(GuiContainer gui, ItemStack stackReference, Slot sourceInvSlot)
@@ -537,11 +540,13 @@ public class InputEventHandler
             {
                 this.tryMoveStacks(slot, gui, true, moveToOtherInventory, true);
             }
+            return true;
         }
         // Ctrl + scroll: Move all matching stacks
         else if (isCtrlDown)
         {
             this.tryMoveStacks(slot, gui, true, moveToOtherInventory, false);
+            return true;
         }
         // No Ctrl or Shift
         else
@@ -551,12 +556,12 @@ public class InputEventHandler
             // Scrolling items from this slot/inventory into the other inventory
             if (moveToOtherInventory)
             {
-                this.tryMoveSingleItemToOtherInventory(slot, gui);
+                return this.tryMoveSingleItemToOtherInventory(slot, gui);
             }
             // Scrolling items from the other inventory into this slot/inventory
             else if (getStackSize(stack) < slot.getItemStackLimit(stack))
             {
-                this.tryMoveSingleItemToThisInventory(slot, gui);
+                return this.tryMoveSingleItemToThisInventory(slot, gui);
             }
         }
 
@@ -688,14 +693,14 @@ public class InputEventHandler
         return false;
     }
 
-    private void tryMoveSingleItemToThisInventory(Slot slot, GuiContainer gui)
+    private boolean tryMoveSingleItemToThisInventory(Slot slot, GuiContainer gui)
     {
         Container container = gui.inventorySlots;
         ItemStack stackOrig = slot.getStack();
 
         if (slot.isItemValid(stackOrig) == false)
         {
-            return;
+            return false;
         }
 
         for (int slotNum = container.inventorySlots.size() - 1; slotNum >= 0; slotNum--)
@@ -709,8 +714,7 @@ public class InputEventHandler
             {
                 if (areStacksEqual(stackTmp, stackOrig))
                 {
-                    this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
-                    return;
+                    return this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
                 }
             }
         }
@@ -728,12 +732,13 @@ public class InputEventHandler
             {
                 if (areStacksEqual(stackTmp, stackOrig))
                 {
-                    this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
-                    return;
+                    return this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
                 }
             }
         }
         */
+
+        return false;
     }
 
     private void tryMoveStacks(Slot slot, GuiContainer gui, boolean matchingOnly, boolean toOtherInventory, boolean firstOnly)
