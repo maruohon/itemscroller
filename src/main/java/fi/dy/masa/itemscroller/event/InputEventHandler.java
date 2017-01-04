@@ -25,7 +25,6 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToAccessFieldException;
 import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -40,13 +39,14 @@ public class InputEventHandler
     private int lastPosY;
     private int slotNumberLast;
     private final Set<Integer> draggedSlots = new HashSet<Integer>();
+    private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
+    private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
+    private ItemStack stackInCursorLast = null;
     private final Field fieldGuiLeft;
     private final Field fieldGuiTop;
     private final Field fieldGuiXSize;
     private final Field fieldGuiYSize;
-    private ItemStack stackInCursorLast = null;
-    private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
-    private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
+    private final Field fieldSelectedMerchantRecipe;
 
     public InputEventHandler()
     {
@@ -54,6 +54,7 @@ public class InputEventHandler
         this.fieldGuiTop =   ReflectionHelper.findField(GuiContainer.class, "field_147009_r", "guiTop");
         this.fieldGuiXSize = ReflectionHelper.findField(GuiContainer.class, "field_146999_f", "xSize");
         this.fieldGuiYSize = ReflectionHelper.findField(GuiContainer.class, "field_147000_g", "ySize");
+        this.fieldSelectedMerchantRecipe = ReflectionHelper.findField(GuiMerchant.class, "field_147041_z", "selectedMerchantRecipe");
     }
 
     @SubscribeEvent
@@ -98,6 +99,7 @@ public class InputEventHandler
     @SubscribeEvent
     public void onKeyInputEventPre(GuiScreenEvent.KeyboardInputEvent.Pre event)
     {
+        // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
         if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
             GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() && event.getGui() instanceof GuiContainer &&
             event.getGui().mc.gameSettings.keyBindDrop.isActiveAndMatches(Keyboard.getEventKey()))
@@ -112,6 +114,11 @@ public class InputEventHandler
         }
     }
 
+    /**
+     * Store a reference to the slot when a slot is left or right clicked on.
+     * The slot is then later used to determine which inventory an ItemStack was
+     * picked up from, if the stack from the cursor is dropped while holding shift.
+     */
     private void storeSourceSlotCandidate(GuiContainer gui)
     {
         // Left or right mouse button was pressed
@@ -122,12 +129,12 @@ public class InputEventHandler
             if (slot != null)
             {
                 ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
-                ItemStack stack = null;
+                ItemStack stack = EMPTY_STACK;
 
-                if (stackCursor != null)
+                if (isStackEmpty(stackCursor) == false)
                 {
                     // Do a cheap copy without NBT data
-                    stack = new ItemStack(stackCursor.getItem(), stackCursor.stackSize, stackCursor.getMetadata());
+                    stack = new ItemStack(stackCursor.getItem(), getStackSize(stackCursor), stackCursor.getMetadata());
                 }
 
                 this.stackInCursorLast = stack;
@@ -136,13 +143,16 @@ public class InputEventHandler
         }
     }
 
+    /**
+     * Check if the (previous) mouse event resulted in picking up a new ItemStack to the cursor
+     */
     private void checkForItemPickup(GuiContainer gui)
     {
         ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
 
         // Picked up or swapped items to the cursor, grab a reference to the slot that the items came from
         // Note that we are only checking the item and metadata here!
-        if (stackCursor != null && stackCursor.isItemEqual(this.stackInCursorLast) == false)
+        if (isStackEmpty(stackCursor) == false && stackCursor.isItemEqual(this.stackInCursorLast) == false)
         {
             this.sourceSlot = new WeakReference<Slot>(this.sourceSlotCandidate.get());
         }
@@ -201,7 +211,7 @@ public class InputEventHandler
         ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
 
         // The target slot needs to be an empty, valid slot, and there needs to be items in the cursor
-        return slot != null && stackCursor != null && this.isValidSlot(slot, gui, false) &&
+        return slot != null && isStackEmpty(stackCursor) == false && this.isValidSlot(slot, gui, false) &&
                slot.getHasStack() == false && slot.isItemValid(stackCursor);
     }
 
@@ -220,7 +230,7 @@ public class InputEventHandler
     private boolean canShiftDropItems(GuiContainer gui)
     {
         if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0 ||
-            gui.mc.player.inventory.getItemStack() == null)
+            isStackEmpty(gui.mc.player.inventory.getItemStack()))
         {
             return false;
         }
@@ -249,7 +259,7 @@ public class InputEventHandler
     {
         ItemStack stackReference = gui.mc.player.inventory.getItemStack();
 
-        if (stackReference != null)
+        if (isStackEmpty(stackReference) == false)
         {
             stackReference = stackReference.copy();
 
@@ -281,7 +291,7 @@ public class InputEventHandler
 
     private boolean dragMoveItems(GuiContainer gui)
     {
-        if (gui.mc.player.inventory.getItemStack() != null)
+        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
         {
             return false;
         }
@@ -479,8 +489,10 @@ public class InputEventHandler
         // Villager handling only happens when scrolling over the trade output slot
         boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
 
-        // Check that the cursor is empty, and the slot is valid (don't require items in case of the villager output slot)
-        if (gui.mc.player.inventory.getItemStack() != null || this.isValidSlot(slot, gui, villagerHandling ? false : true) == false)
+        // Check that the cursor is empty, and the slot is valid
+        // (don't require items in case of the villager output slot)
+        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false ||
+            this.isValidSlot(slot, gui, villagerHandling ? false : true) == false)
         {
             return false;
         }
@@ -490,7 +502,8 @@ public class InputEventHandler
         if (Configs.useSlotPositionAwareScrollDirection)
         {
             boolean above = this.inventoryExistsAbove(slot, gui.inventorySlots);
-            moveToOtherInventory = above == scrollingUp; // so basically: (above && scrollingUp) || (above == false && scrollingUp == false)
+            // so basically: (above && scrollingUp) || (above == false && scrollingUp == false)
+            moveToOtherInventory = above == scrollingUp;
         }
 
         if ((Configs.reverseScrollDirectionSingle && isShiftDown == false) ||
@@ -541,7 +554,7 @@ public class InputEventHandler
                 this.tryMoveSingleItemToOtherInventory(slot, gui);
             }
             // Scrolling items from the other inventory into this slot/inventory
-            else if (stack.stackSize < slot.getItemStackLimit(stack))
+            else if (getStackSize(stack) < slot.getItemStackLimit(stack))
             {
                 this.tryMoveSingleItemToThisInventory(slot, gui);
             }
@@ -555,20 +568,20 @@ public class InputEventHandler
         ItemStack stackOrig = slot.getStack();
         Container container = gui.inventorySlots;
 
-        if (gui.mc.player.inventory.getItemStack() != null || slot.canTakeStack(gui.mc.player) == false ||
-            (stackOrig.stackSize > 1 && slot.isItemValid(stackOrig) == false))
+        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false || slot.canTakeStack(gui.mc.player) == false ||
+            (getStackSize(stackOrig) > 1 && slot.isItemValid(stackOrig) == false))
         {
             return false;
         }
 
         // Can take all the items to the cursor at once, use a shift-click method to move one item from the slot
-        if (stackOrig.stackSize <= stackOrig.getMaxStackSize())
+        if (getStackSize(stackOrig) <= stackOrig.getMaxStackSize())
         {
             return this.clickSlotsToMoveSingleItemByShiftClick(gui, slot.slotNumber);
         }
 
         ItemStack stack = stackOrig.copy();
-        stack.stackSize = 1;
+        setStackSize(stack, 1);
 
         ItemStack[] originalStacks = this.getOriginalStacks(container);
 
@@ -606,34 +619,32 @@ public class InputEventHandler
         EntityPlayer player = gui.mc.player;
         ItemStack stackOrig = slot.getStack().copy();
 
-        if (stackOrig.stackSize == 1 || stackOrig.stackSize > stackOrig.getMaxStackSize() ||
+        if (getStackSize(stackOrig) == 1 || getStackSize(stackOrig) > stackOrig.getMaxStackSize() ||
             slot.canTakeStack(player) == false || slot.isItemValid(stackOrig) == false)
         {
             return true;
         }
 
-        Container container = gui.inventorySlots;
-
         // Take half of the items from the original slot to the cursor
         this.rightClickSlot(gui, slot.slotNumber);
 
         ItemStack stackInCursor = player.inventory.getItemStack();
-        if (stackInCursor == null)
+        if (isStackEmpty(stackInCursor))
         {
             return false;
         }
 
-        int stackInCursorSizeOrig = stackInCursor.stackSize;
+        int stackInCursorSizeOrig = getStackSize(stackInCursor);
         int tempSlotNum = -1;
 
         // Find some other slot where to store one of the items temporarily
-        for (Slot slotTmp : container.inventorySlots)
+        for (Slot slotTmp : gui.inventorySlots.inventorySlots)
         {
             if (slotTmp.slotNumber != slot.slotNumber && slotTmp.isItemValid(stackInCursor))
             {
                 ItemStack stackInSlot = slotTmp.getStack();
 
-                if (stackInSlot == null || areStacksEqual(stackInSlot, stackInCursor))
+                if (isStackEmpty(stackInSlot) || areStacksEqual(stackInSlot, stackInCursor))
                 {
                     // Try to put one item into the temporary slot
                     this.rightClickSlot(gui, slotTmp.slotNumber);
@@ -641,7 +652,7 @@ public class InputEventHandler
                     stackInCursor = player.inventory.getItemStack();
 
                     // Successfully stored one item
-                    if (stackInCursor == null || stackInCursor.stackSize < stackInCursorSizeOrig)
+                    if (isStackEmpty(stackInCursor) || getStackSize(stackInCursor) < stackInCursorSizeOrig)
                     {
                         tempSlotNum = slotTmp.slotNumber;
                         break;
@@ -666,7 +677,7 @@ public class InputEventHandler
             this.rightClickSlot(gui, slot.slotNumber);
 
             // Return the rest of the items to the temporary slot, if any
-            if (player.inventory.getItemStack() != null)
+            if (isStackEmpty(player.inventory.getItemStack()) == false)
             {
                 this.leftClickSlot(gui, tempSlotNum);
             }
@@ -690,12 +701,12 @@ public class InputEventHandler
         for (int slotNum = container.inventorySlots.size() - 1; slotNum >= 0; slotNum--)
         {
             Slot slotTmp = container.inventorySlots.get(slotNum);
+            ItemStack stackTmp = slotTmp.getStack();
 
             if (areSlotsInSameInventory(slotTmp, slot) == false &&
-                slotTmp.getHasStack() && slotTmp.canTakeStack(gui.mc.player) &&
-                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack())))
+                isStackEmpty(stackTmp) == false && slotTmp.canTakeStack(gui.mc.player) &&
+                (getStackSize(stackTmp) == 1 || slotTmp.isItemValid(stackTmp)))
             {
-                ItemStack stackTmp = slotTmp.getStack();
                 if (areStacksEqual(stackTmp, stackOrig))
                 {
                     this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
@@ -706,13 +717,15 @@ public class InputEventHandler
 
         // If we weren't able to move any items from another inventory, then try to move items
         // within the same inventory (mostly between the hotbar and the player inventory)
+        /*
         for (Slot slotTmp : container.inventorySlots)
         {
+            ItemStack stackTmp = slotTmp.getStack();
+
             if (slotTmp.slotNumber != slot.slotNumber &&
-                slotTmp.getHasStack() && slotTmp.canTakeStack(gui.mc.player) &&
-                (slotTmp.getStack().stackSize == 1 || slotTmp.isItemValid(slotTmp.getStack())))
+                isStackEmpty(stackTmp) == false && slotTmp.canTakeStack(gui.mc.player) &&
+                (getStackSize(stackTmp) == 1 || slotTmp.isItemValid(stackTmp)))
             {
-                ItemStack stackTmp = slotTmp.getStack();
                 if (areStacksEqual(stackTmp, stackOrig))
                 {
                     this.clickSlotsToMoveSingleItem(gui, slotTmp.slotNumber, slot.slotNumber);
@@ -720,18 +733,19 @@ public class InputEventHandler
                 }
             }
         }
+        */
     }
 
     private void tryMoveStacks(Slot slot, GuiContainer gui, boolean matchingOnly, boolean toOtherInventory, boolean firstOnly)
     {
         Container container = gui.inventorySlots;
-        ItemStack stack = slot.getStack();
+        ItemStack stackReference = slot.getStack();
 
         for (Slot slotTmp : container.inventorySlots)
         {
             if (slotTmp.slotNumber != slot.slotNumber &&
                 areSlotsInSameInventory(slotTmp, slot) == toOtherInventory &&
-                (matchingOnly == false || areStacksEqual(stack, slotTmp.getStack())))
+                (matchingOnly == false || areStacksEqual(stackReference, slotTmp.getStack())))
             {
                 boolean success = this.shiftClickSlotWithCheck(gui, slotTmp.slotNumber);
 
@@ -762,9 +776,9 @@ public class InputEventHandler
 
         try
         {
-            index = ReflectionHelper.getPrivateValue(GuiMerchant.class, gui, "field_147041_z", "selectedMerchantRecipe");
+            index = this.fieldSelectedMerchantRecipe.getInt(gui);
         }
-        catch (UnableToAccessFieldException e)
+        catch (IllegalAccessException e)
         {
             ItemScroller.logger.warn("Failed to get the value of GuiMerchant.selectedMerchantRecipe");
         }
@@ -783,12 +797,12 @@ public class InputEventHandler
         ItemStack buy1 = recipe.getItemToBuy();
         ItemStack buy2 = recipe.getSecondItemToBuy();
 
-        if (buy1 != null)
+        if (isStackEmpty(buy1) == false)
         {
             this.fillBuySlot(gui, 0, buy1, fillStacks);
         }
 
-        if (buy2 != null)
+        if (isStackEmpty(buy2) == false)
         {
             this.fillBuySlot(gui, 1, buy2, fillStacks);
         }
@@ -797,14 +811,20 @@ public class InputEventHandler
     private void fillBuySlot(GuiContainer gui, int slotNum, ItemStack buyStack, boolean fillStacks)
     {
         Slot slot = gui.inventorySlots.getSlot(slotNum);
+        ItemStack existingStack = slot.getStack();
 
         // If there are items not matching the merchant recipe, move them out first
-        if (areStacksEqual(buyStack, slot.getStack()) == false)
+        if (isStackEmpty(existingStack) == false && areStacksEqual(buyStack, existingStack) == false)
         {
             this.shiftClickSlot(gui, slotNum);
         }
 
-        this.moveItemsFromInventory(gui, slotNum, gui.mc.player.inventory, buyStack, fillStacks);
+        existingStack = slot.getStack();
+
+        if (isStackEmpty(existingStack) || areStacksEqual(buyStack, existingStack))
+        {
+            this.moveItemsFromInventory(gui, slotNum, gui.mc.player.inventory, buyStack, fillStacks);
+        }
     }
 
     private void moveItemsFromInventory(GuiContainer gui, int slotTo, IInventory invSrc, ItemStack stackTemplate, boolean fillStacks)
@@ -868,8 +888,9 @@ public class InputEventHandler
         for (int i = 0; i < originalStacks.length; i++)
         {
             ItemStack stackSlot = container.getSlot(i).getStack();
+
             if (areStacksEqual(stackSlot, originalStacks[i]) == false ||
-                (stackSlot != null && originalStacks[i] != null && stackSlot.stackSize != originalStacks[i].stackSize))
+                (isStackEmpty(stackSlot) == false && getStackSize(stackSlot) != getStackSize(originalStacks[i])))
             {
                 container.putStackInSlot(i, originalStacks[i]);
             }
@@ -885,8 +906,9 @@ public class InputEventHandler
             ItemStack stackOrig = originalStacks[i];
             ItemStack stackNew = slots.get(i).getStack();
 
-            if ((stackOrig == null && stackNew != null) ||
-               (stackOrig != null && stackNew != null && stackNew.stackSize == (stackOrig.stackSize + 1)))
+            if ((isStackEmpty(stackOrig) && isStackEmpty(stackNew) == false) ||
+               (isStackEmpty(stackOrig) == false && isStackEmpty(stackNew) == false &&
+               getStackSize(stackNew) == (getStackSize(stackOrig) + 1)))
             {
                 return i;
             }
@@ -920,7 +942,7 @@ public class InputEventHandler
         // Left click to pick up the found source stack
         this.leftClickSlot(gui, slotFrom.slotNumber);
 
-        if (player.inventory.getItemStack() == null)
+        if (isStackEmpty(player.inventory.getItemStack()))
         {
             return;
         }
@@ -930,20 +952,20 @@ public class InputEventHandler
             ItemStack stackDst = slotDst.getStack();
 
             if (areSlotsInSameInventory(slotDst, slotCursor) != toOtherInventory &&
-                (stackDst == null || areStacksEqual(stackDst, player.inventory.getItemStack())))
+                (isStackEmpty(stackDst) || areStacksEqual(stackDst, player.inventory.getItemStack())))
             {
                 // Left click to (try and) place items to the slot
                 this.leftClickSlot(gui, slotDst.slotNumber);
             }
 
-            if (player.inventory.getItemStack() == null)
+            if (isStackEmpty(player.inventory.getItemStack()))
             {
                 return;
             }
         }
 
         // Couldn't fit the entire stack to the target inventory, return the rest of the items
-        if (player.inventory.getItemStack() != null)
+        if (isStackEmpty(player.inventory.getItemStack()) == false)
         {
             this.leftClickSlot(gui, slotFrom.slotNumber);
         }
@@ -952,18 +974,16 @@ public class InputEventHandler
     private boolean clickSlotsToMoveSingleItem(GuiContainer gui, int slotFrom, int slotTo)
     {
         //System.out.println("clickSlotsToMoveSingleItem(from: " + slotFrom + ", to: " + slotTo + ")");
-
         ItemStack stack = gui.inventorySlots.inventorySlots.get(slotFrom).getStack();
-        if (stack == null)
+
+        if (isStackEmpty(stack))
         {
             return false;
         }
 
-        EntityPlayer player = gui.mc.player;
-
         // Click on the from-slot to take items to the cursor - if there is more than one item in the from-slot,
         // right click on it, otherwise left click.
-        if (stack.stackSize > 1)
+        if (getStackSize(stack) > 1)
         {
             this.rightClickSlot(gui, slotFrom);
         }
@@ -976,7 +996,7 @@ public class InputEventHandler
         this.rightClickSlot(gui, slotTo);
 
         // If there are items left in the cursor, then return them back to the original slot
-        if (player.inventory.getItemStack() != null)
+        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
         {
             // Left click again on the from-slot to return the rest of the items to it
             this.leftClickSlot(gui, slotFrom);
@@ -989,12 +1009,13 @@ public class InputEventHandler
     {
         Slot slot = gui.inventorySlots.inventorySlots.get(slotFrom);
         ItemStack stack = slot.getStack();
-        if (stack == null)
+
+        if (isStackEmpty(stack))
         {
             return false;
         }
 
-        if (stack.stackSize > 1)
+        if (getStackSize(stack) > 1)
         {
             // Left click on the from-slot to take all the items to the cursor
             this.leftClickSlot(gui, slotFrom);
@@ -1015,7 +1036,7 @@ public class InputEventHandler
         // ... and then shift-click on the slot
         this.shiftClickSlot(gui, slotFrom);
 
-        if (gui.mc.player.inventory.getItemStack() != null)
+        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
         {
             // ... and then return the rest of the items
             this.leftClickSlot(gui, slotFrom);
@@ -1037,21 +1058,21 @@ public class InputEventHandler
         this.leftClickSlot(gui, slotFrom);
 
         // Couldn't take the items, bail out now
-        if (player.inventory.getItemStack() == null)
+        if (isStackEmpty(player.inventory.getItemStack()))
         {
             return false;
         }
 
         boolean ret = true;
-        int size = player.inventory.getItemStack().stackSize;
+        int size = getStackSize(player.inventory.getItemStack());
 
         // Left click on the target slot to put the items to it
         this.leftClickSlot(gui, slotTo);
 
         // If there are items left in the cursor, then return them back to the original slot
-        if (player.inventory.getItemStack() != null)
+        if (isStackEmpty(player.inventory.getItemStack()) == false)
         {
-            ret = player.inventory.getItemStack().stackSize != size;
+            ret = getStackSize(player.inventory.getItemStack()) != size;
 
             // Left click again on the from-slot to return the rest of the items to it
             this.leftClickSlot(gui, slotFrom);
@@ -1069,10 +1090,10 @@ public class InputEventHandler
             return false;
         }
 
-        int sizeOrig = slot.getStack().stackSize;
+        int sizeOrig = getStackSize(slot.getStack());
         this.shiftClickSlot(gui, slotNum);
 
-        return slot.getHasStack() == false || slot.getStack().stackSize != sizeOrig;
+        return slot.getHasStack() == false || getStackSize(slot.getStack()) != sizeOrig;
     }
 
     private void leftClickSlot(GuiContainer gui, int slot)
@@ -1098,5 +1119,29 @@ public class InputEventHandler
     private void dropStack(GuiContainer gui, int slot)
     {
         gui.mc.playerController.windowClick(gui.inventorySlots.windowId, slot, 1, ClickType.THROW, gui.mc.player);
+    }
+
+    /**************************************************************
+     * Compatibility code for pre-1.11 vs. 1.11+
+     * Well kind of, as in make the differences minimal,
+     * only requires changing these things for the ItemStack
+     * related changes.
+     *************************************************************/
+
+    private static final ItemStack EMPTY_STACK = null;
+
+    private static boolean isStackEmpty(ItemStack stack)
+    {
+        return stack == null;
+    }
+
+    private static int getStackSize(ItemStack stack)
+    {
+        return stack.stackSize;
+    }
+
+    private static void setStackSize(ItemStack stack, int size)
+    {
+        stack.stackSize = size;
     }
 }
