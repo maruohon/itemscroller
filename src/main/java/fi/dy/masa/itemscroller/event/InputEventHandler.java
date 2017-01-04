@@ -1,9 +1,8 @@
 package fi.dy.masa.itemscroller.event;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,13 +25,13 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.proxy.ClientProxy;
+import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
@@ -50,6 +49,7 @@ public class InputEventHandler
     private final Field fieldGuiXSize;
     private final Field fieldGuiYSize;
     private final Field fieldSelectedMerchantRecipe;
+    private final MethodHandle methodHandle_getSlotAtPosition;
 
     public InputEventHandler()
     {
@@ -58,6 +58,8 @@ public class InputEventHandler
         this.fieldGuiXSize = ReflectionHelper.findField(GuiContainer.class, "field_146999_f", "xSize");
         this.fieldGuiYSize = ReflectionHelper.findField(GuiContainer.class, "field_147000_g", "ySize");
         this.fieldSelectedMerchantRecipe = ReflectionHelper.findField(GuiMerchant.class, "field_147041_z", "selectedMerchantRecipe");
+        this.methodHandle_getSlotAtPosition = MethodHandleUtils.getMethodHandleVirtual(GuiContainer.class,
+                new String[] { "func_146975_c", "getSlotAtPosition" }, int.class, int.class);
     }
 
     @SubscribeEvent
@@ -447,25 +449,11 @@ public class InputEventHandler
     {
         try
         {
-            Method method = ReflectionHelper.findMethod(GuiContainer.class, gui,
-                new String[] { "func_146975_c", "getSlotAtPosition" }, int.class, int.class);
-
-            return (Slot) method.invoke(gui, x, y);
+            return (Slot) this.methodHandle_getSlotAtPosition.invokeExact(gui, x, y);
         }
-        catch (UnableToFindMethodException e)
+        catch (Throwable e)
         {
-            ItemScroller.logger.error("Error while trying reflect GuiContainer#getSlotAtPosition() from {} (UnableToFindMethodException)", gui.getClass().getSimpleName());
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            ItemScroller.logger.error("Error while trying reflect GuiContainer#getSlotAtPosition() from {} (InvocationTargetException)", gui.getClass().getSimpleName());
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            ItemScroller.logger.error("Error while trying reflect GuiContainer#getSlotAtPosition() from {} (IllegalAccessException)", gui.getClass().getSimpleName());
-            e.printStackTrace();
+            ItemScroller.logger.error("Error while trying invoke GuiContainer#getSlotAtPosition() from {}", gui.getClass().getSimpleName(), e);
         }
 
         return null;
