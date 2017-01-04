@@ -222,6 +222,9 @@ public class InputEventHandler
         // Left click to place the items from the cursor to the slot
         this.leftClickSlot(gui, slot.slotNumber);
 
+        // Ugly fix to prevent accidentally drag-moving the stack from the slot that it was just placed into...
+        this.draggedSlots.add(slot.slotNumber);
+
         this.tryMoveStacks(slot, gui, true, false, false);
 
         return true;
@@ -294,8 +297,14 @@ public class InputEventHandler
 
     private boolean dragMoveItems(GuiContainer gui)
     {
+        int mouseX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
+        int mouseY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
+
         if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
         {
+            // Updating these here is part of the fix to preventing a drag after shift + place
+            this.lastPosX = mouseX;
+            this.lastPosY = mouseY;
             return false;
         }
 
@@ -316,8 +325,6 @@ public class InputEventHandler
 
         boolean leaveOneItem = leftButtonDown == false;
         boolean moveOnlyOne = isShiftDown == false;
-        int mouseX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
-        int mouseY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
         boolean cancel = false;
 
         if (Mouse.getEventButtonState())
