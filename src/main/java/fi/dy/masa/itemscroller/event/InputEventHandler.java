@@ -14,6 +14,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -31,10 +32,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.proxy.ClientProxy;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
+    private boolean disabled;
     private int lastPosX;
     private int lastPosY;
     private int slotNumberLast;
@@ -60,7 +63,8 @@ public class InputEventHandler
     @SubscribeEvent
     public void onMouseInputEventPre(GuiScreenEvent.MouseInputEvent.Pre event)
     {
-        if (event.getGui() instanceof GuiContainer && (event.getGui() instanceof GuiContainerCreative) == false)
+        if (this.disabled == false && event.getGui() instanceof GuiContainer &&
+            (event.getGui() instanceof GuiContainerCreative) == false)
         {
             GuiContainer gui = (GuiContainer) event.getGui();
             int dWheel = Mouse.getEventDWheel();
@@ -110,6 +114,19 @@ public class InputEventHandler
             if (slot != null && slot.getHasStack())
             {
                 this.dropStacks(gui, slot.getStack(), slot);
+            }
+        }
+        else if (Keyboard.getEventKeyState() && ClientProxy.KEY_DISABLE.isActiveAndMatches(Keyboard.getEventKey()))
+        {
+            this.disabled = ! this.disabled;
+
+            if (this.disabled)
+            {
+                event.getGui().mc.player.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 0.5f, 0.8f);
+            }
+            else
+            {
+                event.getGui().mc.player.playSound(SoundEvents.BLOCK_PISTON_EXTEND, 0.5f, 0.8f);
             }
         }
     }
