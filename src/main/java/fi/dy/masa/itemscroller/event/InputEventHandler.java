@@ -67,6 +67,7 @@ public class InputEventHandler
     {
         if (this.disabled == false && event.getGui() instanceof GuiContainer &&
             (event.getGui() instanceof GuiContainerCreative) == false &&
+            event.getGui().mc != null && event.getGui().mc.player != null &&
             Configs.guiBlackList.contains(event.getGui().getClass().getName()) == false)
         {
             GuiContainer gui = (GuiContainer) event.getGui();
