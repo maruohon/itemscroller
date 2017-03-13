@@ -1,12 +1,21 @@
 package fi.dy.masa.itemscroller.config;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import javax.annotation.Nullable;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.Slot;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 
 public class Configs
@@ -15,6 +24,7 @@ public class Configs
     public static boolean enableDragMovingShiftLeft;
     public static boolean enableDragMovingShiftRight;
     public static boolean enableDragMovingControlLeft;
+    public static boolean enableScrollingCrafting;
     public static boolean enableScrollingEverything;
     public static boolean enableScrollingMatchingStacks;
     public static boolean enableScrollingSingle;
@@ -27,8 +37,9 @@ public class Configs
     public static boolean reverseScrollDirectionStacks;
     public static boolean useSlotPositionAwareScrollDirection;
 
-    public static Set<String> guiBlackList;
-    public static Set<String> slotTypeBlackList;
+    public static final Set<String> GUI_BLACKLIST = new HashSet<String>();
+    public static final Set<String> SLOT_BLACKLIST = new HashSet<String>();
+    private static final Map<CraftingOutputSlot, SlotRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, SlotRange>();
 
     public static File configurationFile;
     public static Configuration config;
@@ -59,13 +70,13 @@ public class Configs
 
         prop = conf.get(CATEGORY_GENERIC, "blackListedGuis", new String[0]).setRequiresMcRestart(false);
         prop.setComment("A list of GuiContainer classes where Item Scroller shouldn't do anything");
-        guiBlackList = new HashSet<String>();
-        for (String str : prop.getStringList()) { guiBlackList.add(str); }
+        GUI_BLACKLIST.clear();
+        for (String str : prop.getStringList()) { GUI_BLACKLIST.add(str); }
 
         prop = conf.get(CATEGORY_GENERIC, "blackListedSlots", new String[] { "appeng.client.me.SlotME", "slimeknights.mantle.inventory.SlotWrapper" }).setRequiresMcRestart(false);
         prop.setComment("A list of Slot classes that Item Scroller shouldn't use");
-        slotTypeBlackList = new HashSet<String>();
-        for (String str : prop.getStringList()) { slotTypeBlackList.add(str); }
+        SLOT_BLACKLIST.clear();
+        for (String str : prop.getStringList()) { SLOT_BLACKLIST.add(str); }
 
         prop = conf.get(CATEGORY_GENERIC, "enableControlShiftDropkeyDropItems", true).setRequiresMcRestart(false);
         prop.setComment("Enable dropping all matching items from the same inventory when pressing Ctrl + Shift + the drop key");
@@ -86,6 +97,11 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "enableMovingEverything", true).setRequiresMcRestart(false);
         prop.setComment("Enable moving all items at once (while holding ctrl and shift).");
         enableScrollingEverything = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "enableScrollingCrafting", true).setRequiresMcRestart(false);
+        prop.setComment("Enable scrolling items to and from crafting grids, with a built-in one recipe memory.\n" +
+                        "The supported crafting grids must be added to the scrollableCraftingGrids list.");
+        enableScrollingCrafting = prop.getBoolean();
 
         prop = conf.get(CATEGORY_GENERIC, "enableScrollingMatchingStacks", true).setRequiresMcRestart(false);
         prop.setComment("Enable moving all matching items at once (while holding ctrl).");
@@ -127,9 +143,206 @@ public class Configs
         prop.setComment("When enabled, the item movement direction depends on the slots' y-position on screen. Might be derpy with more complex inventories, use with caution!");
         useSlotPositionAwareScrollDirection = prop.getBoolean();
 
-        if (conf.hasChanged() == true)
+        prop = conf.get(CATEGORY_GENERIC, "scrollableCraftingGrids", new String[] {
+                "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
+                "net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
+                "fi.dy.masa.enderutilities.gui.client.GuiHandyBag,fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult,100,101-104", // Ender Utilities Handy Bag crafting grid
+                "fi.dy.masa.enderutilities.gui.client.GuiCreationStation,fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult,40,31-39", // Ender Utilities Creation Station, left
+                "fi.dy.masa.enderutilities.gui.client.GuiCreationStation,fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult,50,41-49", // Ender Utilities Creation Station, right
+                }).setRequiresMcRestart(false);
+        prop.setComment("A list of crafting grid specifiers for the crafting grid scrolling feature.\n" +
+                        "All the crafting grids that you want to be usable for that feature, must be added in this list.\n" +
+                        "The entries must be one per line, in the following format: guiclassname,slotclassname,outputslotnumber,gridfirstslotnumber-gridlastslotnumber\n" +
+                        "To find out the class names and slot numbers, you can use the 'Ctrl + Alt + Shift + I' debug key combination\n" +
+                        "when hovering over slots (to get the slot info) and while NOT hovering over slots (to get the gui class name).\n" +
+                        "What you are looking for are the 'GUI class', 'slot class' and the 'slotNumber' (NOT 'getSlotIndex()'!) values.\n" +
+                        "The slot class must be from the crafting output slot!\n" +
+                        "NOTE: This feature is actually in no way specific or tied to crafting grids.\n" +
+                        "It can be used for other types of inventories as well, where you must move items into specific slots.\n" +
+                        "The limitations are special, non-standard slots like AE2, which don't have proper slot numbers.\n" +
+                        "The \"recipe\" slots should also form a continuous range, otherwise weirds stuff might happen when scrolling.");
+        addCraftingGrids(prop.getStringList());
+
+        if (conf.hasChanged())
         {
             conf.save();
+        }
+    }
+
+    /**
+     * Gets the crafting grid SlotRange associated with the given slot in the given gui, if any.
+     * @param gui
+     * @param slot
+     * @return the SlotRange of the crafting grid, or null, if the given slot is not a crafting output slot
+     */
+    @Nullable
+    public static SlotRange getCraftingGridSlots(GuiContainer gui, Slot slot)
+    {
+        for (Map.Entry<CraftingOutputSlot, SlotRange> entry : CRAFTING_GRID_SLOTS.entrySet())
+        {
+            if (entry.getKey().matches(gui.getClass().getName(), slot.getClass().getName(), slot.slotNumber))
+            {
+                return entry.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    private static void addCraftingGrids(String[] lines)
+    {
+        CRAFTING_GRID_SLOTS.clear();
+
+        try
+        {
+            Pattern pattern = Pattern.compile("([^,]+),([^,]+),([0-9]+),([0-9]+)-([0-9]+)");
+
+            for (String line : lines)
+            {
+                Matcher matcher = pattern.matcher(line);
+
+                if (matcher.matches())
+                {
+                    try
+                    {
+                        String guiClassName = matcher.group(1);
+                        String slotClassName = matcher.group(2);
+                        int outputSlot = Integer.parseInt(matcher.group(3));
+                        int gridStart = Integer.parseInt(matcher.group(4));
+                        int gridSize = Integer.parseInt(matcher.group(5)) - gridStart + 1;
+
+                        CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(guiClassName, slotClassName, outputSlot), new SlotRange(gridStart, gridSize));
+
+                        ItemScroller.logger.info("addCraftingGrids(): Added crafting grid slots for gui: {}, slot: {} @ {}, grid: {} - {}",
+                                guiClassName, slotClassName, outputSlot, gridStart, gridStart + gridSize - 1);
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        ItemScroller.logger.warn("addCraftingGrids(): Error while parsing crafting grid slot numbers for specifier '{}'", line, e);
+                    }
+                }
+                else
+                {
+                    ItemScroller.logger.warn("addCraftingGrids(): Invalid crafting grid specifier '{}'", line);
+                }
+            }
+        }
+        catch (PatternSyntaxException e)
+        {
+            ItemScroller.logger.warn("addCraftingGrids(): Pattern syntax exception", e);
+        }
+    }
+
+    public static class CraftingOutputSlot
+    {
+        private final String guiClassName;
+        private final String slotClassName;
+        private final int outputSlot;
+
+        private CraftingOutputSlot (String guiClassName, String slotClassName, int outputSlot)
+        {
+            this.guiClassName = guiClassName;
+            this.slotClassName = slotClassName;
+            this.outputSlot = outputSlot;
+        }
+
+        public String getGuiClassName()
+        {
+            return this.guiClassName;
+        }
+
+        public String getSlotClassName()
+        {
+            return this.slotClassName;
+        }
+
+        public int getSlotNumber()
+        {
+            return this.outputSlot;
+        }
+
+        public boolean matches(String guiClassName, String slotClassName, int outputSlot)
+        {
+            return outputSlot == this.outputSlot && this.guiClassName.equals(guiClassName) && this.slotClassName.equals(slotClassName);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((guiClassName == null) ? 0 : guiClassName.hashCode());
+            result = prime * result + outputSlot;
+            result = prime * result + ((slotClassName == null) ? 0 : slotClassName.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            CraftingOutputSlot other = (CraftingOutputSlot) obj;
+            if (guiClassName == null)
+            {
+                if (other.guiClassName != null)
+                    return false;
+            }
+            else if (!guiClassName.equals(other.guiClassName))
+                return false;
+            if (outputSlot != other.outputSlot)
+                return false;
+            if (slotClassName == null)
+            {
+                if (other.slotClassName != null)
+                    return false;
+            }
+            else if (!slotClassName.equals(other.slotClassName))
+                return false;
+            return true;
+        }
+
+    }
+
+    public static class SlotRange
+    {
+        private final int first;
+        private final int last;
+
+        public SlotRange(int start, int numSlots)
+        {
+            this.first = start;
+            this.last = start + numSlots - 1;
+        }
+
+        public int getFirst()
+        {
+            return this.first;
+        }
+
+        public int getLast()
+        {
+            return this.last;
+        }
+
+        public int getSlotCount()
+        {
+            return this.last - this.first + 1;
+        }
+
+        public boolean contains(int slot)
+        {
+            return slot >= this.first && slot <= this.last;
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format("SlotRange: {first: %d, last: %d}", this.first, this.last);
         }
     }
 }

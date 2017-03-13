@@ -3,8 +3,10 @@ package fi.dy.masa.itemscroller.event;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -30,7 +32,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.config.Configs.SlotRange;
 import fi.dy.masa.itemscroller.proxy.ClientProxy;
+import fi.dy.masa.itemscroller.util.ItemType;
 import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
 @SideOnly(Side.CLIENT)
@@ -44,6 +48,8 @@ public class InputEventHandler
     private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
     private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
     private ItemStack stackInCursorLast = EMPTY_STACK;
+    private ItemStack[] craftingRecipe = new ItemStack[9];
+    private ItemStack craftingResult = EMPTY_STACK;
     private final Field fieldGuiLeft;
     private final Field fieldGuiTop;
     private final Field fieldGuiXSize;
@@ -60,6 +66,8 @@ public class InputEventHandler
         this.fieldSelectedMerchantRecipe = ReflectionHelper.findField(GuiMerchant.class, "field_147041_z", "selectedMerchantRecipe");
         this.methodHandle_getSlotAtPosition = MethodHandleUtils.getMethodHandleVirtual(GuiContainer.class,
                 new String[] { "func_146975_c", "getSlotAtPosition" }, int.class, int.class);
+
+        this.ensureRecipeSizeAndClearRecipe(9);
     }
 
     @SubscribeEvent
@@ -68,7 +76,7 @@ public class InputEventHandler
         if (this.disabled == false && event.getGui() instanceof GuiContainer &&
             (event.getGui() instanceof GuiContainerCreative) == false &&
             event.getGui().mc != null && event.getGui().mc.player != null &&
-            Configs.guiBlackList.contains(event.getGui().getClass().getName()) == false)
+            Configs.GUI_BLACKLIST.contains(event.getGui().getClass().getName()) == false)
         {
             GuiContainer gui = (GuiContainer) event.getGui();
             int dWheel = Mouse.getEventDWheel();
@@ -129,7 +137,7 @@ public class InputEventHandler
         }
         // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
         else if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
-            Configs.guiBlackList.contains(gui.getClass().getName()) == false &&
+            Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
             GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() &&
             gui.mc.gameSettings.keyBindDrop.isActiveAndMatches(Keyboard.getEventKey()))
         {
@@ -199,7 +207,7 @@ public class InputEventHandler
         }
     }
 
-    public static void debugPrintSlotInfo(GuiContainer gui, Slot slot)
+    private static void debugPrintSlotInfo(GuiContainer gui, Slot slot)
     {
         if (slot == null)
         {
@@ -209,32 +217,38 @@ public class InputEventHandler
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
         Object inv = slot instanceof SlotItemHandler ? ((SlotItemHandler) slot).getItemHandler() : slot.inventory;
-        ItemStack stack = slot.getStack();
-        String stackStr = "<empty>";
+        String stackStr = getStackString(slot.getStack());
 
+        ItemScroller.logger.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
+                "slot class: %s, inv class: %s, Container's slot list has slot: %s, stack: %s",
+                slot.slotNumber, slot.getSlotIndex(), slot.getHasStack(), slot.getClass().getName(),
+                inv != null ? inv.getClass().getName() : "<null>", hasSlot ? " true" : "false", stackStr));
+    }
+
+    private static String getStackString(ItemStack stack)
+    {
         if (isStackEmpty(stack) == false)
         {
-            stackStr = String.format("[%s @ %d - display: %s - NBT: %s] (%s)",
+            return String.format("[%s @ %d - display: %s - NBT: %s] (%s)",
                     stack.getItem().getRegistryName(), stack.getMetadata(), stack.getDisplayName(),
                     stack.getTagCompound() != null ? stack.getTagCompound().toString() : "<no NBT>",
                     stack.toString());
         }
 
-        ItemScroller.logger.info(String.format("slot: slotNumber: %3d - getSlotIndex(): %3d - Container list has slot: %s" +
-                " - Slot#getHasStack(): %5s - slot class: %s - inv class: %s - stack: %s",
-                slot.slotNumber, slot.getSlotIndex(), hasSlot ? " true" : "false", slot.getHasStack(), slot.getClass().getName(),
-                inv != null ? inv.getClass().getName() : "null", stackStr));
+        return "<empty>";
     }
 
     private boolean isValidSlot(Slot slot, GuiContainer gui, boolean requireItems)
     {
-        if (gui.inventorySlots == null || gui.inventorySlots.inventorySlots == null)
-        {
-            return false;
-        }
+        return gui.inventorySlots != null && gui.inventorySlots.inventorySlots != null &&
+                slot != null && gui.inventorySlots.inventorySlots.contains(slot) &&
+                (requireItems == false || slot.getHasStack()) &&
+                Configs.SLOT_BLACKLIST.contains(slot.getClass().getName()) == false;
+    }
 
-        return slot != null && gui.inventorySlots.inventorySlots.contains(slot) &&
-                Configs.slotTypeBlackList.contains(slot.getClass().getName()) == false && (requireItems == false || slot.getHasStack());
+    private boolean isCraftingSlot(GuiContainer gui, Slot slot)
+    {
+        return slot != null && Configs.getCraftingGridSlots(gui, slot) != null;
     }
 
     /**
@@ -529,22 +543,141 @@ public class InputEventHandler
         return false;
     }
 
+    private boolean tryMoveItemsCrafting(GuiContainer gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown)
+    {
+        if (isShiftDown)
+        {
+            // Try to fill the crafting grid
+            if (moveToOtherInventory == false)
+            {
+                /*if (slot.getHasStack())
+                {
+                    this.storeCraftingRecipe(gui, slot);
+                }*/
+
+                if (isStackEmpty(this.craftingResult) == false)
+                {
+                    this.tryMoveItemsToCraftingGridSlots(gui, slot, true);
+                }
+            }
+            // Move items from the crafting output slot
+            else if (slot.getHasStack())
+            {
+                this.storeCraftingRecipe(gui, slot);
+                this.shiftClickSlot(gui, slot.slotNumber);
+            }
+            // Scrolling over an empty crafting output slot, clear the crafting grid
+            else
+            {
+                SlotRange range = Configs.getCraftingGridSlots(gui, slot);
+
+                if (range != null)
+                {
+                    for (int i = 0, s = range.getFirst(); i < range.getSlotCount(); i++, s++)
+                    {
+                        this.shiftClickSlot(gui, s);
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Scrolling items from player inventory into crafting grid slots
+            if (moveToOtherInventory == false)
+            {
+                /*if (slot.getHasStack())
+                {
+                    this.storeCraftingRecipe(gui, slot);
+                }*/
+
+                if (isStackEmpty(this.craftingResult) == false)
+                {
+                    this.tryMoveItemsToCraftingGridSlots(gui, slot, false);
+                }
+            }
+            // Scrolling items from this slot/inventory into the other inventory
+            else if (slot.getHasStack())
+            {
+                this.storeCraftingRecipe(gui, slot);
+                //this.tryMoveSingleItemToOtherInventory(slot, gui);
+            }
+            // Scrolling over an empty crafting output slot, clear the crafting grid
+            else
+            {
+                SlotRange range = Configs.getCraftingGridSlots(gui, slot);
+
+                if (range != null)
+                {
+                    for (int i = 0, s = range.getFirst(); i < range.getSlotCount(); i++, s++)
+                    {
+                        this.shiftClickSlot(gui, s);
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void ensureRecipeSizeAndClearRecipe(int size)
+    {
+        if (this.craftingRecipe.length != size)
+        {
+            this.craftingRecipe = new ItemStack[size];
+        }
+
+        for (int i = 0; i < size; i++)
+        {
+            this.craftingRecipe[i] = EMPTY_STACK;
+        }
+    }
+
+    private void storeCraftingRecipe(GuiContainer gui, Slot slot)
+    {
+        SlotRange range = Configs.getCraftingGridSlots(gui, slot);
+
+        if (range != null && slot.getHasStack())
+        {
+
+            if (areStacksEqual(this.craftingResult, slot.getStack()) == false ||
+                this.craftingRecipe.length != range.getSlotCount())
+            {
+                int gridSize = range.getSlotCount();
+                this.ensureRecipeSizeAndClearRecipe(gridSize);
+                this.craftingResult = slot.getStack().copy();
+                int numSlots = gui.inventorySlots.inventorySlots.size();
+
+                for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
+                {
+                    Slot slotTmp = gui.inventorySlots.getSlot(s);
+                    this.craftingRecipe[i] = slotTmp.getHasStack() ? slotTmp.getStack().copy() : EMPTY_STACK;
+                }
+            }
+        }
+    }
+
     private boolean tryMoveItems(GuiContainer gui, boolean scrollingUp)
     {
         Slot slot = gui.getSlotUnderMouse();
-        boolean isCtrlDown = GuiContainer.isCtrlKeyDown();
-        boolean isShiftDown = GuiContainer.isShiftKeyDown();
-        // Villager handling only happens when scrolling over the trade output slot
-        boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
 
-        // Check that the cursor is empty, and the slot is valid
-        // (don't require items in case of the villager output slot)
-        if (isStackEmpty(gui.mc.player.inventory.getItemStack()) == false ||
-            this.isValidSlot(slot, gui, villagerHandling ? false : true) == false)
+        // We require an empty cursor
+        if (slot == null || isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
         {
             return false;
         }
 
+        // Villager handling only happens when scrolling over the trade output slot
+        boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
+        boolean craftingSlot = this.isCraftingSlot(gui, slot);
+
+        // Check that the slot is valid, (don't require items in case of the villager output slot or a crafting slot)
+        if (this.isValidSlot(slot, gui, villagerHandling || craftingSlot ? false : true) == false)
+        {
+            return false;
+        }
+
+        boolean isCtrlDown = GuiContainer.isCtrlKeyDown();
+        boolean isShiftDown = GuiContainer.isShiftKeyDown();
         boolean moveToOtherInventory = scrollingUp;
 
         if (Configs.useSlotPositionAwareScrollDirection)
@@ -558,6 +691,11 @@ public class InputEventHandler
             (Configs.reverseScrollDirectionStacks && isShiftDown))
         {
             moveToOtherInventory = ! moveToOtherInventory;
+        }
+
+        if (craftingSlot)
+        {
+            return this.tryMoveItemsCrafting(gui, slot, moveToOtherInventory, isShiftDown);
         }
 
         if (villagerHandling)
@@ -877,6 +1015,233 @@ public class InputEventHandler
         }
     }
 
+    private boolean tryMoveItemsToCraftingGridSlots(GuiContainer gui, Slot slot, boolean fillStacks)
+    {
+        Container container = gui.inventorySlots;
+        int numSlots = container.inventorySlots.size();
+        SlotRange range = Configs.getCraftingGridSlots(gui, slot);
+
+        // Check that the slot range is valid and that the recipe can fit into this type of crafting grid
+        if (range != null && range.getLast() < numSlots && this.craftingRecipe.length <= range.getSlotCount())
+        {
+            // Clear non-matching items from the grid first
+            if (this.clearCraftingGridOfNonMatchingItems(gui, range) == false)
+            {
+                return false;
+            }
+
+            // This slot is used to check that we get items from a DIFFERENT inventory than where this slot is in
+            Slot slotGridFirst = container.getSlot(range.getFirst());
+            Map<ItemType, List<Integer>> ingredientSlots = ItemType.getSlotsPerItem(this.craftingRecipe);
+
+            for (Map.Entry<ItemType, List<Integer>> entry : ingredientSlots.entrySet())
+            {
+                ItemStack ingredientReference = entry.getKey().getStack();
+                List<Integer> recipeSlots = entry.getValue();
+                List<Integer> targetSlots = new ArrayList<Integer>();
+
+                // Get the actual target slot numbers based on the grid's start and the relative positions inside the grid
+                for (int s : recipeSlots)
+                {
+                    targetSlots.add(s + range.getFirst());
+                }
+
+                if (fillStacks)
+                {
+                    this.fillCraftingGrid(gui, slotGridFirst, ingredientReference, targetSlots);
+                }
+                else
+                {
+                    this.moveOneRecipeItemIntoCraftingGrid(gui, slotGridFirst, ingredientReference, targetSlots);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean clearCraftingGridOfNonMatchingItems(GuiContainer gui, SlotRange range)
+    {
+        int numSlots = gui.inventorySlots.inventorySlots.size();
+
+        for (int i = 0, slotNum = range.getFirst();
+            i < range.getSlotCount() && i < this.craftingRecipe.length && slotNum < numSlots;
+            i++, slotNum++)
+        {
+            Slot slotTmp = gui.inventorySlots.getSlot(slotNum);
+
+            if (slotTmp != null && slotTmp.getHasStack() && areStacksEqual(this.craftingRecipe[i], slotTmp.getStack()) == false)
+            {
+                this.shiftClickSlot(gui, i);
+
+                // Failed to clear the slot
+                if (slotTmp.getHasStack())
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private void moveOneRecipeItemIntoCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
+    {
+        Container container = gui.inventorySlots;
+        int index = 0;
+        int slotNum = -1;
+        int slotCount = targetSlots.size();
+
+        while (index < slotCount)
+        {
+            slotNum = this.getSlotNumberOfSmallestAdequateStackFromDifferentInventory(container, slotGridFirst, ingredientReference, slotCount);
+
+            // Didn't find ingredient items
+            if (slotNum < 0)
+            {
+                break;
+            }
+
+            // Pick up the ingredient stack from the found slot
+            this.leftClickSlot(gui, slotNum);
+
+            // Successfully picked up ingredient items
+            if (areStacksEqual(ingredientReference, gui.mc.player.inventory.getItemStack()))
+            {
+                int filled = this.putSingleItemIntoSlots(gui, targetSlots, index);
+                index += filled;
+
+                if (filled < 1)
+                {
+                    break;
+                }
+            }
+            // Failed to pick up the stack, break to avoid infinite loops
+            // TODO: we could also "blacklist" this slot and try to continue...?
+            else
+            {
+                break;
+            }
+        }
+
+        // Return the rest of the items to the original slot
+        if (slotNum >= 0 && isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
+        {
+            this.leftClickSlot(gui, slotNum);
+        }
+    }
+
+    private void fillCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
+    {
+        Container container = gui.inventorySlots;
+        EntityPlayer player = gui.mc.player;
+        int slotNum = -1;
+        int slotReturn = -1;
+        int sizeOrig = 0;
+
+        if (isStackEmpty(ingredientReference))
+        {
+            return;
+        }
+
+        while (true)
+        {
+            slotNum = getSlotNumberOfLargestMatchingStackFromDifferentInventory(container, slotGridFirst, ingredientReference);
+
+            // Didn't find ingredient items
+            if (slotNum < 0)
+            {
+                break;
+            }
+
+            if (slotReturn == -1)
+            {
+                slotReturn = slotNum;
+            }
+
+            // Pick up the ingredient stack from the found slot
+            this.leftClickSlot(gui, slotNum);
+
+            ItemStack stackCursor = player.inventory.getItemStack();
+
+            // Successfully picked up ingredient items
+            if (areStacksEqual(ingredientReference, stackCursor))
+            {
+                sizeOrig = getStackSize(stackCursor);
+                this.dragSplitItemsIntoSlots(gui, targetSlots);
+                stackCursor = player.inventory.getItemStack();
+
+                // Items left in cursor
+                if (isStackEmpty(stackCursor) == false)
+                {
+                    // Didn't manage to move any items anymore
+                    if (getStackSize(stackCursor) >= sizeOrig)
+                    {
+                        break;
+                    }
+
+                    // Collect all the remaining items into the first found slot, as long as possible
+                    this.leftClickSlot(gui, slotReturn);
+
+                    // All of them didn't fit into the first slot anymore, switch into the current source slot
+                    if (isStackEmpty(player.inventory.getItemStack()) == false)
+                    {
+                        slotReturn = slotNum;
+                        this.leftClickSlot(gui, slotReturn);
+                    }
+                }
+            }
+            // Failed to pick up the stack, break to avoid infinite loops
+            // TODO: we could also "blacklist" this slot and try to continue...?
+            else
+            {
+                break;
+            }
+
+            // Somehow items were left in the cursor, break here
+            if (isStackEmpty(player.inventory.getItemStack()) == false)
+            {
+                break;
+            }
+        }
+
+        // Return the rest of the items to the original slot
+        if (slotNum >= 0 && isStackEmpty(player.inventory.getItemStack()) == false)
+        {
+            this.leftClickSlot(gui, slotNum);
+        }
+    }
+
+    private int putSingleItemIntoSlots(GuiContainer gui, List<Integer> targetSlots, int startIndex)
+    {
+        ItemStack stackInCursor = gui.mc.player.inventory.getItemStack();
+
+        if (isStackEmpty(stackInCursor))
+        {
+            return 0;
+        }
+
+        int numSlots = gui.inventorySlots.inventorySlots.size();
+        int numItems = getStackSize(stackInCursor);
+        int loops = Math.min(numItems, targetSlots.size() - startIndex);
+        int count = 0;
+
+        for (int i = 0; i < loops; i++)
+        {
+            int slotNum = targetSlots.get(startIndex + i);
+
+            if (slotNum >= numSlots)
+            {
+                break;
+            }
+
+            this.rightClickSlot(gui, slotNum);
+            count++;
+        }
+
+        return count;
+    }
+
     private void moveItemsFromInventory(GuiContainer gui, int slotTo, IInventory invSrc, ItemStack stackTemplate, boolean fillStacks)
     {
         Container container = gui.inventorySlots;
@@ -906,6 +1271,60 @@ public class InputEventHandler
         }
     }
 
+    private int getSlotNumberOfLargestMatchingStackFromDifferentInventory(Container container, Slot slotReference, ItemStack stackReference)
+    {
+        int slotNum = -1;
+        int largest = 0;
+
+        for (Slot slot : container.inventorySlots)
+        {
+            if (areSlotsInSameInventory(slot, slotReference) == false && slot.getHasStack() &&
+                areStacksEqual(stackReference, slot.getStack()))
+            {
+                int stackSize = getStackSize(slot.getStack());
+
+                if (stackSize > largest)
+                {
+                    slotNum = slot.slotNumber;
+                    largest = stackSize;
+                }
+            }
+        }
+
+        return slotNum;
+    }
+
+    /**
+     * Returns the slot number of the slot that has the smallest stackSize that is still equal to or larger
+     * than minimumSize. The slot must also not be in the same inventory as slotReference.
+     * @param container
+     * @param slotReference
+     * @param stackReference
+     * @return
+     */
+    private int getSlotNumberOfSmallestAdequateStackFromDifferentInventory(Container container, Slot slotReference, ItemStack stackReference, int minSize)
+    {
+        int slotNum = -1;
+        int smallest = stackReference.getMaxStackSize() + 1;
+
+        for (Slot slot : container.inventorySlots)
+        {
+            if (areSlotsInSameInventory(slot, slotReference) == false && slot.getHasStack() &&
+                areStacksEqual(stackReference, slot.getStack()))
+            {
+                int stackSize = getStackSize(slot.getStack());
+
+                if (stackSize < smallest && stackSize >= minSize)
+                {
+                    slotNum = slot.slotNumber;
+                    smallest = stackSize;
+                }
+            }
+        }
+
+        return slotNum;
+    }
+
     private static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
     {
         return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
@@ -913,12 +1332,7 @@ public class InputEventHandler
 
     private static boolean areSlotsInSameInventory(Slot slot1, Slot slot2)
     {
-        if ((slot1 instanceof SlotItemHandler) && (slot2 instanceof SlotItemHandler))
-        {
-            return ((SlotItemHandler)slot1).getItemHandler() == ((SlotItemHandler)slot2).getItemHandler();
-        }
-
-        return slot1.inventory == slot2.inventory;
+        return slot1.isSameInventory(slot2);
     }
 
     private ItemStack[] getOriginalStacks(Container container)
@@ -1171,6 +1585,43 @@ public class InputEventHandler
         gui.mc.playerController.windowClick(gui.inventorySlots.windowId, slot, 1, ClickType.THROW, gui.mc.player);
     }
 
+    private void dragSplitItemsIntoSlots(GuiContainer gui, List<Integer> targetSlots)
+    {
+        ItemStack stackInCursor = gui.mc.player.inventory.getItemStack();
+
+        if (isStackEmpty(stackInCursor))
+        {
+            return;
+        }
+
+        if (targetSlots.size() == 1)
+        {
+            this.leftClickSlot(gui, targetSlots.get(0));
+            return;
+        }
+
+        int numSlots = gui.inventorySlots.inventorySlots.size();
+        int loops = targetSlots.size();
+
+        // Start the drag
+        gui.mc.playerController.windowClick(gui.inventorySlots.windowId, -999, 0, ClickType.QUICK_CRAFT, gui.mc.player);
+
+        for (int i = 0; i < loops; i++)
+        {
+            int slotNum = targetSlots.get(i);
+
+            if (slotNum >= numSlots)
+            {
+                break;
+            }
+
+            gui.mc.playerController.windowClick(gui.inventorySlots.windowId, targetSlots.get(i), 1, ClickType.QUICK_CRAFT, gui.mc.player);
+        }
+
+        // End the drag
+        gui.mc.playerController.windowClick(gui.inventorySlots.windowId, -999, 2, ClickType.QUICK_CRAFT, gui.mc.player);
+    }
+
     /**************************************************************
      * Compatibility code for pre-1.11 vs. 1.11+
      * Well kind of, as in make the differences minimal,
@@ -1178,19 +1629,19 @@ public class InputEventHandler
      * related changes.
      *************************************************************/
 
-    private static final ItemStack EMPTY_STACK = null;
+    public static final ItemStack EMPTY_STACK = null;
 
-    private static boolean isStackEmpty(ItemStack stack)
+    public static boolean isStackEmpty(ItemStack stack)
     {
         return stack == null;
     }
 
-    private static int getStackSize(ItemStack stack)
+    public static int getStackSize(ItemStack stack)
     {
         return stack.stackSize;
     }
 
-    private static void setStackSize(ItemStack stack, int size)
+    public static void setStackSize(ItemStack stack, int size)
     {
         stack.stackSize = size;
     }
