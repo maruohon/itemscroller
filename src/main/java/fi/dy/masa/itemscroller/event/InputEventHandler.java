@@ -543,7 +543,7 @@ public class InputEventHandler
         return false;
     }
 
-    private boolean tryMoveItemsCrafting(GuiContainer gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown)
+    private boolean tryMoveItemsCrafting(GuiContainer gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown, boolean isCtrlDown)
     {
         if (isShiftDown)
         {
@@ -564,7 +564,15 @@ public class InputEventHandler
             else if (slot.getHasStack())
             {
                 this.storeCraftingRecipe(gui, slot);
-                this.shiftClickSlot(gui, slot.slotNumber);
+
+                if (isCtrlDown)
+                {
+                    this.craftAsManyItemsAsPossible(gui, slot);
+                }
+                else
+                {
+                    this.shiftClickSlot(gui, slot.slotNumber);
+                }
             }
             // Scrolling over an empty crafting output slot, clear the crafting grid
             else
@@ -656,6 +664,29 @@ public class InputEventHandler
         }
     }
 
+    private void craftAsManyItemsAsPossible(GuiContainer gui, Slot slot)
+    {
+        int failSafe = 1024;
+
+        while (failSafe > 0 && slot.getHasStack() && areStacksEqual(slot.getStack(), this.craftingResult))
+        {
+            this.shiftClickSlot(gui, slot.slotNumber);
+
+            // Ran out of some or all ingredients for the recipe
+            if (slot.getHasStack() == false || areStacksEqual(slot.getStack(), this.craftingResult) == false)
+            {
+                this.tryMoveItemsToCraftingGridSlots(gui, slot, true);
+            }
+            // No change in the result slot after shift clicking, let's assume the craft failed and stop here
+            else
+            {
+                break;
+            }
+
+            failSafe--;
+        }
+    }
+
     private boolean tryMoveItems(GuiContainer gui, boolean scrollingUp)
     {
         Slot slot = gui.getSlotUnderMouse();
@@ -695,7 +726,7 @@ public class InputEventHandler
 
         if (craftingSlot)
         {
-            return this.tryMoveItemsCrafting(gui, slot, moveToOtherInventory, isShiftDown);
+            return this.tryMoveItemsCrafting(gui, slot, moveToOtherInventory, isShiftDown, isCtrlDown);
         }
 
         if (villagerHandling)
