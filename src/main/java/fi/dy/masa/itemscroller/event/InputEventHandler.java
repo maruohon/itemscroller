@@ -536,7 +536,7 @@ public class InputEventHandler
             // Scrolling items from this slot/inventory into the other inventory
             else if (slot.getHasStack())
             {
-                this.tryMoveSingleItemToOtherInventory(slot, gui);
+                this.moveOneSetOfItemsFromSlotToOtherInventory(gui, slot);
             }
         }
 
@@ -595,11 +595,11 @@ public class InputEventHandler
                     this.tryMoveItemsToCraftingGridSlots(gui, slot, false);
                 }
             }
-            // Scrolling items from this slot/inventory into the other inventory
+            // Scrolling items from this crafting slot into the other inventory
             else if (slot.getHasStack())
             {
                 this.storeCraftingRecipe(gui, slot);
-                //this.tryMoveSingleItemToOtherInventory(slot, gui);
+                this.moveOneSetOfItemsFromSlotToOtherInventory(gui, slot);
             }
             // Scrolling over an empty crafting output slot, clear the crafting grid
             else
@@ -1094,7 +1094,7 @@ public class InputEventHandler
 
         while (index < slotCount)
         {
-            slotNum = this.getSlotNumberOfSmallestAdequateStackFromDifferentInventory(container, slotGridFirst, ingredientReference, slotCount);
+            slotNum = this.getSlotNumberOfSmallestStackFromDifferentInventory(container, slotGridFirst, ingredientReference, slotCount);
 
             // Didn't find ingredient items
             if (slotNum < 0)
@@ -1242,6 +1242,41 @@ public class InputEventHandler
         return count;
     }
 
+    private void moveOneSetOfItemsFromSlotToOtherInventory(GuiContainer gui, Slot slot)
+    {
+        this.leftClickSlot(gui, slot.slotNumber);
+
+        ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+
+        if (isStackEmpty(stackCursor) == false)
+        {
+            List<Integer> slots = this.getSlotNumbersOfMatchingStacksFromDifferentInventory(gui.inventorySlots, slot, stackCursor, true);
+
+            if (this.moveItemFromCursorToSlots(gui, slots) == false)
+            {
+                slots = this.getSlotNumbersOfEmptySlotsFromDifferentInventory(gui.inventorySlots, slot);
+                this.moveItemFromCursorToSlots(gui, slots);
+            }
+        }
+    }
+
+    private boolean moveItemFromCursorToSlots(GuiContainer gui, List<Integer> slotNumbers)
+    {
+        net.minecraft.entity.player.InventoryPlayer inv = gui.mc.player.inventory;
+
+        for (int slotNum : slotNumbers)
+        {
+            this.leftClickSlot(gui, slotNum);
+
+            if (isStackEmpty(inv.getItemStack()))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void moveItemsFromInventory(GuiContainer gui, int slotTo, IInventory invSrc, ItemStack stackTemplate, boolean fillStacks)
     {
         Container container = gui.inventorySlots;
@@ -1296,16 +1331,17 @@ public class InputEventHandler
 
     /**
      * Returns the slot number of the slot that has the smallest stackSize that is still equal to or larger
-     * than minimumSize. The slot must also not be in the same inventory as slotReference.
+     * than idealSize. The slot must also NOT be in the same inventory as slotReference.
+     * If an adequately large stack is not found, then the largest one is selected.
      * @param container
      * @param slotReference
      * @param stackReference
      * @return
      */
-    private int getSlotNumberOfSmallestAdequateStackFromDifferentInventory(Container container, Slot slotReference, ItemStack stackReference, int minSize)
+    private int getSlotNumberOfSmallestStackFromDifferentInventory(Container container, Slot slotReference, ItemStack stackReference, int idealSize)
     {
         int slotNum = -1;
-        int smallest = stackReference.getMaxStackSize() + 1;
+        int smallest = Integer.MAX_VALUE;
 
         for (Slot slot : container.inventorySlots)
         {
@@ -1314,7 +1350,7 @@ public class InputEventHandler
             {
                 int stackSize = getStackSize(slot.getStack());
 
-                if (stackSize < smallest && stackSize >= minSize)
+                if (stackSize < smallest && stackSize >= idealSize)
                 {
                     slotNum = slot.slotNumber;
                     smallest = stackSize;
@@ -1322,7 +1358,82 @@ public class InputEventHandler
             }
         }
 
+        // Didn't find an adequately sized stack, now try to find at least some items...
+        if (slotNum == -1)
+        {
+            int largest = 0;
+
+            for (Slot slot : container.inventorySlots)
+            {
+                if (areSlotsInSameInventory(slot, slotReference) == false && slot.getHasStack() &&
+                    areStacksEqual(stackReference, slot.getStack()))
+                {
+                    int stackSize = getStackSize(slot.getStack());
+
+                    if (stackSize > largest)
+                    {
+                        slotNum = slot.slotNumber;
+                        largest = stackSize;
+                    }
+                }
+            }
+        }
+
         return slotNum;
+    }
+
+    /**
+     * Return the slot numbers of slots that have items identical to stackReference, that are NOT in the same
+     * inventory as slotReference. If preferPartial is true, then stacks with a stackSize less that getMaxStackSize() are
+     * at the beginning of the list (not ordered though) and full stacks are at the end, otherwise the reverse is true.
+     * @param container
+     * @param slotReference
+     * @param stackReference
+     * @param preferPartial
+     * @return
+     */
+    private List<Integer> getSlotNumbersOfMatchingStacksFromDifferentInventory(Container container, Slot slotReference,
+            ItemStack stackReference, boolean preferPartial)
+    {
+        List<Integer> slots = new ArrayList<Integer>(64);
+
+        for (int i = container.inventorySlots.size() - 1; i >= 0; i--)
+        {
+            Slot slot = container.getSlot(i);
+
+            if (slot != null && slot.getHasStack() &&
+                areSlotsInSameInventory(slot, slotReference) == false &&
+                areStacksEqual(slot.getStack(), stackReference))
+            {
+                if ((getStackSize(slot.getStack()) < stackReference.getMaxStackSize()) == preferPartial)
+                {
+                    slots.add(0, slot.slotNumber);
+                }
+                else
+                {
+                    slots.add(slot.slotNumber);
+                }
+            }
+        }
+
+        return slots;
+    }
+
+    private List<Integer> getSlotNumbersOfEmptySlotsFromDifferentInventory(Container container, Slot slotReference)
+    {
+        List<Integer> slots = new ArrayList<Integer>(64);
+
+        for (int i = container.inventorySlots.size() - 1; i >= 0; i--)
+        {
+            Slot slot = container.getSlot(i);
+
+            if (slot != null && slot.getHasStack() == false && areSlotsInSameInventory(slot, slotReference) == false)
+            {
+                slots.add(slot.slotNumber);
+            }
+        }
+
+        return slots;
     }
 
     private static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
