@@ -940,7 +940,7 @@ public class InputEventHandler
                 // Failed to shift-click items, try a manual method
                 if (success == false && Configs.enableScrollingStacksFallback)
                 {
-                    this.clickSlotsToMoveItems(slot, gui, matchingOnly, toOtherInventory);
+                    this.clickSlotsToMoveItemsFromSlot(slotTmp, gui, toOtherInventory);
                 }
 
                 if (firstOnly)
@@ -953,7 +953,7 @@ public class InputEventHandler
         // If moving to the other inventory, then move the hovered slot's stack last
         if (toOtherInventory && this.shiftClickSlotWithCheck(gui, slot.slotNumber) == false)
         {
-            this.clickSlotsToMoveItems(slot, gui, matchingOnly, toOtherInventory);
+            this.clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory);
         }
     }
 
@@ -1381,6 +1381,7 @@ public class InputEventHandler
         return -1;
     }
 
+    /*
     private void clickSlotsToMoveItems(Slot slot, GuiContainer gui, boolean matchingOnly, boolean toOtherInventory)
     {
         for (Slot slotTmp : gui.inventorySlots.inventorySlots)
@@ -1388,7 +1389,7 @@ public class InputEventHandler
             if (slotTmp.slotNumber != slot.slotNumber && areSlotsInSameInventory(slotTmp, slot) == toOtherInventory &&
                 slotTmp.getHasStack() && (matchingOnly == false || areStacksEqual(slot.getStack(), slotTmp.getStack())))
             {
-                this.clickSlotsToMoveItemsFromSlot(slotTmp, slot, gui, toOtherInventory);
+                this.clickSlotsToMoveItemsFromSlot(slotTmp, gui, toOtherInventory);
                 return;
             }
         }
@@ -1396,11 +1397,12 @@ public class InputEventHandler
         // Move the hovered-over slot's stack last
         if (toOtherInventory)
         {
-            this.clickSlotsToMoveItemsFromSlot(slot, slot, gui, toOtherInventory);
+            this.clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory);
         }
     }
+    */
 
-    private void clickSlotsToMoveItemsFromSlot(Slot slotFrom, Slot slotCursor, GuiContainer gui, boolean toOtherInventory)
+    private void clickSlotsToMoveItemsFromSlot(Slot slotFrom, GuiContainer gui, boolean toOtherInventory)
     {
         EntityPlayer player = gui.mc.player;
         // Left click to pick up the found source stack
@@ -1415,7 +1417,7 @@ public class InputEventHandler
         {
             ItemStack stackDst = slotDst.getStack();
 
-            if (areSlotsInSameInventory(slotDst, slotCursor) != toOtherInventory &&
+            if (areSlotsInSameInventory(slotDst, slotFrom) != toOtherInventory &&
                 (isStackEmpty(stackDst) || areStacksEqual(stackDst, player.inventory.getItemStack())))
             {
                 // Left click to (try and) place items to the slot
