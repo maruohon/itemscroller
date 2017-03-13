@@ -932,7 +932,7 @@ public class InputEventHandler
         for (Slot slotTmp : container.inventorySlots)
         {
             if (slotTmp.slotNumber != slot.slotNumber &&
-                areSlotsInSameInventory(slotTmp, slot) == toOtherInventory &&
+                areSlotsInSameInventory(slotTmp, slot) == toOtherInventory && slotTmp.getHasStack() &&
                 (matchingOnly == false || areStacksEqual(stackReference, slotTmp.getStack())))
             {
                 boolean success = this.shiftClickSlotWithCheck(gui, slotTmp.slotNumber);
