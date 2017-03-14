@@ -12,6 +12,7 @@ import fi.dy.masa.itemscroller.event.InputEventHandler;
 public class ClientProxy extends CommonProxy
 {
     public static final KeyBinding KEY_DISABLE = new KeyBinding("itemscroller.desc.toggledisable", KeyConflictContext.GUI, KeyModifier.CONTROL, Keyboard.KEY_S, "itemscroller.category");
+    public static final KeyBinding KEY_RECIPE = new KeyBinding("itemscroller.desc.recipe", KeyConflictContext.GUI, KeyModifier.NONE, Keyboard.KEY_S, "itemscroller.category");
 
     @Override
     public void registerEventHandlers()
@@ -20,5 +21,6 @@ public class ClientProxy extends CommonProxy
         MinecraftForge.EVENT_BUS.register(new Configs());
 
         ClientRegistry.registerKeyBinding(KEY_DISABLE);
+        ClientRegistry.registerKeyBinding(KEY_RECIPE);
     }
 }

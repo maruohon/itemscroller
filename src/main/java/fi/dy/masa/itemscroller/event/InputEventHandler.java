@@ -10,10 +10,16 @@ import java.util.Map;
 import java.util.Set;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.ClickType;
@@ -22,6 +28,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotMerchantResult;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -34,12 +42,15 @@ import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Configs.SlotRange;
 import fi.dy.masa.itemscroller.proxy.ClientProxy;
+import fi.dy.masa.itemscroller.util.CraftingRecipe;
 import fi.dy.masa.itemscroller.util.ItemType;
 import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
 @SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
+    private static final Vec3d LIGHT0_POS = (new Vec3d(0.20000000298023224D, 1.0D, -0.699999988079071D)).normalize();
+    private static final Vec3d LIGHT1_POS = (new Vec3d(-0.20000000298023224D, 1.0D, 0.699999988079071D)).normalize();
     private boolean disabled;
     private int lastPosX;
     private int lastPosY;
@@ -48,8 +59,10 @@ public class InputEventHandler
     private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
     private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
     private ItemStack stackInCursorLast = EMPTY_STACK;
-    private ItemStack[] craftingRecipe = new ItemStack[9];
-    private ItemStack craftingResult = EMPTY_STACK;
+    private CraftingRecipe currentRecipe = new CraftingRecipe();
+    private CraftingRecipe[] storedRecipes = new CraftingRecipe[9];
+    private boolean renderStoredRecipes;
+    private int selectedStoredRecipe;
     private final Field fieldGuiLeft;
     private final Field fieldGuiTop;
     private final Field fieldGuiXSize;
@@ -67,7 +80,10 @@ public class InputEventHandler
         this.methodHandle_getSlotAtPosition = MethodHandleUtils.getMethodHandleVirtual(GuiContainer.class,
                 new String[] { "func_146975_c", "getSlotAtPosition" }, int.class, int.class);
 
-        this.ensureRecipeSizeAndClearRecipe(9);
+        for (int i = 0; i < this.storedRecipes.length; i++)
+        {
+            this.storedRecipes[i] = new CraftingRecipe();
+        }
     }
 
     @SubscribeEvent
@@ -159,6 +175,186 @@ public class InputEventHandler
             else
             {
                 gui.mc.player.playSound(SoundEvents.BLOCK_NOTE_PLING, 0.5f, 1.0f);
+            }
+        }
+        // Show or hide the recipe selection
+        else if (Keyboard.getEventKey() == ClientProxy.KEY_RECIPE.getKeyCode())
+        {
+            if (Keyboard.getEventKeyState())
+            {
+                this.renderStoredRecipes = true;
+            }
+            else
+            {
+                this.renderStoredRecipes = false;
+            }
+        }
+        // Store or load a recipe
+        else if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(ClientProxy.KEY_RECIPE.getKeyCode()) &&
+                 Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_9)
+        {
+            this.storeOrLoadRecipe(gui);
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onRenderGui(GuiScreenEvent.BackgroundDrawnEvent event)
+    {
+        if (this.renderStoredRecipes && event.getGui() instanceof GuiContainer)
+        {
+            GuiContainer gui = (GuiContainer) event.getGui();
+
+            for (int recipeId = 0; recipeId < this.storedRecipes.length; recipeId++)
+            {
+                this.renderStoredRecipeStack(recipeId, this.storedRecipes[recipeId].getResult(),
+                        gui, gui.mc, recipeId == this.selectedStoredRecipe, false);
+            }
+
+            this.renderStoredRecipeStack(0, this.currentRecipe.getResult(), gui, gui.mc, false, true);
+        }
+    }
+
+    private void renderStoredRecipeStack(int recipeId, ItemStack stack, GuiContainer gui, Minecraft mc, boolean selected, boolean isCurrent)
+    {
+        int guiLeft = 0;
+        try { guiLeft = this.fieldGuiLeft.getInt(gui); } catch (Exception e) {}
+
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        final int index = isCurrent ? 4 : recipeId;
+        final int height = scaledResolution.getScaledHeight();
+        final int gap = 40;
+        final int stackBaseHeight = 16;
+        final int usableHeight = height - 2 * gap; // leave a gap on the top and bottom
+        // height of each entry; 9 stored recipes
+        final int entryHeight = (int) (usableHeight / 9);
+        // leave 0.25-th of a stack height gap between each entry
+        final float scale = entryHeight / (stackBaseHeight * 1.25f);
+        // leave a 16 pixel gap from the rendered stack to the gui left edge
+        final float xPosition = guiLeft - scale * stackBaseHeight - stackBaseHeight - (isCurrent ? 0 : 2 * entryHeight);
+        final float yPosition = gap + scale * 0.25f * stackBaseHeight + index * entryHeight;
+        FontRenderer font = getFontRenderer(mc, stack);
+
+        //System.out.printf("sw: %d sh: %d scale: %.3f left: %d usable h: %d entry h: %d\n",
+        //        scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), scale, guiLeft, usableHeight, entryHeight);
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(xPosition, yPosition, 0);
+        GlStateManager.scale(scale, scale, 1);
+        final int w = stackBaseHeight;
+
+        if (selected)
+        {
+            // Draw a light border around the selected/previously loaded recipe
+            Gui.drawRect(    0,     0, w, 1, 0xFFFFFFFF);
+            Gui.drawRect(    0,     0, 1, w, 0xFFFFFFFF);
+            Gui.drawRect(w - 1,     0, w, w, 0xFFFFFFFF);
+            Gui.drawRect(    0, w - 1, w, w, 0xFFFFFFFF);
+        }
+
+        if (isStackEmpty(stack) == false)
+        {
+            if (selected)
+            {
+                Gui.drawRect(1, 1, w - 1, w - 1, 0x30FFFFFF); // light background for the item
+            }
+            else
+            {
+                Gui.drawRect(0, 0, w, w, 0x30FFFFFF); // light background for the item
+            }
+
+            enableGUIStandardItemLighting(scale);
+
+            stack = stack.copy();
+            setStackSize(stack, 1);
+            mc.getRenderItem().zLevel += 100;
+            mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, 0, 0);
+            mc.getRenderItem().renderItemOverlayIntoGUI(font, stack, 0, 0, null);
+            mc.getRenderItem().zLevel -= 100;
+        }
+
+        GlStateManager.disableBlend();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.popMatrix();
+
+        String indexStr = isCurrent ? "=>" : String.valueOf(recipeId + 1);
+        final int strWidth = font.getStringWidth(indexStr);
+
+        font.drawString(indexStr, (int) (xPosition - scale * strWidth - 2), (int) (yPosition + (entryHeight - font.FONT_HEIGHT) / 2 - 2), 0xC0C0C0);
+    }
+
+    public static void enableGUIStandardItemLighting(float scale)
+    {
+        GlStateManager.pushMatrix();
+        GlStateManager.rotate(-30.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotate(165.0F, 1.0F, 0.0F, 0.0F);
+
+        enableStandardItemLighting(scale);
+
+        GlStateManager.popMatrix();
+    }
+
+    public static void enableStandardItemLighting(float scale)
+    {
+        GlStateManager.enableLighting();
+        GlStateManager.enableLight(0);
+        GlStateManager.enableLight(1);
+        GlStateManager.enableColorMaterial();
+        GlStateManager.colorMaterial(1032, 5634);
+        GlStateManager.glLight(16384, 4611, RenderHelper.setColorBuffer((float) LIGHT0_POS.xCoord, (float) LIGHT0_POS.yCoord, (float) LIGHT0_POS.zCoord, 0.0f));
+
+        float lightStrength = 0.3F * scale;
+        GlStateManager.glLight(16384, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
+        GlStateManager.glLight(16384, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.glLight(16384, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.glLight(16385, 4611, RenderHelper.setColorBuffer((float) LIGHT1_POS.xCoord, (float) LIGHT1_POS.yCoord, (float) LIGHT1_POS.zCoord, 0.0f));
+        GlStateManager.glLight(16385, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
+        GlStateManager.glLight(16385, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.glLight(16385, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GlStateManager.shadeModel(7424);
+
+        float ambientLightStrength = 0.4F;
+        GlStateManager.glLightModel(2899, RenderHelper.setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
+    }
+
+    private static FontRenderer getFontRenderer(Minecraft mc, ItemStack stack)
+    {
+        FontRenderer fontRenderer = null;
+
+        if (isStackEmpty(stack) == false)
+        {
+            fontRenderer = stack.getItem().getFontRenderer(stack);
+        }
+
+        return fontRenderer != null ? fontRenderer : mc.fontRendererObj;
+    }
+
+    private void storeOrLoadRecipe(GuiContainer gui)
+    {
+        Slot slot = gui.getSlotUnderMouse();
+        int index = MathHelper.clamp(Keyboard.getEventKey() - Keyboard.KEY_1, 0, 8);
+
+        // A crafting output slot with a stack under the cursor, store a recipe
+        if (GuiScreen.isShiftKeyDown() && slot != null && this.isCraftingSlot(gui, slot))
+        {
+            if (slot.getHasStack())
+            {
+                this.storedRecipes[index].storeCraftingRecipe(gui, slot);
+            }
+            else
+            {
+                this.storedRecipes[index].clearRecipe();
+            }
+        }
+        // Not a crafting output slot with a stack, load a stored recipe
+        else
+        {
+            this.currentRecipe.copyRecipeFrom(this.storedRecipes[index]);
+            this.selectedStoredRecipe = index;
+
+            if (slot != null && isStackEmpty(this.currentRecipe.getResult()) == false)
+            {
+                this.tryMoveItemsToCraftingGridSlots(gui, slot, false);
             }
         }
     }
@@ -552,10 +748,10 @@ public class InputEventHandler
             {
                 if (Configs.craftingScrollingStoreRecipeOnFill && slot.getHasStack())
                 {
-                    this.storeCraftingRecipe(gui, slot);
+                    this.currentRecipe.storeCraftingRecipe(gui, slot);
                 }
 
-                if (isStackEmpty(this.craftingResult) == false)
+                if (isStackEmpty(this.currentRecipe.getResult()) == false)
                 {
                     this.tryMoveItemsToCraftingGridSlots(gui, slot, true);
                 }
@@ -563,7 +759,7 @@ public class InputEventHandler
             // Move items from the crafting output slot
             else if (slot.getHasStack())
             {
-                this.storeCraftingRecipe(gui, slot);
+                this.currentRecipe.storeCraftingRecipe(gui, slot);
 
                 if (isCtrlDown)
                 {
@@ -595,10 +791,10 @@ public class InputEventHandler
             {
                 if (Configs.craftingScrollingStoreRecipeOnFill && slot.getHasStack())
                 {
-                    this.storeCraftingRecipe(gui, slot);
+                    this.currentRecipe.storeCraftingRecipe(gui, slot);
                 }
 
-                if (isStackEmpty(this.craftingResult) == false)
+                if (isStackEmpty(this.currentRecipe.getResult()) == false)
                 {
                     this.tryMoveItemsToCraftingGridSlots(gui, slot, false);
                 }
@@ -606,7 +802,7 @@ public class InputEventHandler
             // Scrolling items from this crafting slot into the other inventory
             else if (slot.getHasStack())
             {
-                this.storeCraftingRecipe(gui, slot);
+                this.currentRecipe.storeCraftingRecipe(gui, slot);
                 this.moveOneSetOfItemsFromSlotToOtherInventory(gui, slot);
             }
             // Scrolling over an empty crafting output slot, clear the crafting grid
@@ -627,53 +823,17 @@ public class InputEventHandler
         return false;
     }
 
-    private void ensureRecipeSizeAndClearRecipe(int size)
-    {
-        if (this.craftingRecipe.length != size)
-        {
-            this.craftingRecipe = new ItemStack[size];
-        }
-
-        for (int i = 0; i < size; i++)
-        {
-            this.craftingRecipe[i] = EMPTY_STACK;
-        }
-    }
-
-    private void storeCraftingRecipe(GuiContainer gui, Slot slot)
-    {
-        SlotRange range = Configs.getCraftingGridSlots(gui, slot);
-
-        if (range != null && slot.getHasStack())
-        {
-
-            if (areStacksEqual(this.craftingResult, slot.getStack()) == false ||
-                this.craftingRecipe.length != range.getSlotCount())
-            {
-                int gridSize = range.getSlotCount();
-                this.ensureRecipeSizeAndClearRecipe(gridSize);
-                this.craftingResult = slot.getStack().copy();
-                int numSlots = gui.inventorySlots.inventorySlots.size();
-
-                for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
-                {
-                    Slot slotTmp = gui.inventorySlots.getSlot(s);
-                    this.craftingRecipe[i] = slotTmp.getHasStack() ? slotTmp.getStack().copy() : EMPTY_STACK;
-                }
-            }
-        }
-    }
-
     private void craftAsManyItemsAsPossible(GuiContainer gui, Slot slot)
     {
+        ItemStack result = this.currentRecipe.getResult();
         int failSafe = 1024;
 
-        while (failSafe > 0 && slot.getHasStack() && areStacksEqual(slot.getStack(), this.craftingResult))
+        while (failSafe > 0 && slot.getHasStack() && areStacksEqual(slot.getStack(), result))
         {
             this.shiftClickSlot(gui, slot.slotNumber);
 
             // Ran out of some or all ingredients for the recipe
-            if (slot.getHasStack() == false || areStacksEqual(slot.getStack(), this.craftingResult) == false)
+            if (slot.getHasStack() == false || areStacksEqual(slot.getStack(), result) == false)
             {
                 this.tryMoveItemsToCraftingGridSlots(gui, slot, true);
             }
@@ -723,7 +883,7 @@ public class InputEventHandler
             // Not a valid proper slot, but set as a crafting slot, store the recipe (mainly for storing a recipe from JEI etc)
             if (craftingHandling && moveToOtherInventory)
             {
-                this.storeCraftingRecipe(gui, slot);
+                this.currentRecipe.storeCraftingRecipe(gui, slot);
             }
 
             return false;
@@ -1058,7 +1218,7 @@ public class InputEventHandler
         SlotRange range = Configs.getCraftingGridSlots(gui, slot);
 
         // Check that the slot range is valid and that the recipe can fit into this type of crafting grid
-        if (range != null && range.getLast() < numSlots && this.craftingRecipe.length <= range.getSlotCount())
+        if (range != null && range.getLast() < numSlots && this.currentRecipe.getRecipeLength() <= range.getSlotCount())
         {
             // Clear non-matching items from the grid first
             if (this.clearCraftingGridOfNonMatchingItems(gui, range) == false)
@@ -1068,7 +1228,7 @@ public class InputEventHandler
 
             // This slot is used to check that we get items from a DIFFERENT inventory than where this slot is in
             Slot slotGridFirst = container.getSlot(range.getFirst());
-            Map<ItemType, List<Integer>> ingredientSlots = ItemType.getSlotsPerItem(this.craftingRecipe);
+            Map<ItemType, List<Integer>> ingredientSlots = ItemType.getSlotsPerItem(this.currentRecipe.getRecipe());
 
             for (Map.Entry<ItemType, List<Integer>> entry : ingredientSlots.entrySet())
             {
@@ -1101,14 +1261,14 @@ public class InputEventHandler
         int numSlots = gui.inventorySlots.inventorySlots.size();
 
         for (int i = 0, slotNum = range.getFirst();
-            i < range.getSlotCount() && i < this.craftingRecipe.length && slotNum < numSlots;
+            i < range.getSlotCount() && i < this.currentRecipe.getRecipeLength() && slotNum < numSlots;
             i++, slotNum++)
         {
             Slot slotTmp = gui.inventorySlots.getSlot(slotNum);
 
-            if (slotTmp != null && slotTmp.getHasStack() && areStacksEqual(this.craftingRecipe[i], slotTmp.getStack()) == false)
+            if (slotTmp != null && slotTmp.getHasStack() && areStacksEqual(this.currentRecipe.getRecipe()[i], slotTmp.getStack()) == false)
             {
-                this.shiftClickSlot(gui, i);
+                this.shiftClickSlot(gui, slotNum);
 
                 // Failed to clear the slot
                 if (slotTmp.getHasStack())
@@ -1472,7 +1632,7 @@ public class InputEventHandler
         return slots;
     }
 
-    private static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
+    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
     {
         return ItemStack.areItemsEqual(stack1, stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
     }
