@@ -699,14 +699,7 @@ public class InputEventHandler
 
         // Villager handling only happens when scrolling over the trade output slot
         boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
-        boolean craftingSlot = this.isCraftingSlot(gui, slot);
-
-        // Check that the slot is valid, (don't require items in case of the villager output slot or a crafting slot)
-        if (this.isValidSlot(slot, gui, villagerHandling || craftingSlot ? false : true) == false)
-        {
-            return false;
-        }
-
+        boolean craftingHandling = Configs.enableScrollingCrafting && this.isCraftingSlot(gui, slot);
         boolean isCtrlDown = GuiContainer.isCtrlKeyDown();
         boolean isShiftDown = GuiContainer.isShiftKeyDown();
         boolean moveToOtherInventory = scrollingUp;
@@ -724,7 +717,19 @@ public class InputEventHandler
             moveToOtherInventory = ! moveToOtherInventory;
         }
 
-        if (craftingSlot)
+        // Check that the slot is valid, (don't require items in case of the villager output slot or a crafting slot)
+        if (this.isValidSlot(slot, gui, villagerHandling || craftingHandling ? false : true) == false)
+        {
+            // Not a valid proper slot, but set as a crafting slot, store the recipe (mainly for storing a recipe from JEI etc)
+            if (craftingHandling && moveToOtherInventory)
+            {
+                this.storeCraftingRecipe(gui, slot);
+            }
+
+            return false;
+        }
+
+        if (craftingHandling)
         {
             return this.tryMoveItemsCrafting(gui, slot, moveToOtherInventory, isShiftDown, isCtrlDown);
         }
