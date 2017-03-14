@@ -33,6 +33,8 @@ public class Configs
     public static boolean enableScrollingVillager;
     public static boolean enableShiftDropItems;
     public static boolean enableShiftPlaceItems;
+
+    public static boolean craftingScrollingStoreRecipeOnFill;
     public static boolean reverseScrollDirectionSingle;
     public static boolean reverseScrollDirectionStacks;
     public static boolean useSlotPositionAwareScrollDirection;
@@ -130,6 +132,16 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "enableShiftPlaceItems", true).setRequiresMcRestart(false);
         prop.setComment("Enable placing items to an empty slot while holding shift to move all the mathing items to that inventory.");
         enableShiftPlaceItems = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "craftingScrollingStoreRecipeOnFill", true).setRequiresMcRestart(false);
+        prop.setComment("If enabled, then the recipe is ALSO stored when scrolling to re-fill the crafting grid," +
+                        " and not only when scrolling to craft items.\n" +
+                        "Note that this will make it impossible to scroll up and down to craft items one at a time from non-stackable ingredients,\n" +
+                        " IF there is also a match to the recipe without those non-stacking items.\n" +
+                        "So for example when trying to craft Dispensers, after the bow is used, the recipe will match a Dropper,\n" +
+                        "and then that Dropper recipe would end up being stored.\n" +
+                        "Note also however, that using the Ctrl + Shift + scroll to craft as many items as possible would still work.\n");
+        craftingScrollingStoreRecipeOnFill = prop.getBoolean();
 
         prop = conf.get(CATEGORY_GENERIC, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
         prop.setComment("Reverse the scrolling direction for single item mode.");

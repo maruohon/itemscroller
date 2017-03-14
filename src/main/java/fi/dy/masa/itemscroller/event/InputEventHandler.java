@@ -550,10 +550,10 @@ public class InputEventHandler
             // Try to fill the crafting grid
             if (moveToOtherInventory == false)
             {
-                /*if (slot.getHasStack())
+                if (Configs.craftingScrollingStoreRecipeOnFill && slot.getHasStack())
                 {
                     this.storeCraftingRecipe(gui, slot);
-                }*/
+                }
 
                 if (isStackEmpty(this.craftingResult) == false)
                 {
@@ -593,10 +593,10 @@ public class InputEventHandler
             // Scrolling items from player inventory into crafting grid slots
             if (moveToOtherInventory == false)
             {
-                /*if (slot.getHasStack())
+                if (Configs.craftingScrollingStoreRecipeOnFill && slot.getHasStack())
                 {
                     this.storeCraftingRecipe(gui, slot);
-                }*/
+                }
 
                 if (isStackEmpty(this.craftingResult) == false)
                 {
