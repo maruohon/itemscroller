@@ -188,7 +188,6 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    //public void onWorldLoad(WorldEvent.Load event)
     public void onJoin(PlayerEvent.PlayerLoggedInEvent event)
     {
         this.recipes.readFromDisk();

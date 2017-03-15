@@ -130,6 +130,8 @@ public class RecipeStorage
                 this.recipes[index].readFromNBT(tag);
             }
         }
+
+        this.changeSelectedRecipe(nbt.getByte("Selected"));
     }
 
     private NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt)
@@ -148,6 +150,7 @@ public class RecipeStorage
         }
 
         nbt.setTag("Recipes", tagRecipes);
+        nbt.setByte("Selected", (byte) this.selected);
 
         return nbt;
     }
