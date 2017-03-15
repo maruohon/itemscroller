@@ -196,7 +196,7 @@ public class InputEventHandler
 
     public void initializeRecipeStorage()
     {
-        this.recipes = new RecipeStorage(9, Configs.craftingScrollingSaveFileIsGlobal);
+        this.recipes = new RecipeStorage(18, Configs.craftingScrollingSaveFileIsGlobal);
     }
 
     public RecipeStorage getRecipes()
