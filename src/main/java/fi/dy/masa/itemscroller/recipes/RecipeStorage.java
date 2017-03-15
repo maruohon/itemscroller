@@ -164,7 +164,7 @@ public class RecipeStorage
 
                 if (server != null)
                 {
-                    name = "recipes_" + server.getWorldName() + ".nbt";
+                    name = "recipes_" + server.getFolderName() + ".nbt";
                 }
             }
             else
