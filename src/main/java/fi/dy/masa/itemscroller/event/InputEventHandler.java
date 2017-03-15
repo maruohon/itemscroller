@@ -74,13 +74,10 @@ public class InputEventHandler
 
             if (dWheel != 0)
             {
-                if (gui.getSlotUnderMouse() == null)
+                // When scrolling while the recipe view is open, change the selection instead of moving items
+                if (RenderEventHandler.getRenderStoredRecipes())
                 {
-                    // When scrolling while NOT over a slot, and the recipe view is open, change the selection
-                    if (RenderEventHandler.getRenderStoredRecipes())
-                    {
-                        this.recipes.scrollSelection(dWheel < 0);
-                    }
+                    this.recipes.scrollSelection(dWheel < 0);
                 }
                 else
                 {
