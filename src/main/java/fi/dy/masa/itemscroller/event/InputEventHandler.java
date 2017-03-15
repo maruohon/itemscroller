@@ -15,8 +15,8 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -188,9 +188,15 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    public void onJoin(PlayerEvent.PlayerLoggedInEvent event)
+    public void onWorldLoad(WorldEvent.Load event)
     {
         this.recipes.readFromDisk();
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Load event)
+    {
+        this.recipes.writeToDisk();
     }
 
     public void initializeRecipeStorage()

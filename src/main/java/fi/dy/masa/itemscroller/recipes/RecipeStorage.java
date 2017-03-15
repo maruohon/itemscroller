@@ -51,6 +51,7 @@ public class RecipeStorage
         if (index >= 0 && index < this.recipes.length)
         {
             this.selected = index;
+            this.dirty = true;
         }
     }
 
@@ -89,7 +90,6 @@ public class RecipeStorage
     {
         this.getRecipe(index).storeCraftingRecipe(gui, slot);
         this.dirty = true;
-        this.writeToDisk();
     }
 
     public void storeCraftingRecipeToCurrentSelection(GuiContainer gui, Slot slot)
@@ -101,7 +101,6 @@ public class RecipeStorage
     {
         this.getRecipe(index).clearRecipe();
         this.dirty = true;
-        this.writeToDisk();
     }
 
     private void readFromNBT(NBTTagCompound nbt)
@@ -207,7 +206,7 @@ public class RecipeStorage
                 if (file.exists() && file.isFile())
                 {
                     this.readFromNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
-                    ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
+                    //ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
                 }
             }
         }
