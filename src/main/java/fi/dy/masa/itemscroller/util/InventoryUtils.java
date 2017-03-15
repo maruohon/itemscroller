@@ -682,7 +682,7 @@ public class InventoryUtils
         if (range != null && range.getLast() < numSlots && recipes.getSelectedRecipe().getRecipeLength() <= range.getSlotCount())
         {
             // Clear non-matching items from the grid first
-            if (clearCraftingGridOfItems(gui, range, recipes, false) == false)
+            if (clearCraftingGridOfItems(gui, range, recipes, true) == false)
             {
                 return false;
             }
