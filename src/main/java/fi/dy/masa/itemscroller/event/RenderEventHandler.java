@@ -1,5 +1,6 @@
 package fi.dy.masa.itemscroller.event;
 
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -9,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -21,7 +23,7 @@ public class RenderEventHandler
     private static boolean renderRecipes;
 
     @SubscribeEvent
-    public void onRenderGui(GuiScreenEvent.BackgroundDrawnEvent event)
+    public void onDrawBackground(GuiScreenEvent.BackgroundDrawnEvent event)
     {
         if (renderRecipes && event.getGui() instanceof GuiContainer)
         {
@@ -37,6 +39,17 @@ public class RenderEventHandler
         }
     }
 
+    @SubscribeEvent
+    public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event)
+    {
+        if (renderRecipes && event.getGui() instanceof GuiContainer)
+        {
+            GuiContainer gui = (GuiContainer) event.getGui();
+            RecipeStorage recipes = InputEventHandler.instance().getRecipes();
+            this.renderHoverTooltip(event.getMouseX(), event.getMouseY(), recipes, gui, gui.mc);
+        }
+    }
+
     public static void setRenderStoredRecipes(boolean render)
     {
         renderRecipes = render;
@@ -45,6 +58,72 @@ public class RenderEventHandler
     public static boolean getRenderStoredRecipes()
     {
         return renderRecipes;
+    }
+
+    private void renderHoverTooltip(int mouseX, int mouseY, RecipeStorage recipes, GuiContainer gui, Minecraft mc)
+    {
+        int guiLeft = 0;
+        try { guiLeft = InputEventHandler.fieldGuiLeft.getInt(gui); } catch (Exception e) {}
+
+        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        final int gap = 40;
+        final int stackBaseHeight = 16;
+        final int usableHeight = scaledResolution.getScaledHeight() - 2 * gap; // leave a gap on the top and bottom
+        // height of each entry; 9 stored recipes
+        final int entryHeight = (int) (usableHeight / 9);
+        // leave 0.25-th of a stack height gap between each entry
+        final float scale = entryHeight / (stackBaseHeight * 1.25f);
+        final int stackScaledSize = (int) (stackBaseHeight * scale);
+        // leave a one stack wide gap from the rendered stack to the gui left edge
+        final float xPosition = guiLeft - scale * stackBaseHeight - stackBaseHeight;
+
+        if (mouseX >= xPosition && mouseX < xPosition + stackScaledSize)
+        {
+            for (int slot = 0; slot < recipes.getRecipeCount(); slot++)
+            {
+                int y = (int) (gap + 0.25f * stackScaledSize + slot * entryHeight);
+
+                if (mouseY >= y && mouseY < y + stackScaledSize)
+                {
+                    ItemStack stack = recipes.getRecipe(slot).getResult();
+
+                    if (InventoryUtils.isStackEmpty(stack) == false)
+                    {
+                        this.renderStackToolTip(mouseX, mouseY, stack, gui, mc);
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    private void renderStackToolTip(int x, int y, ItemStack stack, GuiContainer gui, Minecraft mc)
+    {
+        List<String> list = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips);
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            if (i == 0)
+            {
+                list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+            }
+            else
+            {
+                list.set(i, TextFormatting.GRAY + (String)list.get(i));
+            }
+        }
+
+        FontRenderer font = stack.getItem().getFontRenderer(stack);
+
+        if (font == null)
+        {
+            font = mc.fontRendererObj;
+        }
+
+        net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
+        net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(list, x, y, gui.width, gui.height, -1, font);
+        net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
     }
 
     private void renderStoredRecipeStack(int recipeId, ItemStack stack, GuiContainer gui, Minecraft mc, boolean selected)
@@ -61,7 +140,7 @@ public class RenderEventHandler
         final int entryHeight = (int) (usableHeight / 9);
         // leave 0.25-th of a stack height gap between each entry
         final float scale = entryHeight / (stackBaseHeight * 1.25f);
-        // leave a 16 pixel gap from the rendered stack to the gui left edge
+        // leave a one stack wide gap from the rendered stack to the gui left edge
         final float xPosition = guiLeft - scale * stackBaseHeight - stackBaseHeight;
         final float yPosition = gap + scale * 0.25f * stackBaseHeight + recipeId * entryHeight;
         FontRenderer font = getFontRenderer(mc, stack);
