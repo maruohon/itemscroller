@@ -645,7 +645,7 @@ public class InventoryUtils
         }
     }
 
-    private static boolean clearCraftingGridOfNonMatchingItems(GuiContainer gui, SlotRange range, RecipeStorage recipes)
+    private static boolean clearCraftingGridOfItems(GuiContainer gui, SlotRange range, RecipeStorage recipes, boolean nonMatchingOnly)
     {
         int numSlots = gui.inventorySlots.inventorySlots.size();
 
@@ -656,7 +656,7 @@ public class InventoryUtils
             Slot slotTmp = gui.inventorySlots.getSlot(slotNum);
 
             if (slotTmp != null && slotTmp.getHasStack() &&
-                areStacksEqual(recipes.getSelectedRecipe().getRecipe()[i], slotTmp.getStack()) == false)
+                (nonMatchingOnly == false || areStacksEqual(recipes.getSelectedRecipe().getRecipe()[i], slotTmp.getStack()) == false))
             {
                 shiftClickSlot(gui, slotNum);
 
@@ -681,7 +681,7 @@ public class InventoryUtils
         if (range != null && range.getLast() < numSlots && recipes.getSelectedRecipe().getRecipeLength() <= range.getSlotCount())
         {
             // Clear non-matching items from the grid first
-            if (clearCraftingGridOfNonMatchingItems(gui, range, recipes) == false)
+            if (clearCraftingGridOfItems(gui, range, recipes, false) == false)
             {
                 return false;
             }
