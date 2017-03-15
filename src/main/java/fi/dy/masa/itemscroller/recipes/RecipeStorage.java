@@ -15,6 +15,7 @@ import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.config.Configs;
 
 public class RecipeStorage
 {
@@ -187,6 +188,11 @@ public class RecipeStorage
 
     public void readFromDisk()
     {
+        if (Configs.craftingScrollingSaveToFile == false)
+        {
+            return;
+        }
+
         try
         {
             File saveDir = this.getSaveDir();
@@ -197,8 +203,8 @@ public class RecipeStorage
 
                 if (file.exists() && file.isFile())
                 {
-                    System.out.printf("loading... from file %s\n", file.getPath());
                     this.readFromNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+                    ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
                 }
             }
         }
@@ -210,7 +216,7 @@ public class RecipeStorage
 
     public void writeToDisk()
     {
-        if (this.dirty == false)
+        if (this.dirty == false || Configs.craftingScrollingSaveToFile == false)
         {
             return;
         }

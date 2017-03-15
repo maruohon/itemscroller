@@ -35,6 +35,7 @@ public class Configs
     public static boolean enableShiftPlaceItems;
 
     public static boolean craftingScrollingStoreRecipeOnFill;
+    public static boolean craftingScrollingSaveToFile;
     public static boolean reverseScrollDirectionSingle;
     public static boolean reverseScrollDirectionStacks;
     public static boolean useSlotPositionAwareScrollDirection;
@@ -142,6 +143,11 @@ public class Configs
                         "and then that Dropper recipe would end up being stored.\n" +
                         "Note also however, that using the Ctrl + Shift + scroll to craft as many items as possible would still work.\n");
         craftingScrollingStoreRecipeOnFill = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "craftingScrollingSaveToFile", true).setRequiresMcRestart(false);
+        prop.setComment("Enables saving and loading the stored recipes to a file inside minecraft/itemscroller/recipes_worldorservername.nbt,\n" +
+                        "so that they are persistent between game restarts.");
+        craftingScrollingSaveToFile = prop.getBoolean();
 
         prop = conf.get(CATEGORY_GENERIC, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
         prop.setComment("Reverse the scrolling direction for single item mode.");
