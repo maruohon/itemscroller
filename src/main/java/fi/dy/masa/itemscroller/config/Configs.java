@@ -25,6 +25,7 @@ public class Configs
     public static boolean enableDragMovingShiftLeft;
     public static boolean enableDragMovingShiftRight;
     public static boolean enableDragMovingControlLeft;
+    public static boolean enableRightClickCraftingOneStack;
     public static boolean enableScrollingCrafting;
     public static boolean enableScrollingEverything;
     public static boolean enableScrollingMatchingStacks;
@@ -102,6 +103,10 @@ public class Configs
         prop = conf.get(CATEGORY_GENERIC, "enableMovingEverything", true).setRequiresMcRestart(false);
         prop.setComment("Enable moving all items at once (while holding ctrl and shift).");
         enableScrollingEverything = prop.getBoolean();
+
+        prop = conf.get(CATEGORY_GENERIC, "enableRightClickCraftingOneStack", true).setRequiresMcRestart(false);
+        prop.setComment("Enable crafting up to one full stack when right clicking on a slot that has been configured as a crafting slot");
+        enableRightClickCraftingOneStack = prop.getBoolean();
 
         prop = conf.get(CATEGORY_GENERIC, "enableScrollingCrafting", true).setRequiresMcRestart(false);
         prop.setComment("Enable scrolling items to and from crafting grids, with a built-in one recipe memory.\n" +

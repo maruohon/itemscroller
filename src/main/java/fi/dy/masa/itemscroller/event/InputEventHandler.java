@@ -89,7 +89,12 @@ public class InputEventHandler
                 this.checkForItemPickup(gui);
                 this.storeSourceSlotCandidate(gui);
 
-                if (Configs.enableShiftPlaceItems && InventoryUtils.canShiftPlaceItems(gui))
+                if (Configs.enableRightClickCraftingOneStack && Mouse.getEventButton() == 1 &&
+                    InventoryUtils.isCraftingSlot(gui, gui.getSlotUnderMouse()))
+                {
+                    InventoryUtils.rightClickCraftOneStack(gui);
+                }
+                else if (Configs.enableShiftPlaceItems && InventoryUtils.canShiftPlaceItems(gui))
                 {
                     cancel = this.shiftPlaceItems(gui);
                 }

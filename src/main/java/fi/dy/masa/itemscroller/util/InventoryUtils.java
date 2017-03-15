@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -797,6 +798,37 @@ public class InventoryUtils
         }
     }
 
+    public static void rightClickCraftOneStack(GuiContainer gui)
+    {
+        Slot slot = gui.getSlotUnderMouse();
+        InventoryPlayer inv = gui.mc.player.inventory;
+        ItemStack stackCursor = inv.getItemStack();
+
+        if (slot == null || slot.getHasStack() == false ||
+            (isStackEmpty(stackCursor) == false) && areStacksEqual(slot.getStack(), stackCursor) == false)
+        {
+            return;
+        }
+
+        int sizeLast = 0;
+
+        while (true)
+        {
+            rightClickSlot(gui, slot.slotNumber);
+            stackCursor = inv.getItemStack();
+
+            // Failed to craft items, or the stack became full, or ran out of ingredients
+            if (isStackEmpty(stackCursor) || getStackSize(stackCursor) <= sizeLast ||
+                getStackSize(stackCursor) >= stackCursor.getMaxStackSize() ||
+                areStacksEqual(slot.getStack(), stackCursor) == false)
+            {
+                break;
+            }
+
+            sizeLast = getStackSize(stackCursor);
+        }
+    }
+
     private static int putSingleItemIntoSlots(GuiContainer gui, List<Integer> targetSlots, int startIndex)
     {
         ItemStack stackInCursor = gui.mc.player.inventory.getItemStack();
@@ -893,7 +925,7 @@ public class InventoryUtils
 
     private static boolean moveItemFromCursorToSlots(GuiContainer gui, List<Integer> slotNumbers)
     {
-        net.minecraft.entity.player.InventoryPlayer inv = gui.mc.player.inventory;
+        InventoryPlayer inv = gui.mc.player.inventory;
 
         for (int slotNum : slotNumbers)
         {
