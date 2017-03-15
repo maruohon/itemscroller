@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
-import fi.dy.masa.itemscroller.event.InputEventHandler;
 
 /**
  * Wrapper class for ItemStack, which implements equals()
@@ -50,9 +49,9 @@ public class ItemType
 
         ItemType other = (ItemType) obj;
 
-        if (InputEventHandler.isStackEmpty(this.stack) || InputEventHandler.isStackEmpty(other.stack))
+        if (InventoryUtils.isStackEmpty(this.stack) || InventoryUtils.isStackEmpty(other.stack))
         {
-            if (InputEventHandler.isStackEmpty(this.stack) != InputEventHandler.isStackEmpty(other.stack))
+            if (InventoryUtils.isStackEmpty(this.stack) != InventoryUtils.isStackEmpty(other.stack))
                 return false;
         }
         else
@@ -86,7 +85,7 @@ public class ItemType
         {
             ItemStack stack = stacks[i];
 
-            if (InputEventHandler.isStackEmpty(stack) == false)
+            if (InventoryUtils.isStackEmpty(stack) == false)
             {
                 ItemType item = new ItemType(stack);
                 List<Integer> slots = mapSlots.get(item);

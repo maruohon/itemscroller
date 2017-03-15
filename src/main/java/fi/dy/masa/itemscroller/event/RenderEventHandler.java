@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
 
 public class RenderEventHandler
 {
@@ -82,7 +83,7 @@ public class RenderEventHandler
             Gui.drawRect(    0, w - 1, w, w, 0xFFFFFFFF);
         }
 
-        if (InputEventHandler.isStackEmpty(stack) == false)
+        if (InventoryUtils.isStackEmpty(stack) == false)
         {
             if (selected)
             {
@@ -96,7 +97,7 @@ public class RenderEventHandler
             enableGUIStandardItemLighting(scale);
 
             stack = stack.copy();
-            InputEventHandler.setStackSize(stack, 1);
+            InventoryUtils.setStackSize(stack, 1);
             mc.getRenderItem().zLevel += 100;
             mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, 0, 0);
             mc.getRenderItem().renderItemOverlayIntoGUI(font, stack, 0, 0, null);
@@ -151,7 +152,7 @@ public class RenderEventHandler
     {
         FontRenderer fontRenderer = null;
 
-        if (InputEventHandler.isStackEmpty(stack) == false)
+        if (InventoryUtils.isStackEmpty(stack) == false)
         {
             fontRenderer = stack.getItem().getFontRenderer(stack);
         }
