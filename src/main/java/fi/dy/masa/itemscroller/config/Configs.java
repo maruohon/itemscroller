@@ -17,6 +17,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEve
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.event.InputEventHandler;
 
 public class Configs
 {
@@ -36,6 +37,7 @@ public class Configs
 
     public static boolean craftingScrollingStoreRecipeOnFill;
     public static boolean craftingScrollingSaveToFile;
+    public static boolean craftingScrollingSaveFileIsGlobal;
     public static boolean reverseScrollDirectionSingle;
     public static boolean reverseScrollDirectionStacks;
     public static boolean useSlotPositionAwareScrollDirection;
@@ -149,6 +151,10 @@ public class Configs
                         "so that they are persistent between game restarts.");
         craftingScrollingSaveToFile = prop.getBoolean();
 
+        prop = conf.get(CATEGORY_GENERIC, "craftingScrollingSaveFileIsGlobal", false).setRequiresMcRestart(false);
+        prop.setComment("If true, then a single file is used for storing the recipes, instead of per-world or per-server files");
+        craftingScrollingSaveFileIsGlobal = prop.getBoolean();
+
         prop = conf.get(CATEGORY_GENERIC, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
         prop.setComment("Reverse the scrolling direction for single item mode.");
         reverseScrollDirectionSingle = prop.getBoolean();
@@ -184,6 +190,7 @@ public class Configs
         if (conf.hasChanged())
         {
             conf.save();
+            InputEventHandler.instance().initializeRecipeStorage();
         }
     }
 

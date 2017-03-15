@@ -40,7 +40,7 @@ public class InputEventHandler
     private WeakReference<Slot> sourceSlotCandidate = new WeakReference<Slot>(null);
     private WeakReference<Slot> sourceSlot = new WeakReference<Slot>(null);
     private ItemStack stackInCursorLast = InventoryUtils.EMPTY_STACK;
-    private final RecipeStorage recipes = new RecipeStorage(9, false);
+    private RecipeStorage recipes;
 
     private static final MethodHandle methodHandle_getSlotAtPosition = MethodHandleUtils.getMethodHandleVirtual(GuiContainer.class,
             new String[] { "func_146975_c", "getSlotAtPosition" }, int.class, int.class);
@@ -51,6 +51,7 @@ public class InputEventHandler
 
     public InputEventHandler()
     {
+        this.initializeRecipeStorage();
         instance = this;
     }
 
@@ -189,6 +190,11 @@ public class InputEventHandler
     public void onJoin(PlayerEvent.PlayerLoggedInEvent event)
     {
         this.recipes.readFromDisk();
+    }
+
+    public void initializeRecipeStorage()
+    {
+        this.recipes = new RecipeStorage(9, Configs.craftingScrollingSaveFileIsGlobal);
     }
 
     public RecipeStorage getRecipes()
