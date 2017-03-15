@@ -8,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.InputEventHandler;
+import fi.dy.masa.itemscroller.event.RenderEventHandler;
 
 public class ClientProxy extends CommonProxy
 {
@@ -17,8 +18,9 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerEventHandlers()
     {
-        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
         MinecraftForge.EVENT_BUS.register(new Configs());
+        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
+        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
 
         ClientRegistry.registerKeyBinding(KEY_DISABLE);
         ClientRegistry.registerKeyBinding(KEY_RECIPE);
