@@ -58,7 +58,7 @@ public class InventoryUtils
     /**
      * Checks if there are slots belonging to another inventory on screen above the given slot
      */
-    public static boolean inventoryExistsAbove(Slot slot, Container container)
+    private static boolean inventoryExistsAbove(Slot slot, Container container)
     {
         for (Slot slotTmp : container.inventorySlots)
         {
@@ -207,7 +207,7 @@ public class InventoryUtils
         }
     }
 
-    public static boolean tryMoveItemsVillager(GuiMerchant gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown)
+    private static boolean tryMoveItemsVillager(GuiMerchant gui, Slot slot, boolean moveToOtherInventory, boolean isShiftDown)
     {
         if (isShiftDown)
         {
@@ -369,7 +369,7 @@ public class InventoryUtils
         return false;
     }
 
-    public static boolean tryMoveSingleItemToThisInventory(Slot slot, GuiContainer gui)
+    private static boolean tryMoveSingleItemToThisInventory(Slot slot, GuiContainer gui)
     {
         Container container = gui.inventorySlots;
         ItemStack stackOrig = slot.getStack();
@@ -489,7 +489,7 @@ public class InventoryUtils
         }
     }
 
-    public static void fillBuySlot(GuiContainer gui, int slotNum, ItemStack buyStack, boolean fillStacks)
+    private static void fillBuySlot(GuiContainer gui, int slotNum, ItemStack buyStack, boolean fillStacks)
     {
         Slot slot = gui.inventorySlots.getSlot(slotNum);
         ItemStack existingStack = slot.getStack();
@@ -717,7 +717,7 @@ public class InventoryUtils
         return false;
     }
 
-    public static void fillCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
+    private static void fillCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
     {
         Container container = gui.inventorySlots;
         EntityPlayer player = gui.mc.player;
@@ -859,7 +859,7 @@ public class InventoryUtils
         return count;
     }
 
-    public static void moveOneSetOfItemsFromSlotToOtherInventory(GuiContainer gui, Slot slot)
+    private static void moveOneSetOfItemsFromSlotToOtherInventory(GuiContainer gui, Slot slot)
     {
         leftClickSlot(gui, slot.slotNumber);
 
@@ -877,7 +877,7 @@ public class InventoryUtils
         }
     }
 
-    public static void moveOneRecipeItemIntoCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
+    private static void moveOneRecipeItemIntoCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
     {
         Container container = gui.inventorySlots;
         int index = 0;
