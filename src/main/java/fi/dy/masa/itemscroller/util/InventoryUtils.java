@@ -2,6 +2,7 @@ package fi.dy.masa.itemscroller.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.lwjgl.input.Mouse;
@@ -28,6 +29,13 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 public class InventoryUtils
 {
     public static final Field fieldSelectedMerchantRecipe = ReflectionHelper.findField(GuiMerchant.class, "field_147041_z", "selectedMerchantRecipe");
+
+    public enum MoveType
+    {
+        MOVE_ONE,
+        LEAVE_ONE,
+        MOVE_STACK;
+    }
 
     public static String getStackString(ItemStack stack)
     {
@@ -185,6 +193,114 @@ public class InventoryUtils
         }
 
         return false;
+    }
+
+    public static boolean tryMoveItemsVertically(GuiContainer gui, Slot slot, RecipeStorage recipes, boolean moveUp, MoveType type)
+    {
+        // We require an empty cursor
+        if (slot == null || isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
+        {
+            return false;
+        }
+
+        // Villager handling only happens when scrolling over the trade output slot
+        boolean villagerHandling = Configs.enableScrollingVillager && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
+        boolean craftingHandling = Configs.enableScrollingCrafting && isCraftingSlot(gui, slot);
+        boolean isCtrlDown = GuiContainer.isCtrlKeyDown();
+
+        if (craftingHandling)
+        {
+            return tryMoveItemsCrafting(gui, slot, recipes, moveUp == false, type == MoveType.MOVE_STACK, isCtrlDown);
+        }
+
+        if (villagerHandling)
+        {
+            return tryMoveItemsVillager((GuiMerchant) gui, slot, moveUp == false, type == MoveType.MOVE_STACK);
+        }
+
+        List<Integer> slots = getVerticallyFurthestSuitableSlotsForStackInSlot(gui.inventorySlots, slot, moveUp);
+
+        if (slots.isEmpty())
+        {
+            return false;
+        }
+
+        if (type == MoveType.MOVE_STACK)
+        {
+            moveStackToSlots(gui, slot, slots, false);
+        }
+        else if (type == MoveType.MOVE_ONE)
+        {
+            moveOneItemToFirstValidSlot(gui, slot, slots);
+        }
+        else if (type == MoveType.LEAVE_ONE)
+        {
+            moveStackToSlots(gui, slot, slots, true);
+        }
+
+        return true;
+    }
+
+    private static void moveStackToSlots(GuiContainer gui, Slot slotFrom, List<Integer> slotsTo, boolean leaveOne)
+    {
+        InventoryPlayer inv = gui.mc.player.inventory;
+
+        // Pick up the stack
+        leftClickSlot(gui, slotFrom.slotNumber);
+
+        if (leaveOne)
+        {
+            rightClickSlot(gui, slotFrom.slotNumber);
+        }
+
+        for (int slotNum : slotsTo)
+        {
+            if (isStackEmpty(inv.getItemStack()))
+            {
+                break;
+            }
+
+            leftClickSlot(gui, slotNum);
+            //System.out.printf("suitable slot: %3d\n", slotNum);
+        }
+
+        // Return the rest of the items, if any
+        if (isStackEmpty(inv.getItemStack()) == false)
+        {
+            leftClickSlot(gui, slotFrom.slotNumber);
+        }
+    }
+
+    private static void moveOneItemToFirstValidSlot(GuiContainer gui, Slot slotFrom, List<Integer> slotsTo)
+    {
+        InventoryPlayer inv = gui.mc.player.inventory;
+
+        // Pick up half of the the stack
+        rightClickSlot(gui, slotFrom.slotNumber);
+
+        if (isStackEmpty(inv.getItemStack()))
+        {
+            return;
+        }
+
+        int sizeOrig = getStackSize(inv.getItemStack());
+
+        for (int slotNum : slotsTo)
+        {
+            rightClickSlot(gui, slotNum);
+            ItemStack stackCursor = inv.getItemStack();
+
+            if (isStackEmpty(stackCursor) || getStackSize(stackCursor) != sizeOrig)
+            {
+                break;
+            }
+        }
+
+        // Return the rest of the items, if any
+        if (isStackEmpty(inv.getItemStack()) == false)
+        {
+            leftClickSlot(gui, slotFrom.slotNumber);
+        }
     }
 
     public static void dropStacks(GuiContainer gui, ItemStack stackReference, Slot sourceInvSlot)
@@ -966,6 +1082,76 @@ public class InventoryUtils
                     break;
                 }
             }
+        }
+    }
+
+    private static List<Integer> getVerticallyFurthestSuitableSlotsForStackInSlot(Container container, Slot slot, boolean above)
+    {
+        if (slot == null || slot.getHasStack() == false)
+        {
+            return Collections.emptyList();
+        }
+
+        List<SlotVerticalSorter> slotSorters = new ArrayList<SlotVerticalSorter>();
+        ItemStack stackSlot = slot.getStack();
+
+        for (Slot slotTmp : container.inventorySlots)
+        {
+            if (slotTmp.slotNumber != slot.slotNumber && slotTmp.yPos != slot.yPos)
+            {
+                if (above == slotTmp.yPos < slot.yPos)
+                {
+                    ItemStack stackTmp = slotTmp.getStack();
+
+                    if ((isStackEmpty(stackTmp) && slotTmp.isItemValid(stackSlot)) ||
+                        (areStacksEqual(stackTmp, stackSlot)) && slotTmp.getItemStackLimit(stackTmp) > getStackSize(stackTmp))
+                    {
+                        slotSorters.add(new SlotVerticalSorter(slotTmp));
+                    }
+                }
+            }
+        }
+
+        Collections.sort(slotSorters);
+
+        if (above == false)
+        {
+            Collections.reverse(slotSorters);
+        }
+
+        List<Integer> slots = new ArrayList<Integer>();
+
+        for (SlotVerticalSorter entry : slotSorters)
+        {
+            slots.add(entry.getSlot().slotNumber);
+        }
+
+        return slots;
+    }
+
+    private static class SlotVerticalSorter implements Comparable<SlotVerticalSorter>
+    {
+        private final Slot slot;
+
+        public SlotVerticalSorter(Slot slot)
+        {
+            this.slot = slot;
+        }
+
+        public Slot getSlot()
+        {
+            return this.slot;
+        }
+
+        @Override
+        public int compareTo(SlotVerticalSorter other)
+        {
+            if (this.getSlot().yPos == other.getSlot().yPos)
+            {
+                return this.getSlot().slotNumber < other.getSlot().slotNumber ? -1 : 1;
+            }
+
+            return (this.getSlot().yPos < other.getSlot().yPos) ? -1 : 1;
         }
     }
 

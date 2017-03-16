@@ -26,6 +26,7 @@ import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.proxy.ClientProxy;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.itemscroller.util.InventoryUtils.MoveType;
 import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
 @SideOnly(Side.CLIENT)
@@ -104,7 +105,14 @@ public class InputEventHandler
                 }
                 else if (Configs.enableDragMovingShiftLeft || Configs.enableDragMovingShiftRight || Configs.enableDragMovingControlLeft)
                 {
-                    cancel = this.dragMoveItems(gui);
+                    cancel = this.dragMoveItems(gui, this.shouldMoveVertically());
+                }
+                else if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0 && this.shouldMoveVertically())
+                {
+                    InventoryUtils.tryMoveItemsVertically(gui, gui.getSlotUnderMouse(),
+                            this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), MoveType.MOVE_STACK);
+                    this.slotNumberLast = -1;
+                    cancel = true;
                 }
             }
 
@@ -332,7 +340,22 @@ public class InputEventHandler
         return false;
     }
 
-    private boolean dragMoveItems(GuiContainer gui)
+    private boolean shouldMoveVertically()
+    {
+        return Configs.enableWSClicking && (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_S));
+    }
+
+    private MoveType getMoveType()
+    {
+        boolean leftButtonDown = Mouse.isButtonDown(0);
+        boolean isShiftDown = GuiScreen.isShiftKeyDown();
+
+        if (isShiftDown == false)           { return MoveType.MOVE_ONE;   }
+        else if (leftButtonDown == false)   { return MoveType.LEAVE_ONE;  }
+        else                                { return MoveType.MOVE_STACK; }
+    }
+
+    private boolean dragMoveItems(GuiContainer gui, boolean moveVertically)
     {
         int mouseX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
         int mouseY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
@@ -360,18 +383,25 @@ public class InputEventHandler
             return false;
         }
 
-        boolean leaveOneItem = leftButtonDown == false;
-        boolean moveOnlyOne = isShiftDown == false;
         boolean cancel = false;
+        MoveType moveType = this.getMoveType();
 
         if (Mouse.getEventButtonState())
         {
             if (((eventKeyIsLeftButton || eventKeyIsRightButton) && isControlDown && Configs.enableDragMovingControlLeft) ||
-                (eventKeyIsRightButton && isShiftDown && Configs.enableDragMovingShiftRight))
+                (eventKeyIsRightButton && isShiftDown && Configs.enableDragMovingShiftRight) ||
+                (eventKeyIsLeftButton && moveVertically))
             {
+                // Allow moving entire stack with just W or S down, (without Shift),
+                // but only when first clicking the left button down, and when not holding Control
+                if (moveVertically && eventKeyIsLeftButton && isControlDown == false)
+                {
+                    moveType = MoveType.MOVE_STACK;
+                }
+
                 // Reset this or the method call won't do anything...
                 this.slotNumberLast = -1;
-                cancel = this.dragMoveFromSlotAtPosition(gui, mouseX, mouseY, leaveOneItem, moveOnlyOne);
+                cancel = this.dragMoveFromSlotAtPosition(gui, mouseX, mouseY, moveType, moveVertically);
             }
         }
 
@@ -390,7 +420,7 @@ public class InputEventHandler
                 for (int x = this.lastPosX; ; x += inc)
                 {
                     int y = absX != 0 ? this.lastPosY + ((x - this.lastPosX) * distY / absX) : mouseY;
-                    this.dragMoveFromSlotAtPosition(gui, x, y, leaveOneItem, moveOnlyOne);
+                    this.dragMoveFromSlotAtPosition(gui, x, y, moveType, moveVertically);
 
                     if (x == mouseX)
                     {
@@ -405,7 +435,7 @@ public class InputEventHandler
                 for (int y = this.lastPosY; ; y += inc)
                 {
                     int x = absY != 0 ? this.lastPosX + ((y - this.lastPosY) * distX / absY) : mouseX;
-                    this.dragMoveFromSlotAtPosition(gui, x, y, leaveOneItem, moveOnlyOne);
+                    this.dragMoveFromSlotAtPosition(gui, x, y, moveType, moveVertically);
 
                     if (y == mouseY)
                     {
@@ -433,26 +463,34 @@ public class InputEventHandler
         return cancel;
     }
 
-    private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, boolean leaveOneItem, boolean moveOnlyOne)
+    private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, MoveType moveType, boolean moveVertically)
     {
         Slot slot = this.getSlotAtPosition(gui, x, y);
         boolean flag = slot != null && InventoryUtils.isValidSlot(slot, gui, true) && slot.canTakeStack(gui.mc.player);
-        boolean cancel = flag && (leaveOneItem || moveOnlyOne);
+        boolean cancel = flag && (moveType == MoveType.LEAVE_ONE || moveType == MoveType.MOVE_ONE);
 
         if (flag && slot.slotNumber != this.slotNumberLast && this.draggedSlots.contains(slot.slotNumber) == false)
         {
-            if (moveOnlyOne)
+            if (moveVertically)
             {
-                cancel = InventoryUtils.tryMoveSingleItemToOtherInventory(slot, gui);
-            }
-            else if (leaveOneItem)
-            {
-                cancel = InventoryUtils.tryMoveAllButOneItemToOtherInventory(slot, gui);
+                InventoryUtils.tryMoveItemsVertically(gui, slot, this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), moveType);
+                cancel = true;
             }
             else
             {
-                InventoryUtils.shiftClickSlot(gui, slot.slotNumber);
-                cancel = true;
+                if (moveType == MoveType.MOVE_ONE)
+                {
+                    cancel = InventoryUtils.tryMoveSingleItemToOtherInventory(slot, gui);
+                }
+                else if (moveType == MoveType.LEAVE_ONE)
+                {
+                    cancel = InventoryUtils.tryMoveAllButOneItemToOtherInventory(slot, gui);
+                }
+                else
+                {
+                    InventoryUtils.shiftClickSlot(gui, slot.slotNumber);
+                    cancel = true;
+                }
             }
 
             this.draggedSlots.add(slot.slotNumber);

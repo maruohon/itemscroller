@@ -35,6 +35,7 @@ public class Configs
     public static boolean enableScrollingVillager;
     public static boolean enableShiftDropItems;
     public static boolean enableShiftPlaceItems;
+    public static boolean enableWSClicking;
 
     public static boolean craftingScrollingStoreRecipeOnFill;
     public static boolean craftingScrollingSaveToFile;
@@ -113,6 +114,10 @@ public class Configs
         prop = conf.get(category, "enableShiftPlaceItems", true).setRequiresMcRestart(false);
         prop.setComment("Enable placing items to an empty slot while holding shift to move all the mathing items to that inventory.");
         enableShiftPlaceItems = prop.getBoolean();
+
+        prop = conf.get(category, "enableWSClicking", true).setRequiresMcRestart(false);
+        prop.setComment("Enable clicking on stacks while holding W or S to move the stack up or down in the inventory");
+        enableWSClicking = prop.getBoolean();
 
         prop = conf.get(category, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
         prop.setComment("Reverse the scrolling direction for single item mode.");
