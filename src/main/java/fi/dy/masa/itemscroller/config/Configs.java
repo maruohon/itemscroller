@@ -11,10 +11,10 @@ import java.util.regex.PatternSyntaxException;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
+import cpw.mods.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.event.InputEventHandler;
@@ -59,7 +59,7 @@ public class Configs
     @SubscribeEvent
     public void onConfigChangedEvent(OnConfigChangedEvent event)
     {
-        if (Reference.MOD_ID.equals(event.getModID()) == true)
+        if (Reference.MOD_ID.equals(event.modID))
         {
             loadConfigs(config);
         }
@@ -81,117 +81,117 @@ public class Configs
         String category = CATEGORY_GENERIC;
 
         prop = conf.get(category, "craftingScrollingStoreRecipeOnFill", true).setRequiresMcRestart(false);
-        prop.setComment("If enabled, then the recipe is ALSO stored when scrolling to re-fill the crafting grid," +
+        prop.comment = "If enabled, then the recipe is ALSO stored when scrolling to re-fill the crafting grid," +
                         " and not only when scrolling to craft items.\n" +
                         "Note that this will make it impossible to scroll up and down to craft items one at a time from non-stackable ingredients,\n" +
                         " IF there is also a match to the recipe without those non-stacking items.\n" +
                         "So for example when trying to craft Dispensers, after the bow is used, the recipe will match a Dropper,\n" +
                         "and then that Dropper recipe would end up being stored.\n" +
-                        "Note also however, that using the Ctrl + Shift + scroll to craft as many items as possible would still work.\n");
+                        "Note also however, that using the Ctrl + Shift + scroll to craft as many items as possible would still work.\n";
         craftingScrollingStoreRecipeOnFill = prop.getBoolean();
 
         prop = conf.get(category, "craftingScrollingSaveFileIsGlobal", false).setRequiresMcRestart(false);
-        prop.setComment("If true, then a single file is used for storing the recipes, instead of per-world or per-server files");
+        prop.comment = "If true, then a single file is used for storing the recipes, instead of per-world or per-server files";
         craftingScrollingSaveFileIsGlobal = prop.getBoolean();
 
         prop = conf.get(category, "craftingScrollingSaveToFile", true).setRequiresMcRestart(false);
-        prop.setComment("Enables saving and loading the stored recipes to a file inside minecraft/itemscroller/recipes_worldorservername.nbt,\n" +
-                        "so that they are persistent between game restarts.");
+        prop.comment = "Enables saving and loading the stored recipes to a file inside minecraft/itemscroller/recipes_worldorservername.nbt,\n" +
+                        "so that they are persistent between game restarts.";
         craftingScrollingSaveToFile = prop.getBoolean();
 
         prop = conf.get(category, "enableControlShiftDropkeyDropItems", true).setRequiresMcRestart(false);
-        prop.setComment("Enable dropping all matching items from the same inventory when pressing Ctrl + Shift + the drop key");
+        prop.comment = "Enable dropping all matching items from the same inventory when pressing Ctrl + Shift + the drop key";
         enableControlShiftDropkeyDropItems = prop.getBoolean();
 
         prop = conf.get(category, "enableRightClickCraftingOneStack", true).setRequiresMcRestart(false);
-        prop.setComment("Enable crafting up to one full stack when right clicking on a slot that has been configured as a crafting slot");
+        prop.comment = "Enable crafting up to one full stack when right clicking on a slot that has been configured as a crafting slot";
         enableRightClickCraftingOneStack = prop.getBoolean();
 
         prop = conf.get(category, "enableShiftDropItems", true).setRequiresMcRestart(false);
-        prop.setComment("Enable dropping items while holding shift to drop all the matching items at once.");
+        prop.comment = "Enable dropping items while holding shift to drop all the matching items at once.";
         enableShiftDropItems = prop.getBoolean();
 
         prop = conf.get(category, "enableShiftPlaceItems", true).setRequiresMcRestart(false);
-        prop.setComment("Enable placing items to an empty slot while holding shift to move all the mathing items to that inventory.");
+        prop.comment = "Enable placing items to an empty slot while holding shift to move all the mathing items to that inventory.";
         enableShiftPlaceItems = prop.getBoolean();
 
         prop = conf.get(category, "enableWSClicking", true).setRequiresMcRestart(false);
-        prop.setComment("Enable clicking on stacks while holding W or S to move the stack up or down in the inventory");
+        prop.comment = "Enable clicking on stacks while holding W or S to move the stack up or down in the inventory";
         enableWSClicking = prop.getBoolean();
 
         prop = conf.get(category, "reverseScrollDirectionSingle", false).setRequiresMcRestart(false);
-        prop.setComment("Reverse the scrolling direction for single item mode.");
+        prop.comment = "Reverse the scrolling direction for single item mode.";
         reverseScrollDirectionSingle = prop.getBoolean();
 
         prop = conf.get(category, "reverseScrollDirectionStacks", false).setRequiresMcRestart(false);
-        prop.setComment("Reverse the scrolling direction for full stacks mode.");
+        prop.comment = "Reverse the scrolling direction for full stacks mode.";
         reverseScrollDirectionStacks = prop.getBoolean();
 
         prop = conf.get(category, "useSlotPositionAwareScrollDirection", false).setRequiresMcRestart(false);
-        prop.setComment("When enabled, the item movement direction depends on the slots' y-position on screen. Might be derpy with more complex inventories, use with caution!");
+        prop.comment = "When enabled, the item movement direction depends on the slots' y-position on screen. Might be derpy with more complex inventories, use with caution!";
         useSlotPositionAwareScrollDirection = prop.getBoolean();
 
 
         category = CATEGORY_DRAG_ENABLE;
 
         prop = conf.get(category, "enableDragMovingShiftLeft", true).setRequiresMcRestart(false);
-        prop.setComment("Enable moving full stacks of items by holding down Shift and dragging over slots with the left mouse button held down.");
+        prop.comment = "Enable moving full stacks of items by holding down Shift and dragging over slots with the left mouse button held down.";
         enableDragMovingShiftLeft = prop.getBoolean();
 
         prop = conf.get(category, "enableDragMovingShiftRight", true).setRequiresMcRestart(false);
-        prop.setComment("Enable moving everything but the last item from all stacks by holding down Shift and dragging over slots with the right mouse button held down.");
+        prop.comment = "Enable moving everything but the last item from all stacks by holding down Shift and dragging over slots with the right mouse button held down.";
         enableDragMovingShiftRight = prop.getBoolean();
 
         prop = conf.get(category, "enableDragMovingControlLeft", true).setRequiresMcRestart(false);
-        prop.setComment("Enable moving one item from all stacks by holding down Control and dragging over slots with the left mouse button held down.");
+        prop.comment = "Enable moving one item from all stacks by holding down Control and dragging over slots with the left mouse button held down.";
         enableDragMovingControlLeft = prop.getBoolean();
 
 
         category = CATEGORY_SCROLLING_ENABLE;
 
         prop = conf.get(category, "enableScrollingCrafting", true).setRequiresMcRestart(false);
-        prop.setComment("Enable scrolling items to and from crafting grids, with a built-in 9 recipe memory.\n" +
+        prop.comment = "Enable scrolling items to and from crafting grids, with a built-in 9 recipe memory.\n" +
                         "Hold down the Recipe key to see the stored recipes and to change the selection.\n" +
                         "While holding the Recipe key, you can either scroll or press a number key to change the selection.\n" +
                         "A recipe is stored to the currently selected \"recipe slot\" by scrolling over the output slot,\n" +
                         "or by pressing Shift + the Recipe key + a number key.\n" +
-                        "The supported crafting grids must be added to the scrollableCraftingGrids list.");
+                        "The supported crafting grids must be added to the scrollableCraftingGrids list.";
         enableScrollingCrafting = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingEverything", true).setRequiresMcRestart(false);
-        prop.setComment("Enable moving all items at once (while holding ctrl and shift).");
+        prop.comment = "Enable moving all items at once (while holding ctrl and shift).";
         enableScrollingEverything = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingMatchingStacks", true).setRequiresMcRestart(false);
-        prop.setComment("Enable moving all matching items at once (while holding ctrl).");
+        prop.comment = "Enable moving all matching items at once (while holding ctrl).";
         enableScrollingMatchingStacks = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingSingle", true).setRequiresMcRestart(false);
-        prop.setComment("Enable scrolling items one item at a time.");
+        prop.comment = "Enable scrolling items one item at a time.";
         enableScrollingSingle = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingStacks", true).setRequiresMcRestart(false);
-        prop.setComment("Enable scrolling full stack (while holding shift).");
+        prop.comment = "Enable scrolling full stack (while holding shift).";
         enableScrollingStacks = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingStacksFallback", true).setRequiresMcRestart(false);
-        prop.setComment("Enable a \"fallback\" mode for scrolling entire stacks (for example to a vanilla crafting table, where shift + click doesn't work).");
+        prop.comment = "Enable a \"fallback\" mode for scrolling entire stacks (for example to a vanilla crafting table, where shift + click doesn't work).";
         enableScrollingStacksFallback = prop.getBoolean();
 
         prop = conf.get(category, "enableScrollingVillager", true).setRequiresMcRestart(false);
-        prop.setComment("Enable special handling for Villager GUI (normally you can't shift+click items into them).");
+        prop.comment = "Enable special handling for Villager GUI (normally you can't shift+click items into them).";
         enableScrollingVillager = prop.getBoolean();
 
 
         category = CATEGORY_LISTS;
 
         prop = conf.get(category, "blackListedGuis", new String[0]).setRequiresMcRestart(false);
-        prop.setComment("A list of GuiContainer classes where Item Scroller shouldn't do anything");
+        prop.comment = "A list of GuiContainer classes where Item Scroller shouldn't do anything";
         GUI_BLACKLIST.clear();
         for (String str : prop.getStringList()) { GUI_BLACKLIST.add(str); }
 
         prop = conf.get(category, "blackListedSlots", new String[] { "appeng.client.me.SlotME", "slimeknights.mantle.inventory.SlotWrapper" }).setRequiresMcRestart(false);
-        prop.setComment("A list of Slot classes that Item Scroller shouldn't use");
+        prop.comment = "A list of Slot classes that Item Scroller shouldn't use";
         SLOT_BLACKLIST.clear();
         for (String str : prop.getStringList()) { SLOT_BLACKLIST.add(str); }
 
@@ -202,7 +202,7 @@ public class Configs
                 "fi.dy.masa.enderutilities.gui.client.GuiCreationStation,fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult,40,31-39", // Ender Utilities Creation Station, left
                 "fi.dy.masa.enderutilities.gui.client.GuiCreationStation,fi.dy.masa.enderutilities.inventory.slot.SlotItemHandlerCraftresult,50,41-49", // Ender Utilities Creation Station, right
                 }).setRequiresMcRestart(false);
-        prop.setComment("A list of crafting grid specifiers for the crafting grid scrolling feature.\n" +
+        prop.comment = "A list of crafting grid specifiers for the crafting grid scrolling feature.\n" +
                         "All the crafting grids that you want to be usable for that feature, must be added in this list.\n" +
                         "The entries must be one per line, in the following format: guiclassname,slotclassname,outputslotnumber,gridfirstslotnumber-gridlastslotnumber\n" +
                         "To find out the class names and slot numbers, you can use the 'Ctrl + Alt + Shift + I' debug key combination\n" +
@@ -212,7 +212,7 @@ public class Configs
                         "NOTE: This feature is actually in no way specific or tied to crafting grids.\n" +
                         "It can be used for other types of inventories as well, where you must move items into specific slots.\n" +
                         "The limitations are special, non-standard slots like AE2, which don't have proper slot numbers.\n" +
-                        "The \"recipe\" slots should also form a continuous range, otherwise weirds stuff might happen when scrolling.");
+                        "The \"recipe\" slots should also form a continuous range, otherwise weirds stuff might happen when scrolling.";
         addCraftingGrids(prop.getStringList());
 
         if (conf.hasChanged())

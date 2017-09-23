@@ -1,33 +1,40 @@
 package fi.dy.masa.itemscroller.event;
 
-import java.util.List;
+import java.lang.invoke.MethodHandle;
+import java.nio.FloatBuffer;
+import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.Vec3;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
 public class RenderEventHandler
 {
-    private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
-    private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
+    private static final FloatBuffer COLOR_BUFFER = GLAllocation.createDirectFloatBuffer(16);
+    private static final Vec3 LIGHT0_POS = Vec3.createVectorHelper( 0.2D, 1.0D, -0.7D).normalize();
+    private static final Vec3 LIGHT1_POS = Vec3.createVectorHelper(-0.2D, 1.0D,  0.7D).normalize();
+    private static final MethodHandle METHODHANDLE_GuiScreen_renderTooltip =
+            MethodHandleUtils.getMethodHandleVirtual(GuiScreen.class, new String[] { "func_146285_a", "renderToolTip" }, ItemStack.class, int.class, int.class);
     private static boolean renderRecipes;
 
     @SubscribeEvent
-    public void onDrawBackground(GuiScreenEvent.BackgroundDrawnEvent event)
+    public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event)
     {
-        if (renderRecipes && event.getGui() instanceof GuiContainer)
+        if (renderRecipes && event.gui instanceof GuiContainer)
         {
-            GuiContainer gui = (GuiContainer) event.getGui();
+            GuiContainer gui = (GuiContainer) event.gui;
             RecipeStorage recipes = InputEventHandler.instance().getRecipes();
             int count = recipes.getRecipeCount();
 
@@ -36,17 +43,8 @@ public class RenderEventHandler
                 this.renderStoredRecipeStack(recipeId, count, recipes.getRecipe(recipeId).getResult(),
                         gui, gui.mc, recipeId == recipes.getSelection());
             }
-        }
-    }
 
-    @SubscribeEvent
-    public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event)
-    {
-        if (renderRecipes && event.getGui() instanceof GuiContainer)
-        {
-            GuiContainer gui = (GuiContainer) event.getGui();
-            RecipeStorage recipes = InputEventHandler.instance().getRecipes();
-            this.renderHoverTooltip(event.getMouseX(), event.getMouseY(), recipes, gui, gui.mc);
+            this.renderHoverTooltip(event.mouseX, event.mouseY, recipes, gui, gui.mc);
         }
     }
 
@@ -65,7 +63,7 @@ public class RenderEventHandler
         int guiLeft = 0;
         try { guiLeft = InputEventHandler.fieldGuiLeft.getInt(gui); } catch (Exception e) {}
 
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         final int gap = 40;
         final int recipesPerColumn = 9;
         final int stackBaseHeight = 16;
@@ -90,7 +88,15 @@ public class RenderEventHandler
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    this.renderStackToolTip(mouseX, mouseY, stack, gui, mc);
+                    try
+                    {
+                        //gui.renderToolTip(stack, mouseX, mouseY);
+                        METHODHANDLE_GuiScreen_renderTooltip.invokeExact(stack, mouseX, mouseY);
+                    }
+                    catch (Throwable t)
+                    {
+                    }
+                    //this.renderStackToolTip(mouseX, mouseY, stack, gui, mc);
                 }
 
                 break;
@@ -107,7 +113,7 @@ public class RenderEventHandler
         final String indexStr = String.valueOf(recipeId + 1);
         final int strWidth = font.getStringWidth(indexStr);
 
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
+        ScaledResolution scaledResolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
         final int gap = 40;
         final int recipesPerColumn = 9;
         final int stackBaseHeight = 16;
@@ -125,9 +131,9 @@ public class RenderEventHandler
         //System.out.printf("sw: %d sh: %d scale: %.3f left: %d usable h: %d entry h: %d\n",
         //        scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), scale, guiLeft, usableHeight, entryHeight);
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(xPosition, yPosition, 0);
-        GlStateManager.scale(scale, scale, 1);
+        GL11.glPushMatrix();
+        GL11.glTranslatef(xPosition, yPosition, 0);
+        GL11.glScalef(scale, scale, 1);
         final int w = stackBaseHeight;
 
         if (selected)
@@ -154,51 +160,61 @@ public class RenderEventHandler
 
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
-            mc.getRenderItem().zLevel += 100;
-            mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, 0, 0);
-            mc.getRenderItem().renderItemOverlayIntoGUI(font, stack, 0, 0, null);
-            mc.getRenderItem().zLevel -= 100;
+            RenderItem renderItem = RenderItem.getInstance();
+            renderItem.zLevel += 100;
+            renderItem.renderItemAndEffectIntoGUI(font, mc.getTextureManager(), stack, 0, 0);
+            renderItem.renderItemOverlayIntoGUI(font, mc.getTextureManager(), stack, 0, 0);
+            renderItem.zLevel -= 100;
         }
 
-        GlStateManager.disableBlend();
+        GL11.glDisable(GL11.GL_BLEND);
         RenderHelper.disableStandardItemLighting();
-        GlStateManager.popMatrix();
+        GL11.glPopMatrix();
 
         font.drawString(indexStr, (int) (xPosition - scale * strWidth), (int) (yPosition + (entryHeight - font.FONT_HEIGHT) / 2 - 2), 0xC0C0C0);
     }
 
     public static void enableGUIStandardItemLighting(float scale)
     {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(-30.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(165.0F, 1.0F, 0.0F, 0.0F);
+        GL11.glPushMatrix();
+        GL11.glRotatef(-30.0F, 0.0F, 1.0F, 0.0F);
+        GL11.glRotatef(165.0F, 1.0F, 0.0F, 0.0F);
 
         enableStandardItemLighting(scale);
 
-        GlStateManager.popMatrix();
+        GL11.glPopMatrix();
     }
 
     public static void enableStandardItemLighting(float scale)
     {
-        GlStateManager.enableLighting();
-        GlStateManager.enableLight(0);
-        GlStateManager.enableLight(1);
-        GlStateManager.enableColorMaterial();
-        GlStateManager.colorMaterial(1032, 5634);
-        GlStateManager.glLight(16384, 4611, RenderHelper.setColorBuffer((float) LIGHT0_POS.xCoord, (float) LIGHT0_POS.yCoord, (float) LIGHT0_POS.zCoord, 0.0f));
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_LIGHT0);
+        GL11.glEnable(GL11.GL_LIGHT1);
+        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+        GL11.glColorMaterial(GL11.GL_FRONT_AND_BACK, GL11.GL_AMBIENT_AND_DIFFUSE);
 
         float lightStrength = 0.3F * scale;
-        GlStateManager.glLight(16384, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
-        GlStateManager.glLight(16384, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.glLight(16384, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.glLight(16385, 4611, RenderHelper.setColorBuffer((float) LIGHT1_POS.xCoord, (float) LIGHT1_POS.yCoord, (float) LIGHT1_POS.zCoord, 0.0f));
-        GlStateManager.glLight(16385, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
-        GlStateManager.glLight(16385, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.glLight(16385, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.shadeModel(7424);
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_POSITION, setColorBuffer((float) LIGHT0_POS.xCoord, (float) LIGHT0_POS.yCoord, (float) LIGHT0_POS.zCoord, 0.0F));
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_DIFFUSE,  setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_AMBIENT,  setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GL11.glLight(GL11.GL_LIGHT0, GL11.GL_SPECULAR, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_POSITION, setColorBuffer((float) LIGHT1_POS.xCoord, (float) LIGHT1_POS.yCoord, (float) LIGHT1_POS.zCoord, 0.0F));
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_DIFFUSE,  setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_AMBIENT,  setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GL11.glLight(GL11.GL_LIGHT1, GL11.GL_SPECULAR, setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
+        GL11.glShadeModel(GL11.GL_FLAT);
 
         float ambientLightStrength = 0.4F;
-        GlStateManager.glLightModel(2899, RenderHelper.setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
+        GL11.glLightModel(GL11.GL_LIGHT_MODEL_AMBIENT, setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
+    }
+
+    private static FloatBuffer setColorBuffer(float p_74521_0_, float p_74521_1_, float p_74521_2_, float p_74521_3_)
+    {
+        COLOR_BUFFER.clear();
+        COLOR_BUFFER.put(p_74521_0_).put(p_74521_1_).put(p_74521_2_).put(p_74521_3_);
+        COLOR_BUFFER.flip();
+        return COLOR_BUFFER;
     }
 
     private static FontRenderer getFontRenderer(Minecraft mc, ItemStack stack)
@@ -210,12 +226,13 @@ public class RenderEventHandler
             fontRenderer = stack.getItem().getFontRenderer(stack);
         }
 
-        return fontRenderer != null ? fontRenderer : mc.fontRendererObj;
+        return fontRenderer != null ? fontRenderer : mc.fontRenderer;
     }
 
+    /*
     private void renderStackToolTip(int x, int y, ItemStack stack, GuiContainer gui, Minecraft mc)
     {
-        List<String> list = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips);
+        List<String> list = stack.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
 
         for (int i = 0; i < list.size(); ++i)
         {
@@ -225,7 +242,7 @@ public class RenderEventHandler
             }
             else
             {
-                list.set(i, TextFormatting.GRAY + (String)list.get(i));
+                list.set(i, ChatFormatting.GRAY + (String)list.get(i));
             }
         }
 
@@ -233,11 +250,12 @@ public class RenderEventHandler
 
         if (font == null)
         {
-            font = mc.fontRendererObj;
+            font = mc.fontRenderer;
         }
 
-        net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
-        net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(list, x, y, gui.width, gui.height, -1, font);
-        net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
+        GuiUtils.preItemToolTip(stack);
+        GuiUtils.drawHoveringText(list, x, y, gui.width, gui.height, -1, font);
+        GuiUtils.postItemToolTip();
     }
+    */
 }

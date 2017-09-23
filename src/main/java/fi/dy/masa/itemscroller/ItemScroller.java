@@ -1,16 +1,15 @@
 package fi.dy.masa.itemscroller;
 
 import org.apache.logging.log4j.Logger;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.proxy.CommonProxy;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION,
     guiFactory = "fi.dy.masa.itemscroller.config.ItemScrollerGuiFactory",
-    updateJSON = "https://raw.githubusercontent.com/maruohon/itemscroller/master/update.json",
-    clientSideOnly=true, acceptedMinecraftVersions = "[1.9,1.10.2]")
+    acceptedMinecraftVersions = "[1.7.10]")
 public class ItemScroller
 {
     @Mod.Instance(Reference.MOD_ID)

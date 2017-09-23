@@ -171,7 +171,7 @@ public class RecipeStorage
             }
             else
             {
-                ServerData server = Minecraft.getMinecraft().getCurrentServerData();
+                ServerData server = Minecraft.getMinecraft().func_147104_D();
 
                 if (server != null)
                 {

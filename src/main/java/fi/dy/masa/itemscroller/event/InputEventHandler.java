@@ -5,22 +5,21 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraft.util.MathHelper;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.proxy.ClientProxy;
@@ -29,7 +28,6 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils.MoveType;
 import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
-@SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
     private static InputEventHandler instance;
@@ -49,6 +47,7 @@ public class InputEventHandler
     public static final Field fieldGuiTop = ReflectionHelper.findField(GuiContainer.class, "field_147009_r", "guiTop");
     public static final Field fieldGuiXSize = ReflectionHelper.findField(GuiContainer.class, "field_146999_f", "xSize");
     public static final Field fieldGuiYSize = ReflectionHelper.findField(GuiContainer.class, "field_147000_g", "ySize");
+    public static final Field field_theSlot = ReflectionHelper.findField(GuiContainer.class, "field_147006_u", "theSlot");
 
     public InputEventHandler()
     {
@@ -62,14 +61,30 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    public void onMouseInputEventPre(GuiScreenEvent.MouseInputEvent.Pre event)
+    //public void onMouseInputEventPre(InputEvent.MouseInputEvent event)
+    public void onPreClientTick(TickEvent.ClientTickEvent event)
     {
-        if (this.disabled == false && event.getGui() instanceof GuiContainer &&
-            (event.getGui() instanceof GuiContainerCreative) == false &&
-            event.getGui().mc != null && event.getGui().mc.player != null &&
-            Configs.GUI_BLACKLIST.contains(event.getGui().getClass().getName()) == false)
+        if (this.disabled || event.phase != Phase.START || Mouse.isCreated() == false) return;
+
+        GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
+
+        if ((guiScreen instanceof GuiContainer) == false ||
+            guiScreen instanceof GuiContainerCreative ||
+            guiScreen.mc == null || guiScreen.mc.thePlayer == null ||
+            Configs.GUI_BLACKLIST.contains(guiScreen.getClass().getName()))
         {
-            GuiContainer gui = (GuiContainer) event.getGui();
+            return;
+        }
+        //System.out.printf("client tick event pre\n");
+        /*
+        if (guiScreen instanceof GuiContainer && (guiScreen instanceof GuiContainerCreative) == false &&
+             guiScreen.mc != null && guiScreen.mc.thePlayer != null && Configs.GUI_BLACKLIST.contains(guiScreen.getClass().getName()) == false)
+        {
+            */
+
+        while (Mouse.next())
+        {
+            GuiContainer gui = (GuiContainer) guiScreen;
             int dWheel = Mouse.getEventDWheel();
             boolean cancel = false;
 
@@ -91,7 +106,7 @@ public class InputEventHandler
                 this.storeSourceSlotCandidate(gui);
 
                 if (Configs.enableRightClickCraftingOneStack && Mouse.getEventButton() == 1 &&
-                    InventoryUtils.isCraftingSlot(gui, gui.getSlotUnderMouse()))
+                    InventoryUtils.isCraftingSlot(gui, getSlotUnderMouse(gui)))
                 {
                     InventoryUtils.rightClickCraftOneStack(gui);
                 }
@@ -109,7 +124,7 @@ public class InputEventHandler
                 }
                 else if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0 && this.shouldMoveVertically())
                 {
-                    InventoryUtils.tryMoveItemsVertically(gui, gui.getSlotUnderMouse(),
+                    InventoryUtils.tryMoveItemsVertically(gui, getSlotUnderMouse(gui),
                             this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), MoveType.MOVE_STACK);
                     this.slotNumberLast = -1;
                     cancel = true;
@@ -118,80 +133,93 @@ public class InputEventHandler
 
             if (cancel)
             {
-                event.setCanceled(true);
+                System.out.printf("cancel\n");
+                while (Mouse.next())
+                {
+                }
             }
+        }
+            /*
         }
     }
 
     @SubscribeEvent
-    public void onKeyInputEventPre(GuiScreenEvent.KeyboardInputEvent.Pre event)
+    public void onKeyInputEventPre(InputEvent.KeyInputEvent event)
     {
-        if ((event.getGui() instanceof GuiContainer) == false ||
-            event.getGui().mc == null || event.getGui().mc.player == null)
+        GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
+
+        if ((guiScreen instanceof GuiContainer) == false || guiScreen.mc == null || guiScreen.mc.thePlayer == null)
         {
             return;
         }
+        */
 
-        GuiContainer gui = (GuiContainer) event.getGui();
+        //while (Keyboard.next())
+        if (Keyboard.isCreated())
+        {
+            GuiContainer gui = (GuiContainer) guiScreen;
 
-        if (Keyboard.getEventKey() == Keyboard.KEY_I && Keyboard.getEventKeyState() &&
-            GuiScreen.isAltKeyDown() && GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown())
-        {
-            if (gui.getSlotUnderMouse() != null)
+            if (Keyboard.getEventKey() == Keyboard.KEY_I && Keyboard.getEventKeyState() &&
+                isAltKeyDown() && GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown())
             {
-                debugPrintSlotInfo(gui, gui.getSlotUnderMouse());
-            }
-            else
-            {
-                ItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
-            }
-        }
-        // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
-        else if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
-            Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
-            GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() &&
-            gui.mc.gameSettings.keyBindDrop.isActiveAndMatches(Keyboard.getEventKey()))
-        {
-            Slot slot = gui.getSlotUnderMouse();
+                Slot slot = getSlotUnderMouse(gui);
 
-            if (slot != null && slot.getHasStack())
-            {
-                InventoryUtils.dropStacks(gui, slot.getStack(), slot);
+                if (slot != null)
+                {
+                    debugPrintSlotInfo(gui, slot);
+                }
+                else
+                {
+                    ItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
+                }
             }
-        }
-        // Toggle mouse functionality on/off
-        else if (Keyboard.getEventKeyState() && ClientProxy.KEY_DISABLE.isActiveAndMatches(Keyboard.getEventKey()))
-        {
-            this.disabled = ! this.disabled;
+            // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
+            else if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
+                Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
+                GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() &&
+                gui.mc.gameSettings.keyBindDrop.getKeyCode() == Keyboard.getEventKey())
+            {
+                Slot slot = getSlotUnderMouse(gui);
 
-            if (this.disabled)
-            {
-                gui.mc.player.playSound(SoundEvents.BLOCK_NOTE_BASS, 0.8f, 0.8f);
+                if (slot != null && slot.getHasStack())
+                {
+                    InventoryUtils.dropStacks(gui, slot.getStack(), slot);
+                }
             }
-            else
+            // Toggle mouse functionality on/off
+            else if (Keyboard.getEventKeyState() && ClientProxy.KEY_DISABLE.getKeyCode() == Keyboard.getEventKey())
             {
-                gui.mc.player.playSound(SoundEvents.BLOCK_NOTE_PLING, 0.5f, 1.0f);
+                this.disabled = ! this.disabled;
+
+                if (this.disabled)
+                {
+                    gui.mc.thePlayer.playSound("note.bassattack", 0.8f, 0.8f);
+                }
+                else
+                {
+                    gui.mc.thePlayer.playSound("note.harp", 0.5f, 1.0f);
+                }
             }
-        }
-        // Show or hide the recipe selection
-        else if (Keyboard.getEventKey() == ClientProxy.KEY_RECIPE.getKeyCode())
-        {
-            if (Keyboard.getEventKeyState())
+            // Show or hide the recipe selection
+            else if (Keyboard.getEventKey() == ClientProxy.KEY_RECIPE.getKeyCode())
             {
-                RenderEventHandler.setRenderStoredRecipes(true);
+                if (Keyboard.getEventKeyState())
+                {
+                    RenderEventHandler.setRenderStoredRecipes(true);
+                }
+                else
+                {
+                    RenderEventHandler.setRenderStoredRecipes(false);
+                }
             }
-            else
+            // Store or load a recipe
+            else if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(ClientProxy.KEY_RECIPE.getKeyCode()) &&
+                     Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_9)
             {
-                RenderEventHandler.setRenderStoredRecipes(false);
+                int index = MathHelper.clamp_int(Keyboard.getEventKey() - Keyboard.KEY_1, 0, 8);
+                InventoryUtils.storeOrLoadRecipe(gui, index);
+                //event.setCanceled(true);
             }
-        }
-        // Store or load a recipe
-        else if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(ClientProxy.KEY_RECIPE.getKeyCode()) &&
-                 Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_9)
-        {
-            int index = MathHelper.clamp(Keyboard.getEventKey() - Keyboard.KEY_1, 0, 8);
-            InventoryUtils.storeOrLoadRecipe(gui, index);
-            event.setCanceled(true);
         }
     }
 
@@ -227,17 +255,17 @@ public class InputEventHandler
         // Left or right mouse button was pressed
         if (Mouse.getEventButtonState() && (Mouse.getEventButton() == 0 || Mouse.getEventButton() == 1))
         {
-            Slot slot = gui.getSlotUnderMouse();
+            Slot slot = getSlotUnderMouse(gui);
 
             if (slot != null)
             {
-                ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+                ItemStack stackCursor = gui.mc.thePlayer.inventory.getItemStack();
                 ItemStack stack = InventoryUtils.EMPTY_STACK;
 
                 if (InventoryUtils.isStackEmpty(stackCursor) == false)
                 {
                     // Do a cheap copy without NBT data
-                    stack = new ItemStack(stackCursor.getItem(), InventoryUtils.getStackSize(stackCursor), stackCursor.getMetadata());
+                    stack = new ItemStack(stackCursor.getItem(), InventoryUtils.getStackSize(stackCursor), stackCursor.getItemDamage());
                 }
 
                 this.stackInCursorLast = stack;
@@ -251,11 +279,11 @@ public class InputEventHandler
      */
     private void checkForItemPickup(GuiContainer gui)
     {
-        ItemStack stackCursor = gui.mc.player.inventory.getItemStack();
+        ItemStack stackCursor = gui.mc.thePlayer.inventory.getItemStack();
 
         // Picked up or swapped items to the cursor, grab a reference to the slot that the items came from
         // Note that we are only checking the item and metadata here!
-        if (InventoryUtils.isStackEmpty(stackCursor) == false && stackCursor.isItemEqual(this.stackInCursorLast) == false)
+        if (InventoryUtils.isStackEmpty(stackCursor) == false && InventoryUtils.areStacksEqual(stackCursor, this.stackInCursorLast) == false)
         {
             this.sourceSlot = new WeakReference<Slot>(this.sourceSlotCandidate.get());
         }
@@ -270,7 +298,7 @@ public class InputEventHandler
         }
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
-        Object inv = slot instanceof SlotItemHandler ? ((SlotItemHandler) slot).getItemHandler() : slot.inventory;
+        Object inv = slot.inventory;
         String stackStr = InventoryUtils.getStackString(slot.getStack());
 
         ItemScroller.logger.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
@@ -281,7 +309,7 @@ public class InputEventHandler
 
     private boolean shiftPlaceItems(GuiContainer gui)
     {
-        Slot slot = gui.getSlotUnderMouse();
+        Slot slot = getSlotUnderMouse(gui);
 
         // Left click to place the items from the cursor to the slot
         InventoryUtils.leftClickSlot(gui, slot.slotNumber);
@@ -296,7 +324,7 @@ public class InputEventHandler
 
     private boolean shiftDropItems(GuiContainer gui)
     {
-        ItemStack stackReference = gui.mc.player.inventory.getItemStack();
+        ItemStack stackReference = gui.mc.thePlayer.inventory.getItemStack();
 
         if (InventoryUtils.isStackEmpty(stackReference) == false)
         {
@@ -315,7 +343,7 @@ public class InputEventHandler
     private boolean canShiftDropItems(GuiContainer gui)
     {
         if (GuiScreen.isShiftKeyDown() == false || Mouse.getEventButton() != 0 ||
-            InventoryUtils.isStackEmpty(gui.mc.player.inventory.getItemStack()))
+            InventoryUtils.isStackEmpty(gui.mc.thePlayer.inventory.getItemStack()))
         {
             return false;
         }
@@ -360,7 +388,7 @@ public class InputEventHandler
         int mouseX = Mouse.getEventX() * gui.width / gui.mc.displayWidth;
         int mouseY = gui.height - Mouse.getEventY() * gui.height / gui.mc.displayHeight - 1;
 
-        if (InventoryUtils.isStackEmpty(gui.mc.player.inventory.getItemStack()) == false)
+        if (InventoryUtils.isStackEmpty(gui.mc.thePlayer.inventory.getItemStack()) == false)
         {
             // Updating these here is part of the fix to preventing a drag after shift + place
             this.lastPosX = mouseX;
@@ -466,7 +494,7 @@ public class InputEventHandler
     private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, MoveType moveType, boolean moveVertically)
     {
         Slot slot = this.getSlotAtPosition(gui, x, y);
-        boolean flag = slot != null && InventoryUtils.isValidSlot(slot, gui, true) && slot.canTakeStack(gui.mc.player);
+        boolean flag = slot != null && InventoryUtils.isValidSlot(slot, gui, true) && slot.canTakeStack(gui.mc.thePlayer);
         boolean cancel = flag && (moveType == MoveType.LEAVE_ONE || moveType == MoveType.MOVE_ONE);
 
         if (flag && slot.slotNumber != this.slotNumberLast && this.draggedSlots.contains(slot.slotNumber) == false)
@@ -499,6 +527,11 @@ public class InputEventHandler
         return cancel;
     }
 
+    public static boolean isAltKeyDown()
+    {
+        return Keyboard.isKeyDown(56) || Keyboard.isKeyDown(184);
+    }
+
     private Slot getSlotAtPosition(GuiContainer gui, int x, int y)
     {
         try
@@ -508,6 +541,21 @@ public class InputEventHandler
         catch (Throwable e)
         {
             ItemScroller.logger.error("Error while trying invoke GuiContainer#getSlotAtPosition() from {}", gui.getClass().getSimpleName(), e);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    public static Slot getSlotUnderMouse(GuiContainer gui)
+    {
+        try
+        {
+            return (Slot) field_theSlot.get(gui);
+        }
+        catch (Throwable t)
+        {
+            ItemScroller.logger.error("Error while trying to get the slot under the cursor from {}", gui.getClass().getSimpleName(), t);
         }
 
         return null;

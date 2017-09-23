@@ -3,7 +3,7 @@ package fi.dy.masa.itemscroller.util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
+import cpw.mods.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 public class MethodHandleUtils
 {
