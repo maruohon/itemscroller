@@ -7,11 +7,11 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'forge'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -36,8 +36,8 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings =  config.mappings_version
-    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    //mappings =  config.mappings_version
+    //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     ext.mod_version = "${config.mod_version}"
 
@@ -86,14 +86,10 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-
-    // Move access transformers to META-INF
-    rename '(.+_at.cfg)', 'META-INF/$1'
 }
-
 
 jar {
     manifest {
-        attributes 'FMLAT': config.mod_id + '_at.cfg'
+        attributes 'FMLCorePlugin': 'fi.dy.masa.itemscroller.asm.ItemScrollerLoadingPlugin'
     }
 }

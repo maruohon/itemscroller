@@ -8,7 +8,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
@@ -16,8 +15,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.event.world.WorldEvent;
 import fi.dy.masa.itemscroller.ItemScroller;
@@ -61,165 +58,145 @@ public class InputEventHandler
     }
 
     @SubscribeEvent
-    //public void onMouseInputEventPre(InputEvent.MouseInputEvent event)
-    public void onPreClientTick(TickEvent.ClientTickEvent event)
+    public void onMouseInputEventPre(InputEvent.MouseInputEventPre event)
     {
-        if (this.disabled || event.phase != Phase.START || Mouse.isCreated() == false) return;
+        //System.out.printf("onMouseInputEventPre()\n");
+        GuiScreen guiScreen = event.getGui();
 
-        GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
-
-        if ((guiScreen instanceof GuiContainer) == false ||
+        if (this.disabled ||
+            (guiScreen instanceof GuiContainer) == false ||
             guiScreen instanceof GuiContainerCreative ||
             guiScreen.mc == null || guiScreen.mc.thePlayer == null ||
             Configs.GUI_BLACKLIST.contains(guiScreen.getClass().getName()))
         {
             return;
         }
-        //System.out.printf("client tick event pre\n");
-        /*
-        if (guiScreen instanceof GuiContainer && (guiScreen instanceof GuiContainerCreative) == false &&
-             guiScreen.mc != null && guiScreen.mc.thePlayer != null && Configs.GUI_BLACKLIST.contains(guiScreen.getClass().getName()) == false)
-        {
-            */
 
-        while (Mouse.next())
-        {
-            GuiContainer gui = (GuiContainer) guiScreen;
-            int dWheel = Mouse.getEventDWheel();
-            boolean cancel = false;
+        GuiContainer gui = (GuiContainer) guiScreen;
+        int dWheel = Mouse.getEventDWheel();
+        boolean cancel = false;
 
-            if (dWheel != 0)
+        if (dWheel != 0)
+        {
+            // When scrolling while the recipe view is open, change the selection instead of moving items
+            if (RenderEventHandler.getRenderStoredRecipes())
             {
-                // When scrolling while the recipe view is open, change the selection instead of moving items
-                if (RenderEventHandler.getRenderStoredRecipes())
-                {
-                    this.recipes.scrollSelection(dWheel < 0);
-                }
-                else
-                {
-                    cancel = InventoryUtils.tryMoveItems(gui, this.recipes, dWheel > 0);
-                }
+                this.recipes.scrollSelection(dWheel < 0);
             }
             else
             {
-                this.checkForItemPickup(gui);
-                this.storeSourceSlotCandidate(gui);
-
-                if (Configs.enableRightClickCraftingOneStack && Mouse.getEventButton() == 1 &&
-                    InventoryUtils.isCraftingSlot(gui, getSlotUnderMouse(gui)))
-                {
-                    InventoryUtils.rightClickCraftOneStack(gui);
-                }
-                else if (Configs.enableShiftPlaceItems && InventoryUtils.canShiftPlaceItems(gui))
-                {
-                    cancel = this.shiftPlaceItems(gui);
-                }
-                else if (Configs.enableShiftDropItems && this.canShiftDropItems(gui))
-                {
-                    cancel = this.shiftDropItems(gui);
-                }
-                else if (Configs.enableDragMovingShiftLeft || Configs.enableDragMovingShiftRight || Configs.enableDragMovingControlLeft)
-                {
-                    cancel = this.dragMoveItems(gui, this.shouldMoveVertically());
-                }
-                else if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0 && this.shouldMoveVertically())
-                {
-                    InventoryUtils.tryMoveItemsVertically(gui, getSlotUnderMouse(gui),
-                            this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), MoveType.MOVE_STACK);
-                    this.slotNumberLast = -1;
-                    cancel = true;
-                }
-            }
-
-            if (cancel)
-            {
-                System.out.printf("cancel\n");
-                while (Mouse.next())
-                {
-                }
+                cancel = InventoryUtils.tryMoveItems(gui, this.recipes, dWheel > 0);
             }
         }
-            /*
+        else
+        {
+            this.checkForItemPickup(gui);
+            this.storeSourceSlotCandidate(gui);
+
+            if (Configs.enableRightClickCraftingOneStack && Mouse.getEventButton() == 1 &&
+                InventoryUtils.isCraftingSlot(gui, getSlotUnderMouse(gui)))
+            {
+                InventoryUtils.rightClickCraftOneStack(gui);
+            }
+            else if (Configs.enableShiftPlaceItems && InventoryUtils.canShiftPlaceItems(gui))
+            {
+                cancel = this.shiftPlaceItems(gui);
+            }
+            else if (Configs.enableShiftDropItems && this.canShiftDropItems(gui))
+            {
+                cancel = this.shiftDropItems(gui);
+            }
+            else if (Configs.enableDragMovingShiftLeft || Configs.enableDragMovingShiftRight || Configs.enableDragMovingControlLeft)
+            {
+                cancel = this.dragMoveItems(gui, this.shouldMoveVertically());
+            }
+            else if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0 && this.shouldMoveVertically())
+            {
+                InventoryUtils.tryMoveItemsVertically(gui, getSlotUnderMouse(gui),
+                        this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), MoveType.MOVE_STACK);
+                this.slotNumberLast = -1;
+                cancel = true;
+            }
+        }
+
+        if (cancel)
+        {
+            event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void onKeyInputEventPre(InputEvent.KeyInputEvent event)
+    public void onKeyInputEventPre(InputEvent.KeyboardInputEventPre event)
     {
-        GuiScreen guiScreen = Minecraft.getMinecraft().currentScreen;
+        GuiScreen guiScreen = event.getGui();
 
         if ((guiScreen instanceof GuiContainer) == false || guiScreen.mc == null || guiScreen.mc.thePlayer == null)
         {
             return;
         }
-        */
 
-        //while (Keyboard.next())
-        if (Keyboard.isCreated())
+        GuiContainer gui = (GuiContainer) guiScreen;
+
+        if (Keyboard.getEventKey() == Keyboard.KEY_I && Keyboard.getEventKeyState() &&
+            isAltKeyDown() && GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown())
         {
-            GuiContainer gui = (GuiContainer) guiScreen;
+            Slot slot = getSlotUnderMouse(gui);
 
-            if (Keyboard.getEventKey() == Keyboard.KEY_I && Keyboard.getEventKeyState() &&
-                isAltKeyDown() && GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown())
+            if (slot != null)
             {
-                Slot slot = getSlotUnderMouse(gui);
+                debugPrintSlotInfo(gui, slot);
+            }
+            else
+            {
+                ItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
+            }
+        }
+        // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
+        else if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
+            Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
+            GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() &&
+            gui.mc.gameSettings.keyBindDrop.getKeyCode() == Keyboard.getEventKey())
+        {
+            Slot slot = getSlotUnderMouse(gui);
 
-                if (slot != null)
-                {
-                    debugPrintSlotInfo(gui, slot);
-                }
-                else
-                {
-                    ItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
-                }
-            }
-            // Drop all matching stacks from the same inventory when pressing Ctrl + Shift + Drop key
-            else if (Configs.enableControlShiftDropkeyDropItems && Keyboard.getEventKeyState() &&
-                Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
-                GuiScreen.isCtrlKeyDown() && GuiScreen.isShiftKeyDown() &&
-                gui.mc.gameSettings.keyBindDrop.getKeyCode() == Keyboard.getEventKey())
+            if (slot != null && slot.getHasStack())
             {
-                Slot slot = getSlotUnderMouse(gui);
+                InventoryUtils.dropStacks(gui, slot.getStack(), slot);
+            }
+        }
+        // Toggle mouse functionality on/off
+        else if (Keyboard.getEventKeyState() && ClientProxy.KEY_DISABLE.getKeyCode() == Keyboard.getEventKey())
+        {
+            this.disabled = ! this.disabled;
 
-                if (slot != null && slot.getHasStack())
-                {
-                    InventoryUtils.dropStacks(gui, slot.getStack(), slot);
-                }
-            }
-            // Toggle mouse functionality on/off
-            else if (Keyboard.getEventKeyState() && ClientProxy.KEY_DISABLE.getKeyCode() == Keyboard.getEventKey())
+            if (this.disabled)
             {
-                this.disabled = ! this.disabled;
-
-                if (this.disabled)
-                {
-                    gui.mc.thePlayer.playSound("note.bassattack", 0.8f, 0.8f);
-                }
-                else
-                {
-                    gui.mc.thePlayer.playSound("note.harp", 0.5f, 1.0f);
-                }
+                gui.mc.thePlayer.playSound("note.bassattack", 0.8f, 0.8f);
             }
-            // Show or hide the recipe selection
-            else if (Keyboard.getEventKey() == ClientProxy.KEY_RECIPE.getKeyCode())
+            else
             {
-                if (Keyboard.getEventKeyState())
-                {
-                    RenderEventHandler.setRenderStoredRecipes(true);
-                }
-                else
-                {
-                    RenderEventHandler.setRenderStoredRecipes(false);
-                }
+                gui.mc.thePlayer.playSound("note.harp", 0.5f, 1.0f);
             }
-            // Store or load a recipe
-            else if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(ClientProxy.KEY_RECIPE.getKeyCode()) &&
-                     Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_9)
+        }
+        // Show or hide the recipe selection
+        else if (Keyboard.getEventKey() == ClientProxy.KEY_RECIPE.getKeyCode())
+        {
+            if (Keyboard.getEventKeyState())
             {
-                int index = MathHelper.clamp_int(Keyboard.getEventKey() - Keyboard.KEY_1, 0, 8);
-                InventoryUtils.storeOrLoadRecipe(gui, index);
-                //event.setCanceled(true);
+                RenderEventHandler.setRenderStoredRecipes(true);
             }
+            else
+            {
+                RenderEventHandler.setRenderStoredRecipes(false);
+            }
+        }
+        // Store or load a recipe
+        else if (Keyboard.getEventKeyState() && Keyboard.isKeyDown(ClientProxy.KEY_RECIPE.getKeyCode()) &&
+                 Keyboard.getEventKey() >= Keyboard.KEY_1 && Keyboard.getEventKey() <= Keyboard.KEY_9)
+        {
+            int index = MathHelper.clamp_int(Keyboard.getEventKey() - Keyboard.KEY_1, 0, 8);
+            InventoryUtils.storeOrLoadRecipe(gui, index);
+            event.setCanceled(true);
         }
     }
 

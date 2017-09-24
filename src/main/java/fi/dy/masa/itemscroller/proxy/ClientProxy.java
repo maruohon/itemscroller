@@ -17,12 +17,9 @@ public class ClientProxy extends CommonProxy
     @Override
     public void registerEventHandlers()
     {
-        InputEventHandler ih = new InputEventHandler();
-
         FMLCommonHandler.instance().bus().register(new Configs());
-        FMLCommonHandler.instance().bus().register(ih);
 
-        MinecraftForge.EVENT_BUS.register(ih);
+        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
         MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
 
         ClientRegistry.registerKeyBinding(KEY_DISABLE);
