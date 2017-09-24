@@ -60,7 +60,6 @@ public class InputEventHandler
     @SubscribeEvent
     public void onMouseInputEventPre(InputEvent.MouseInputEventPre event)
     {
-        //System.out.printf("onMouseInputEventPre()\n");
         GuiScreen guiScreen = event.getGui();
 
         if (this.disabled ||

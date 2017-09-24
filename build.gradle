@@ -90,6 +90,10 @@ processResources
 
 jar {
     manifest {
-        attributes 'FMLCorePlugin': 'fi.dy.masa.itemscroller.asm.ItemScrollerLoadingPlugin'
+        attributes (
+            'FMLCorePlugin': 'fi.dy.masa.itemscroller.asm.ItemScrollerLoadingPlugin',
+            'FMLCorePluginContainsFMLMod': 'true',
+            'ForceLoadAsMod': 'true'
+        )
     }
 }
