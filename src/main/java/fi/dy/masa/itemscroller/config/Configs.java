@@ -21,6 +21,7 @@ import fi.dy.masa.itemscroller.event.InputEventHandler;
 
 public class Configs
 {
+    public static boolean enableClientCraftingFixHook;
     public static boolean enableControlShiftDropkeyDropItems;
     public static boolean enableDragMovingShiftLeft;
     public static boolean enableDragMovingShiftRight;
@@ -79,7 +80,11 @@ public class Configs
 
         String category = CATEGORY_GENERIC;
 
-        prop = conf.get(category, "craftingScrollingStoreRecipeOnFill", true).setRequiresMcRestart(false);
+        prop = conf.get(category, "enableClientCraftingFixHook", true).setRequiresMcRestart(false);
+        prop.setComment("If true, then a feature to fix the crafting features in 1.12+ will be enabled via a coremodded event hook");
+        enableClientCraftingFixHook = prop.getBoolean();
+
+        prop = conf.get(category, "craftingScrollingStoreRecipeOnFill", false).setRequiresMcRestart(false);
         prop.setComment("If enabled, then the recipe is ALSO stored when scrolling to re-fill the crafting grid," +
                         " and not only when scrolling to craft items.\n" +
                         "Note that this will make it impossible to scroll up and down to craft items one at a time from non-stackable ingredients,\n" +

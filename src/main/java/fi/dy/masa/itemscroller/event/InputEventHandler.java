@@ -6,18 +6,22 @@ import java.util.HashSet;
 import java.util.Set;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.InventoryCraftResult;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.SlotItemHandler;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -26,7 +30,6 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MethodHandleUtils;
 
-@SideOnly(Side.CLIENT)
 public class InputEventHandler
 {
     private static InputEventHandler instance;
@@ -52,6 +55,32 @@ public class InputEventHandler
     public static InputEventHandler instance()
     {
         return instance;
+    }
+
+    private void slotChangedCraftingGridClient(World world, InventoryCrafting craftingInventory, InventoryCraftResult craftResultInventory)
+    {
+        ItemStack stack = ItemStack.EMPTY;
+        IRecipe recipe = CraftingManager.findMatchingRecipe(craftingInventory, world);
+
+        if (recipe != null &&
+                (recipe.isDynamic() ||
+                 world.getGameRules().getBoolean("doLimitedCrafting") ||
+                 Minecraft.getMinecraft().player.getRecipeBook().isUnlocked(recipe)))
+        {
+            craftResultInventory.setRecipeUsed(recipe);
+            stack = recipe.getCraftingResult(craftingInventory);
+        }
+
+        craftResultInventory.setInventorySlotContents(0, stack);
+    }
+
+    @SubscribeEvent
+    public void onCraftingEventSlotChanged(CraftingEventSlotChanged event)
+    {
+        if (event.getWorld().isRemote && Configs.enableClientCraftingFixHook)
+        {
+            this.slotChangedCraftingGridClient(event.getWorld(), event.getCraftingInventory(), event.getCraftResultInventory());
+        }
     }
 
     @SubscribeEvent
