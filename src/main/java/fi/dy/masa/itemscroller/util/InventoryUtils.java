@@ -170,17 +170,21 @@ public class InventoryUtils
         // No Ctrl or Shift
         else
         {
-            ItemStack stack = slot.getStack();
-
-            // Scrolling items from this slot/inventory into the other inventory
-            if (moveToOtherInventory)
+            // Ensure there is a stack
+            if (slot.getHasStack())
             {
-                return tryMoveSingleItemToOtherInventory(slot, gui);
-            }
-            // Scrolling items from the other inventory into this slot/inventory
-            else if (getStackSize(stack) < slot.getItemStackLimit(stack))
-            {
-                return tryMoveSingleItemToThisInventory(slot, gui);
+                ItemStack stack = slot.getStack();
+                
+                // Scrolling items from this slot/inventory into the other inventory
+                if (moveToOtherInventory)
+                {
+                    return tryMoveSingleItemToOtherInventory(slot, gui);
+                }
+                // Scrolling items from the other inventory into this slot/inventory
+                else if (getStackSize(stack) < slot.getItemStackLimit(stack))
+                {
+                    return tryMoveSingleItemToThisInventory(slot, gui);
+                }
             }
         }
 
