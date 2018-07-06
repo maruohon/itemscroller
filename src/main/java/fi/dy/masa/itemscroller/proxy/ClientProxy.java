@@ -19,8 +19,8 @@ public class ClientProxy extends CommonProxy
     public void registerEventHandlers()
     {
         MinecraftForge.EVENT_BUS.register(new Configs());
-        MinecraftForge.EVENT_BUS.register(new InputEventHandler());
-        MinecraftForge.EVENT_BUS.register(new RenderEventHandler());
+        MinecraftForge.EVENT_BUS.register(InputEventHandler.getInstance());
+        MinecraftForge.EVENT_BUS.register(RenderEventHandler.getInstance());
 
         ClientRegistry.registerKeyBinding(KEY_DISABLE);
         ClientRegistry.registerKeyBinding(KEY_RECIPE);

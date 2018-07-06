@@ -15,7 +15,6 @@ import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraftforge.common.util.Constants;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.config.Configs;
 
 public class RecipeStorage
 {
@@ -86,15 +85,15 @@ public class RecipeStorage
         return this.getRecipe(this.getSelection());
     }
 
-    public void storeCraftingRecipe(int index, GuiContainer gui, Slot slot)
+    public void storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
     {
-        this.getRecipe(index).storeCraftingRecipe(gui, slot);
-        this.dirty = true;
+        this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
     }
 
-    public void storeCraftingRecipeToCurrentSelection(GuiContainer gui, Slot slot)
+    public void storeCraftingRecipe(int index, Slot slot, GuiContainer gui, boolean clearIfEmpty)
     {
-        this.storeCraftingRecipe(this.getSelection(), gui, slot);
+        this.getRecipe(index).storeCraftingRecipe(slot, gui, clearIfEmpty);
+        this.dirty = true;
     }
 
     public void clearRecipe(int index)
@@ -157,12 +156,13 @@ public class RecipeStorage
     private String getFileName()
     {
         String name = "recipes.nbt";
+        Minecraft mc = Minecraft.getMinecraft();
 
         if (this.global == false)
         {
-            if (Minecraft.getMinecraft().isSingleplayer())
+            if (mc.isSingleplayer())
             {
-                IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
+                IntegratedServer server = mc.getIntegratedServer();
 
                 if (server != null)
                 {
@@ -171,7 +171,7 @@ public class RecipeStorage
             }
             else
             {
-                ServerData server = Minecraft.getMinecraft().getCurrentServerData();
+                ServerData server = mc.getCurrentServerData();
 
                 if (server != null)
                 {
@@ -190,11 +190,6 @@ public class RecipeStorage
 
     public void readFromDisk()
     {
-        if (Configs.craftingScrollingSaveToFile == false)
-        {
-            return;
-        }
-
         try
         {
             File saveDir = this.getSaveDir();
@@ -203,59 +198,61 @@ public class RecipeStorage
             {
                 File file = new File(saveDir, this.getFileName());
 
-                if (file.exists() && file.isFile())
+                if (file.exists() && file.isFile() && file.canRead())
                 {
-                    this.readFromNBT(CompressedStreamTools.readCompressed(new FileInputStream(file)));
+                    FileInputStream is = new FileInputStream(file);
+                    this.readFromNBT(CompressedStreamTools.readCompressed(is));
+                    is.close();
                     //ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
                 }
             }
         }
         catch (Exception e)
         {
-            ItemScroller.logger.warn("Failed to read recipes from file");
+            ItemScroller.logger.warn("Failed to read recipes from file", e);
         }
     }
 
     public void writeToDisk()
     {
-        if (this.dirty == false || Configs.craftingScrollingSaveToFile == false)
+        if (this.dirty)
         {
-            return;
-        }
-
-        try
-        {
-            File saveDir = this.getSaveDir();
-
-            if (saveDir == null)
+            try
             {
-                return;
-            }
+                File saveDir = this.getSaveDir();
 
-            if (saveDir.exists() == false)
-            {
-                if (saveDir.mkdirs() == false)
+                if (saveDir == null)
                 {
-                    ItemScroller.logger.warn("Failed to create the recipe storage directory '{}'", saveDir.getPath());
                     return;
                 }
+
+                if (saveDir.exists() == false)
+                {
+                    if (saveDir.mkdirs() == false)
+                    {
+                        ItemScroller.logger.warn("Failed to create the recipe storage directory '{}'", saveDir.getPath());
+                        return;
+                    }
+                }
+
+                File fileTmp  = new File(saveDir, this.getFileName() + ".tmp");
+                File fileReal = new File(saveDir, this.getFileName());
+                FileOutputStream os = new FileOutputStream(fileTmp);
+                CompressedStreamTools.writeCompressed(this.writeToNBT(new NBTTagCompound()), os);
+                os.close();
+
+                if (fileReal.exists())
+                {
+                    fileReal.delete();
+                }
+
+                fileTmp.renameTo(fileReal);
+                this.dirty = false;
             }
-
-            File fileTmp  = new File(saveDir, this.getFileName() + ".tmp");
-            File fileReal = new File(saveDir, this.getFileName());
-            CompressedStreamTools.writeCompressed(this.writeToNBT(new NBTTagCompound()), new FileOutputStream(fileTmp));
-
-            if (fileReal.exists())
+            catch (Exception e)
             {
-                fileReal.delete();
+                ItemScroller.logger.warn("Failed to write recipes to file!", e);
             }
-
-            fileTmp.renameTo(fileReal);
-            this.dirty = false;
-        }
-        catch (Exception e)
-        {
-            ItemScroller.logger.warn("Failed to write recipes to file!");
         }
     }
 }
