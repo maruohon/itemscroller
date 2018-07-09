@@ -23,6 +23,8 @@ public class Configs
     public static boolean enableAltShiftClickEverything;
     public static boolean enableAltClickMatching;
     public static boolean enableControlShiftDropkeyDropItems;
+    public static boolean enableDragDroppingSingle;
+    public static boolean enableDragDroppingStacks;
     public static boolean enableDragMovingShiftLeft;
     public static boolean enableDragMovingShiftRight;
     public static boolean enableDragMovingControlLeft;
@@ -92,17 +94,25 @@ public class Configs
         prop.setComment("If true, then a single file is used for storing the recipes, instead of per-world or per-server files");
         craftingScrollingSaveFileIsGlobal = prop.getBoolean();
 
-        prop = conf.get(category, "enableControlShiftDropkeyDropItems", true);
-        prop.setComment("Enable dropping all matching items from the same inventory when pressing Ctrl + Shift + the drop key");
-        enableControlShiftDropkeyDropItems = prop.getBoolean();
-
-        prop = conf.get(category, "enableAltClickMatching", true);
+        prop = conf.get(category, "enableAltClickMoveMatching", true);
         prop.setComment("Enable Alt + click to move all matching stacks\n(same as the Ctrl + scroll functionality).");
         enableAltClickMatching = prop.getBoolean();
 
         prop = conf.get(category, "enableAltShiftClickEverything", true);
         prop.setComment("Enable Alt + Shift + click to move everything\n(same as the Ctrl + Shift + scroll functionality).");
         enableAltShiftClickEverything = prop.getBoolean();
+
+        prop = conf.get(category, "enableControlShiftDropkeyDropItems", true);
+        prop.setComment("Enable dropping all matching items from the same inventory when pressing Ctrl + Shift + the drop key");
+        enableControlShiftDropkeyDropItems = prop.getBoolean();
+
+        prop = conf.get(category, "enableDragDroppingSingle", true);
+        prop.setComment("Enable click dragging to drop single items while holding Ctrl + drop key");
+        enableDragDroppingSingle = prop.getBoolean();
+
+        prop = conf.get(category, "enableDragDroppingStacks", true);
+        prop.setComment("Enable click dragging to drop full stacks while holding Shift + drop key.\n(Left for entire stacks, right for all but one item.)");
+        enableDragDroppingStacks = prop.getBoolean();
 
         prop = conf.get(category, "enableRightClickCraftingOneStack", true);
         prop.setComment("Enable crafting up to one full stack when right clicking on a slot that has been configured as a crafting slot");

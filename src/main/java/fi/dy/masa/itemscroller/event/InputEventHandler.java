@@ -442,38 +442,18 @@ public class InputEventHandler
             return false;
         }
 
-        boolean eventKeyIsLeftButton = mouseEventIsLeftClick(mc);
-        boolean eventKeyIsRightButton = mouseEventIsRightClick(mc);
-        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
-        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
-        boolean isShiftDown = GuiScreen.isShiftKeyDown();
-        boolean isControlDown = GuiScreen.isCtrlKeyDown();
-        boolean eitherMouseButtonDown = leftButtonDown || rightButtonDown;
-
-        if ((isShiftDown && leftButtonDown && Configs.enableDragMovingShiftLeft == false) ||
-            (isShiftDown && rightButtonDown && Configs.enableDragMovingShiftRight == false) ||
-            (isControlDown && eitherMouseButtonDown && Configs.enableDragMovingControlLeft == false))
-        {
-            return false;
-        }
-
-        boolean leaveOneItem = leftButtonDown == false;
-        boolean moveOnlyOne = isShiftDown == false;
+        MoveType type = this.getDragMoveType(mc);
+        MoveAmount amount = this.getDragMoveAmount(mc);
         boolean cancel = false;
 
         if (Mouse.getEventButtonState())
         {
-            if (((eventKeyIsLeftButton || eventKeyIsRightButton) && isControlDown && Configs.enableDragMovingControlLeft) ||
-                (eventKeyIsRightButton && isShiftDown && Configs.enableDragMovingShiftRight))
-            {
-                // Reset this or the method call won't do anything...
-                this.slotNumberLast = -1;
-                cancel = this.dragMoveFromSlotAtPosition(gui, mouseX, mouseY, leaveOneItem, moveOnlyOne);
-            }
+            // Reset this or the method call won't do anything...
+            this.slotNumberLast = -1;
+            cancel = this.dragMoveFromSlotAtPosition(gui, mouseX, mouseY, type, amount);
         }
 
-        // Check that either mouse button is down
-        if (cancel == false && (isShiftDown || isControlDown) && eitherMouseButtonDown)
+        if (cancel == false)
         {
             int distX = mouseX - this.lastPosX;
             int distY = mouseY - this.lastPosY;
@@ -487,7 +467,7 @@ public class InputEventHandler
                 for (int x = this.lastPosX; ; x += inc)
                 {
                     int y = absX != 0 ? this.lastPosY + ((x - this.lastPosX) * distY / absX) : mouseY;
-                    this.dragMoveFromSlotAtPosition(gui, x, y, leaveOneItem, moveOnlyOne);
+                    this.dragMoveFromSlotAtPosition(gui, x, y, type, amount);
 
                     if (x == mouseX)
                     {
@@ -502,7 +482,7 @@ public class InputEventHandler
                 for (int y = this.lastPosY; ; y += inc)
                 {
                     int x = absY != 0 ? this.lastPosX + ((y - this.lastPosY) * distX / absY) : mouseX;
-                    this.dragMoveFromSlotAtPosition(gui, x, y, leaveOneItem, moveOnlyOne);
+                    this.dragMoveFromSlotAtPosition(gui, x, y, type, amount);
 
                     if (y == mouseY)
                     {
@@ -539,7 +519,10 @@ public class InputEventHandler
             this.slotNumberLast = -1;
         }
 
-        if (eitherMouseButtonDown == false)
+        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
+        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+
+        if (leftButtonDown == false && rightButtonDown == false)
         {
             this.draggedSlots.clear();
         }
@@ -547,33 +530,116 @@ public class InputEventHandler
         return cancel;
     }
 
-    private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, boolean leaveOneItem, boolean moveOnlyOne)
+    private MoveType getDragMoveType(Minecraft mc)
+    {
+        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
+        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+        boolean isShiftDown = GuiScreen.isShiftKeyDown();
+        boolean isControlDown = GuiScreen.isCtrlKeyDown();
+        boolean eitherMouseButtonDown = leftButtonDown || rightButtonDown;
+
+        // Only one of the mouse buttons is down, and only one of shift or control is down
+        if ((leftButtonDown ^ rightButtonDown) && (isShiftDown ^ isControlDown))
+        {
+            int dropKey = mc.gameSettings.keyBindDrop.getKeyCode();
+            boolean dropKeyDown = dropKey > 0 ? Keyboard.isKeyDown(dropKey) : dropKey + 100 < Mouse.getButtonCount() && Mouse.isButtonDown(dropKey + 100);
+
+            if (dropKeyDown &&
+                ((isShiftDown && Configs.enableDragDroppingStacks) ||
+                 (isControlDown && Configs.enableDragDroppingSingle)))
+            {
+                return MoveType.DROP;
+            }
+            else if ((isShiftDown && leftButtonDown && Configs.enableDragMovingShiftLeft) ||
+                (isShiftDown && rightButtonDown && Configs.enableDragMovingShiftRight) ||
+                (isControlDown && eitherMouseButtonDown && Configs.enableDragMovingControlLeft))
+            {
+                return MoveType.MOVE_TO_OTHER;
+            }
+        }
+
+        return MoveType.INVALID;
+    }
+
+    private MoveAmount getDragMoveAmount(Minecraft mc)
+    {
+        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
+        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+        boolean isShiftDown = GuiScreen.isShiftKeyDown();
+        boolean isControlDown = GuiScreen.isCtrlKeyDown();
+
+        // Only one of the mouse buttons is down, and only one of shift or control is down
+        if ((leftButtonDown ^ rightButtonDown) && (isShiftDown ^ isControlDown))
+        {
+            MoveAmount amount = MoveAmount.INVALID;
+
+            if (isControlDown && isShiftDown == false)
+            {
+                amount = MoveAmount.MOVE_ONE;
+            }
+            else if (rightButtonDown && isShiftDown)
+            {
+                amount = MoveAmount.LEAVE_ONE;
+            }
+            else if (leftButtonDown && isShiftDown)
+            {
+                amount = MoveAmount.MOVE_ALL;
+            }
+
+            return amount;
+        }
+
+        return MoveAmount.INVALID;
+    }
+
+    private boolean dragMoveFromSlotAtPosition(GuiContainer gui, int x, int y, MoveType type, MoveAmount amount)
     {
         if (gui instanceof GuiContainerCreative)
         {
-            return this.dragMoveFromSlotAtPositionCreative(gui, x, y, leaveOneItem, moveOnlyOne);
+            return this.dragMoveFromSlotAtPositionCreative(gui, x, y, type, amount);
         }
 
         Slot slot = this.getSlotAtPosition(gui, x, y);
         Minecraft mc = Minecraft.getMinecraft();
         boolean flag = slot != null && InventoryUtils.isValidSlot(slot, gui, true) && slot.canTakeStack(mc.player);
-        boolean cancel = flag && (leaveOneItem || moveOnlyOne);
+        boolean cancel = flag && (amount == MoveAmount.LEAVE_ONE || amount == MoveAmount.MOVE_ONE);
 
         if (flag && slot.slotNumber != this.slotNumberLast &&
-            (moveOnlyOne == false || this.draggedSlots.contains(slot.slotNumber) == false))
+            (amount != MoveAmount.MOVE_ONE || this.draggedSlots.contains(slot.slotNumber) == false))
         {
-            if (moveOnlyOne)
+            if (type == MoveType.MOVE_TO_OTHER)
             {
-                InventoryUtils.tryMoveSingleItemToOtherInventory(slot, gui);
+                if (amount == MoveAmount.MOVE_ONE)
+                {
+                    InventoryUtils.tryMoveSingleItemToOtherInventory(slot, gui);
+                }
+                else if (amount == MoveAmount.LEAVE_ONE)
+                {
+                    InventoryUtils.tryMoveAllButOneItemToOtherInventory(slot, gui);
+                }
+                else
+                {
+                    InventoryUtils.shiftClickSlot(gui, slot.slotNumber);
+                    cancel = true;
+                }
             }
-            else if (leaveOneItem)
+            else if (type == MoveType.DROP)
             {
-                InventoryUtils.tryMoveAllButOneItemToOtherInventory(slot, gui);
-            }
-            else
-            {
-                InventoryUtils.shiftClickSlot(gui, slot.slotNumber);
-                cancel = true;
+                if (amount == MoveAmount.MOVE_ONE)
+                {
+                    InventoryUtils.clickSlot(gui, slot.slotNumber, 0, ClickType.THROW);
+                }
+                else if (amount == MoveAmount.LEAVE_ONE)
+                {
+                    InventoryUtils.leftClickSlot(gui, slot.slotNumber);
+                    InventoryUtils.rightClickSlot(gui, slot.slotNumber);
+                    InventoryUtils.dropItemsFromCursor(gui);
+                }
+                else
+                {
+                    InventoryUtils.clickSlot(gui, slot.slotNumber, 1, ClickType.THROW);
+                    cancel = true;
+                }
             }
 
             this.draggedSlots.add(slot.slotNumber);
@@ -582,7 +648,7 @@ public class InputEventHandler
         return cancel;
     }
 
-    private boolean dragMoveFromSlotAtPositionCreative(GuiContainer gui, int x, int y, boolean leaveOneItem, boolean moveOnlyOne)
+    private boolean dragMoveFromSlotAtPositionCreative(GuiContainer gui, int x, int y, MoveType type, MoveAmount amount)
     {
         GuiContainerCreative guiCreative = (GuiContainerCreative) gui;
         Slot slot = this.getSlotAtPosition(gui, x, y);
@@ -596,7 +662,7 @@ public class InputEventHandler
 
         Minecraft mc = Minecraft.getMinecraft();
         boolean flag = slot != null && InventoryUtils.isValidSlot(slot, gui, true) && slot.canTakeStack(mc.player);
-        boolean cancel = flag && (leaveOneItem || moveOnlyOne);
+        boolean cancel = flag && (amount == MoveAmount.LEAVE_ONE || amount == MoveAmount.MOVE_ONE);
         // The player inventory tab of the creative inventory uses stupid wrapped
         // slots that all have slotNumber = 0 on the outer instance ;_;
         // However in that case we can use the slotIndex which is easy enough to get.
@@ -604,34 +670,55 @@ public class InputEventHandler
 
         if (flag && slotNumber != this.slotNumberLast && this.draggedSlots.contains(slotNumber) == false)
         {
-            if (moveOnlyOne)
+            if (type == MoveType.MOVE_TO_OTHER)
             {
-                this.leftClickSlot(guiCreative, slot, slotNumber);
-                this.rightClickSlot(guiCreative, slot, slotNumber);
-                this.shiftClickSlot(guiCreative, slot, slotNumber);
-                this.leftClickSlot(guiCreative, slot, slotNumber);
-
-                cancel = true;
-            }
-            else if (leaveOneItem)
-            {
-                // Too lazy to try to duplicate the proper code for the weird creative inventory...
-                if (isPlayerInv == false)
+                if (amount == MoveAmount.MOVE_ONE)
                 {
                     this.leftClickSlot(guiCreative, slot, slotNumber);
                     this.rightClickSlot(guiCreative, slot, slotNumber);
+                    this.shiftClickSlot(guiCreative, slot, slotNumber);
+                    this.leftClickSlot(guiCreative, slot, slotNumber);
 
-                    // Delete the rest of the stack by placing it in the first creative "source slot"
-                    Slot slotFirst = gui.inventorySlots.inventorySlots.get(0);
-                    this.leftClickSlot(guiCreative, slotFirst, slotFirst.slotNumber);
+                    cancel = true;
                 }
+                else if (amount == MoveAmount.LEAVE_ONE)
+                {
+                    // Too lazy to try to duplicate the proper code for the weird creative inventory...
+                    if (isPlayerInv == false)
+                    {
+                        this.leftClickSlot(guiCreative, slot, slotNumber);
+                        this.rightClickSlot(guiCreative, slot, slotNumber);
 
-                cancel = true;
+                        // Delete the rest of the stack by placing it in the first creative "source slot"
+                        Slot slotFirst = gui.inventorySlots.inventorySlots.get(0);
+                        this.leftClickSlot(guiCreative, slotFirst, slotFirst.slotNumber);
+                    }
+
+                    cancel = true;
+                }
+                else
+                {
+                    this.shiftClickSlot(gui, slot, slotNumber);
+                    cancel = true;
+                }
             }
-            else
+            else if (type == MoveType.DROP)
             {
-                this.shiftClickSlot(gui, slot, slotNumber);
-                cancel = true;
+                if (amount == MoveAmount.MOVE_ONE)
+                {
+                    InventoryUtils.clickSlot(gui, slot.slotNumber, 0, ClickType.THROW);
+                }
+                else if (amount == MoveAmount.LEAVE_ONE)
+                {
+                    InventoryUtils.leftClickSlot(gui, slot.slotNumber);
+                    InventoryUtils.rightClickSlot(gui, slot.slotNumber);
+                    InventoryUtils.dropItemsFromCursor(gui);
+                }
+                else
+                {
+                    InventoryUtils.clickSlot(gui, slot.slotNumber, 1, ClickType.THROW);
+                    cancel = true;
+                }
             }
 
             this.draggedSlots.add(slotNumber);
@@ -682,5 +769,23 @@ public class InputEventHandler
         }
 
         return null;
+    }
+
+    public enum MoveAmount
+    {
+        INVALID,
+        MOVE_ONE,
+        MOVE_ALL,
+        LEAVE_ONE
+    }
+
+    public enum MoveType
+    {
+        INVALID,
+        MOVE_TO_OTHER,
+        MOVE_TO_THIS,
+        MOVE_UP,
+        MOVE_DOWN,
+        DROP
     }
 }

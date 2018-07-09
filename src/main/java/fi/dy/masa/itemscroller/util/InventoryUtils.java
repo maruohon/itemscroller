@@ -1608,7 +1608,7 @@ public class InventoryUtils
         clickSlot(gui, slotNum, 0, ClickType.PICKUP);
     }
 
-    private static void rightClickSlot(GuiContainer gui, int slotNum)
+    public static void rightClickSlot(GuiContainer gui, int slotNum)
     {
         clickSlot(gui, slotNum, 1, ClickType.PICKUP);
     }
@@ -1623,7 +1623,7 @@ public class InventoryUtils
         clickSlot(gui, -999, 0, ClickType.PICKUP);
     }
 
-    private static void dropStack(GuiContainer gui, int slotNum)
+    public static void dropStack(GuiContainer gui, int slotNum)
     {
         clickSlot(gui, slotNum, 1, ClickType.THROW);
     }
