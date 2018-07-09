@@ -201,6 +201,14 @@ public class InputEventHandler
                 {
                     cancel |= this.dragMoveItems(gui, mc);
                 }
+                else if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0 && this.shouldMoveVertically())
+                {
+                    MoveType type = this.getDragMoveType(mc);
+                    MoveAmount amount = this.getDragMoveAmount(type, mc);
+                    InventoryUtils.tryMoveItemsVertically(gui, slot, this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), amount);
+                    this.slotNumberLast = -1;
+                    cancel = true;
+                }
             }
 
             if (cancel)
@@ -443,7 +451,7 @@ public class InputEventHandler
         }
 
         MoveType type = this.getDragMoveType(mc);
-        MoveAmount amount = this.getDragMoveAmount(mc);
+        MoveAmount amount = this.getDragMoveAmount(type, mc);
         boolean cancel = false;
 
         if (Mouse.getEventButtonState())
@@ -519,8 +527,8 @@ public class InputEventHandler
             this.slotNumberLast = -1;
         }
 
-        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
-        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+        boolean leftButtonDown = Mouse.isButtonDown(0);
+        boolean rightButtonDown = Mouse.isButtonDown(1);
 
         if (leftButtonDown == false && rightButtonDown == false)
         {
@@ -532,61 +540,84 @@ public class InputEventHandler
 
     private MoveType getDragMoveType(Minecraft mc)
     {
-        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
-        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+        boolean leftButtonDown = Mouse.isButtonDown(0);
+        boolean rightButtonDown = Mouse.isButtonDown(1);
         boolean isShiftDown = GuiScreen.isShiftKeyDown();
         boolean isControlDown = GuiScreen.isCtrlKeyDown();
         boolean eitherMouseButtonDown = leftButtonDown || rightButtonDown;
 
         // Only one of the mouse buttons is down, and only one of shift or control is down
-        if ((leftButtonDown ^ rightButtonDown) && (isShiftDown ^ isControlDown))
+        if (leftButtonDown ^ rightButtonDown)
         {
-            int dropKey = mc.gameSettings.keyBindDrop.getKeyCode();
-            boolean dropKeyDown = dropKey > 0 ? Keyboard.isKeyDown(dropKey) : dropKey + 100 < Mouse.getButtonCount() && Mouse.isButtonDown(dropKey + 100);
-
-            if (dropKeyDown &&
-                ((isShiftDown && Configs.enableDragDroppingStacks) ||
-                 (isControlDown && Configs.enableDragDroppingSingle)))
+            if (this.shouldMoveVertically())
             {
-                return MoveType.DROP;
+                if (Keyboard.isKeyDown(Keyboard.KEY_W))
+                {
+                    return MoveType.MOVE_UP;
+                }
+                else if (Keyboard.isKeyDown(Keyboard.KEY_S))
+                {
+                    return MoveType.MOVE_DOWN;
+                }
             }
-            else if ((isShiftDown && leftButtonDown && Configs.enableDragMovingShiftLeft) ||
-                (isShiftDown && rightButtonDown && Configs.enableDragMovingShiftRight) ||
-                (isControlDown && eitherMouseButtonDown && Configs.enableDragMovingControlLeft))
+            else if (isShiftDown ^ isControlDown)
             {
-                return MoveType.MOVE_TO_OTHER;
+                int dropKey = mc.gameSettings.keyBindDrop.getKeyCode();
+                boolean dropKeyDown = dropKey > 0 ? Keyboard.isKeyDown(dropKey) : dropKey + 100 < Mouse.getButtonCount() && Mouse.isButtonDown(dropKey + 100);
+
+                if (dropKeyDown &&
+                    ((isShiftDown && Configs.enableDragDroppingStacks) ||
+                     (isControlDown && Configs.enableDragDroppingSingle)))
+                {
+                    return MoveType.DROP;
+                }
+                else if ((isShiftDown && leftButtonDown && Configs.enableDragMovingShiftLeft) ||
+                    (isShiftDown && rightButtonDown && Configs.enableDragMovingShiftRight) ||
+                    (isControlDown && eitherMouseButtonDown && Configs.enableDragMovingControlLeft))
+                {
+                    return MoveType.MOVE_TO_OTHER;
+                }
             }
         }
 
         return MoveType.INVALID;
     }
 
-    private MoveAmount getDragMoveAmount(Minecraft mc)
+    private MoveAmount getDragMoveAmount(MoveType type, Minecraft mc)
     {
-        boolean leftButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindAttack.getKeyCode() + 100);
-        boolean rightButtonDown = Mouse.isButtonDown(mc.gameSettings.keyBindUseItem.getKeyCode() + 100);
+        boolean leftButtonDown = Mouse.isButtonDown(0);
+        boolean rightButtonDown = Mouse.isButtonDown(1);
         boolean isShiftDown = GuiScreen.isShiftKeyDown();
         boolean isControlDown = GuiScreen.isCtrlKeyDown();
 
         // Only one of the mouse buttons is down, and only one of shift or control is down
-        if ((leftButtonDown ^ rightButtonDown) && (isShiftDown ^ isControlDown))
+        if (leftButtonDown ^ rightButtonDown)
         {
-            MoveAmount amount = MoveAmount.INVALID;
-
-            if (isControlDown && isShiftDown == false)
+            if (isShiftDown ^ isControlDown)
             {
-                amount = MoveAmount.MOVE_ONE;
+                if (isControlDown && isShiftDown == false)
+                {
+                    return MoveAmount.MOVE_ONE;
+                }
+                else if (rightButtonDown && isShiftDown)
+                {
+                    return MoveAmount.LEAVE_ONE;
+                }
+                else if (leftButtonDown && isShiftDown)
+                {
+                    return MoveAmount.MOVE_ALL;
+                }
             }
-            else if (rightButtonDown && isShiftDown)
+            // Allow moving entire stacks with just W or S down, (without Shift),
+            // but only when first clicking the left button down, and when not holding Control
+            else if (leftButtonDown &&
+                     isShiftDown == false &&
+                     isControlDown == false &&
+                     (type == MoveType.MOVE_UP || type == MoveType.MOVE_DOWN) &&
+                     Mouse.getEventButtonState())
             {
-                amount = MoveAmount.LEAVE_ONE;
+                return MoveAmount.MOVE_ALL;
             }
-            else if (leftButtonDown && isShiftDown)
-            {
-                amount = MoveAmount.MOVE_ALL;
-            }
-
-            return amount;
         }
 
         return MoveAmount.INVALID;
@@ -622,6 +653,11 @@ public class InputEventHandler
                     InventoryUtils.shiftClickSlot(gui, slot.slotNumber);
                     cancel = true;
                 }
+            }
+            else if (type == MoveType.MOVE_UP || type == MoveType.MOVE_DOWN)
+            {
+                InventoryUtils.tryMoveItemsVertically(gui, slot, this.recipes, Keyboard.isKeyDown(Keyboard.KEY_W), amount);
+                cancel = true;
             }
             else if (type == MoveType.DROP)
             {
@@ -725,6 +761,11 @@ public class InputEventHandler
         }
 
         return cancel;
+    }
+
+    private boolean shouldMoveVertically()
+    {
+        return Configs.enableWSClicking && (Keyboard.isKeyDown(Keyboard.KEY_W) || Keyboard.isKeyDown(Keyboard.KEY_S));
     }
 
     public static boolean mouseEventIsLeftClick(Minecraft mc)
