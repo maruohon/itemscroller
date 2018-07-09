@@ -1,24 +1,30 @@
 {
     "homepage": "http://minecraft.curseforge.com/projects/item-scroller",
     "promos": {
-        "1.12-latest": "0.11.0",
-        "1.12-recommended": "0.11.0",
-        "1.11.2-latest": "0.11.0",
-        "1.11.2-recommended": "0.11.0",
-        "1.11-latest": "0.11.0",
-        "1.11-recommended": "0.11.0",
-        "1.10.2-latest": "0.11.0",
-        "1.10.2-recommended": "0.11.0",
-        "1.10-latest": "0.10.3",
-        "1.10-recommended": "0.10.3",
-        "1.9.4-latest": "0.10.3",
-        "1.9.4-recommended": "0.10.3",
-        "1.9-latest": "0.10.3",
-        "1.9-recommended": "0.10.3",
-        "1.8.9-latest": "0.5.1",
-        "1.8.9-recommended": "0.5.1"
+        "1.12.2-latest":        "0.12.0",
+        "1.12.2-recommended":   "0.12.0",
+        "1.12-latest":          "0.12.0",
+        "1.12-recommended":     "0.12.0",
+        "1.11.2-latest":        "0.11.0",
+        "1.11.2-recommended":   "0.11.0",
+        "1.11-latest":          "0.11.0",
+        "1.11-recommended":     "0.11.0",
+        "1.10.2-latest":        "0.11.0",
+        "1.10.2-recommended":   "0.11.0",
+        "1.10-latest":          "0.10.3",
+        "1.10-recommended":     "0.10.3",
+        "1.9.4-latest":         "0.10.3",
+        "1.9.4-recommended":    "0.10.3",
+        "1.9-latest":           "0.10.3",
+        "1.9-recommended":      "0.10.3",
+        "1.8.9-latest":         "0.5.1",
+        "1.8.9-recommended":    "0.5.1"
+    },
+    "1.12.2": {
+        "0.12.0": "Added W/S clicking to move items up/down in the inventory\nAdded click + dragging while holding (shift and) the drop key to drop items\nRewrote most of the Crafting Scrolling feature, for hopefully better usability\nAdded some protection against bad inventories causing crashes\nSome fixes for the item movement logic in some cases\nSigned the JAR"
     },
     "1.12": {
+        "0.12.0": "Added W/S clicking to move items up/down in the inventory\nRewrote most of the Crafting Scrolling feature, for hopefully better usability\nAdded some protection against bad inventories causing crashes\nSome fixes for the item movement logic in some cases\nSigned the JAR",
         "0.11.0": "Update to Minecraft 1.12"
     },
     "1.11.2": {
