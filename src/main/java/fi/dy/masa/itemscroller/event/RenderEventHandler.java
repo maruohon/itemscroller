@@ -365,7 +365,7 @@ public class RenderEventHandler
         {
             if (i == 0)
             {
-                list.set(i, stack.getRarity().rarityColor + (String)list.get(i));
+                list.set(i, stack.getRarity().color + (String)list.get(i));
             }
             else
             {
