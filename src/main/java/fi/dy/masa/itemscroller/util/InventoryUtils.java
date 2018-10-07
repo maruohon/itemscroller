@@ -152,7 +152,7 @@ public class InventoryUtils
             moveToOtherInventory = above == scrollingUp;
         }
 
-        if ((Configs.useSlotPositionAwareScrollDirection && isShiftDown == false) ||
+        if ((Configs.reverseScrollDirectionSingle && isShiftDown == false) ||
             (Configs.reverseScrollDirectionStacks && isShiftDown))
         {
             moveToOtherInventory = ! moveToOtherInventory;
