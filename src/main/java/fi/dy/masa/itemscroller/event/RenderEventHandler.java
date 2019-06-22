@@ -365,11 +365,11 @@ public class RenderEventHandler
         {
             if (i == 0)
             {
-                list.set(i, stack.getRarity().color + (String)list.get(i));
+                list.set(i, stack.getItem().getForgeRarity(stack).getColor() + list.get(i));
             }
             else
             {
-                list.set(i, TextFormatting.GRAY + (String)list.get(i));
+                list.set(i, TextFormatting.GRAY + list.get(i));
             }
         }
 

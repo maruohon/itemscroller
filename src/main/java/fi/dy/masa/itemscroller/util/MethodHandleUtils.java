@@ -3,7 +3,6 @@ package fi.dy.masa.itemscroller.util;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import net.minecraftforge.fml.relauncher.ReflectionHelper.UnableToFindMethodException;
 
 public class MethodHandleUtils
 {
@@ -15,7 +14,16 @@ public class MethodHandleUtils
         {
             super(failed);
         }
+    }
 
+    public static class UnableToFindMethodException extends RuntimeException
+    {
+        private static final long serialVersionUID = 1L;
+
+        public UnableToFindMethodException(Throwable failed)
+        {
+            super(failed);
+        }
     }
 
     public static <E> MethodHandle getMethodHandleVirtual(Class<? super E> clazz, String[] methodNames, Class<?>... paramTypes)
@@ -55,6 +63,6 @@ public class MethodHandleUtils
             }
         }
 
-        throw new UnableToFindMethodException(methodNames, failed);
+        throw new UnableToFindMethodException(failed);
     }
 }

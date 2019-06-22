@@ -31,7 +31,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.InputEventHandler.MoveAmount;
@@ -42,8 +42,8 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 
 public class InventoryUtils
 {
-    public static final Field fieldSelectedMerchantRecipe = ReflectionHelper.findField(GuiMerchant.class, "field_147041_z", "selectedMerchantRecipe");
-    public static final Method method_GuiContainer_handleMouseClick = ReflectionHelper.findMethod(GuiContainer.class, "handleMouseClick", "func_184098_a", Slot.class, int.class, int.class, ClickType.class);
+    public static final Field fieldSelectedMerchantRecipe = ObfuscationReflectionHelper.findField(GuiMerchant.class, "field_147041_z"); // selectedMerchantRecipe
+    public static final Method method_GuiContainer_handleMouseClick = ObfuscationReflectionHelper.findMethod(GuiContainer.class, "func_184098_a", Slot.class, int.class, int.class, ClickType.class); // handleMouseClick
 
     public static void onSlotChangedCraftingGrid(World world, EntityPlayer player,
             InventoryCrafting inventoryCrafting, InventoryCraftResult inventoryCraftResult)
