@@ -316,7 +316,7 @@ public class InputEventHandler
     public boolean isRecipeViewOpen()
     {
         int keyCode = ClientProxy.KEY_RECIPE.getKeyCode();
-        return keyCode > 0 && keyCode < 256 && Keyboard.isKeyDown(keyCode) &&
+        return keyCode > 0 && keyCode <= Keyboard.getKeyCount() && Keyboard.isKeyDown(keyCode) &&
                 ClientProxy.KEY_RECIPE.getKeyModifier().isActive(ClientProxy.KEY_RECIPE.getKeyConflictContext());
     }
 
@@ -563,7 +563,7 @@ public class InputEventHandler
             else if (isShiftDown ^ isControlDown)
             {
                 int dropKey = mc.gameSettings.keyBindDrop.getKeyCode();
-                boolean dropKeyDown = dropKey > 0 ? Keyboard.isKeyDown(dropKey) : dropKey + 100 < Mouse.getButtonCount() && Mouse.isButtonDown(dropKey + 100);
+                boolean dropKeyDown = isKeyDown(dropKey);
 
                 if (dropKeyDown &&
                     ((isShiftDown && Configs.enableDragDroppingStacks) ||
@@ -581,6 +581,19 @@ public class InputEventHandler
         }
 
         return MoveType.INVALID;
+    }
+
+    public static boolean isKeyDown(int keyCode)
+    {
+        if (keyCode > 0)
+        {
+            return keyCode <= Keyboard.getKeyCount() && Keyboard.isKeyDown(keyCode);
+        }
+        else
+        {
+            keyCode += 100;
+            return keyCode >= 0 && keyCode < Mouse.getButtonCount() && Mouse.isButtonDown(keyCode);
+        }
     }
 
     private MoveAmount getDragMoveAmount(MoveType type, Minecraft mc)
