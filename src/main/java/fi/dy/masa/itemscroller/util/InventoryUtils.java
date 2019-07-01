@@ -20,6 +20,7 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiMerchant;
@@ -36,11 +37,9 @@ import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotMerchantResult;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
@@ -78,21 +77,6 @@ public class InventoryUtils
         }
     }
 
-    public static String getStackString(ItemStack stack)
-    {
-        if (isStackEmpty(stack) == false)
-        {
-            ResourceLocation rl = Item.REGISTRY.getNameForObject(stack.getItem());
-
-            return String.format("[%s @ %d - display: %s - NBT: %s] (%s)",
-                    rl != null ? rl.toString() : "null", stack.getMetadata(), stack.getDisplayName(),
-                    stack.getTagCompound() != null ? stack.getTagCompound().toString() : "<no NBT>",
-                    stack.toString());
-        }
-
-        return "<empty>";
-    }
-
     public static void debugPrintSlotInfo(GuiContainer gui, Slot slot)
     {
         if (slot == null)
@@ -103,7 +87,7 @@ public class InventoryUtils
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
         Object inv = slot.inventory;
-        String stackStr = InventoryUtils.getStackString(slot.getStack());
+        String stackStr = StringUtils.getStackString(slot.getStack());
 
         LiteModItemScroller.logger.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
                 "slot class: %s, inv class: %s, Container's slot list has slot: %s, stack: %s, numSlots: %d",
