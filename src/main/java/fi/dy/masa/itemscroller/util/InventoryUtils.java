@@ -101,7 +101,7 @@ public class InventoryUtils
         return gui.inventorySlots != null && gui.inventorySlots.inventorySlots != null &&
                 slot != null && gui.inventorySlots.inventorySlots.contains(slot) &&
                 (requireItems == false || slot.getHasStack()) &&
-                Configs.SLOT_BLACKLIST.contains(slot.getClass().getName()) == false;
+                Configs.Lists.SLOT_BLACKLIST.getStrings().contains(slot.getClass().getName()) == false;
     }
 
     public static boolean isCraftingSlot(GuiContainer gui, @Nullable Slot slot)

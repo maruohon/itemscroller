@@ -103,7 +103,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             else if (key == Hotkeys.KEY_DROP_ALL_MATCHING.getKeybind())
             {
                 if (Configs.Toggles.DROP_MATCHING.getBooleanValue() &&
-                    Configs.GUI_BLACKLIST.contains(gui.getClass().getName()) == false &&
+                    Configs.Lists.GUI_BLACKLIST.getStrings().contains(gui.getClass().getName()) == false &&
                     slot.getHasStack())
                 {
                     InventoryUtils.dropStacks(gui, slot.getStack(), slot, true);
@@ -173,7 +173,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             mc.player != null &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
-            Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
+            Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
             Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld())
         {
             GuiScreen guiScreen = GuiUtils.getCurrentScreen();

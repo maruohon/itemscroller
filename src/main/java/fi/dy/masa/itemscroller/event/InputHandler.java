@@ -168,7 +168,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
             if (GuiUtils.getCurrentScreen() instanceof GuiContainer &&
                 (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
-                Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
+                Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
             {
                 GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
                 RecipeStorage recipes = RecipeStorage.getInstance();
@@ -251,7 +251,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
         if (this.callbacks.functionalityEnabled() &&
             mc.player != null &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
-            Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
+            Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
         {
             this.handleDragging((GuiContainer) GuiUtils.getCurrentScreen(), mc, false);
         }
