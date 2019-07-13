@@ -193,32 +193,35 @@ public class RecipeStorage
 
     public void readFromDisk()
     {
-        try
+        if (Configs.Generic.SCROLL_CRAFT_STORE_RECIPES_TO_FILE.getBooleanValue())
         {
-            File saveDir = this.getSaveDir();
-
-            if (saveDir != null)
+            try
             {
-                File file = new File(saveDir, this.getFileName());
+                File saveDir = this.getSaveDir();
 
-                if (file.exists() && file.isFile() && file.canRead())
+                if (saveDir != null)
                 {
-                    FileInputStream is = new FileInputStream(file);
-                    this.readFromNBT(CompressedStreamTools.readCompressed(is));
-                    is.close();
-                    //ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
+                    File file = new File(saveDir, this.getFileName());
+
+                    if (file.exists() && file.isFile() && file.canRead())
+                    {
+                        FileInputStream is = new FileInputStream(file);
+                        this.readFromNBT(CompressedStreamTools.readCompressed(is));
+                        is.close();
+                        //ItemScroller.logger.info("Read recipes from file '{}'", file.getPath());
+                    }
                 }
             }
-        }
-        catch (Exception e)
-        {
-            LiteModItemScroller.logger.warn("Failed to read recipes from file", e);
+            catch (Exception e)
+            {
+                LiteModItemScroller.logger.warn("Failed to read recipes from file", e);
+            }
         }
     }
 
     public void writeToDisk()
     {
-        if (this.dirty)
+        if (this.dirty && Configs.Generic.SCROLL_CRAFT_STORE_RECIPES_TO_FILE.getBooleanValue())
         {
             try
             {
