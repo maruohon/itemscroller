@@ -1,6 +1,8 @@
 package fi.dy.masa.itemscroller.event;
 
+import java.util.List;
 import org.lwjgl.input.Keyboard;
+import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -14,10 +16,10 @@ import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
-import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.hotkeys.IKeyboardInputHandler;
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
+import fi.dy.masa.malilib.hotkeys.KeybindCategory;
 import fi.dy.masa.malilib.util.GuiUtils;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
@@ -43,18 +45,15 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     }
 
     @Override
-    public void addKeysToMap(IKeybindManager manager)
+    public List<? extends IHotkey> getAllHotkeys()
     {
-        for (IHotkey hotkey : Hotkeys.HOTKEY_LIST)
-        {
-            manager.addKeybindToMap(hotkey.getKeybind());
-        }
+        return Hotkeys.HOTKEY_LIST;
     }
 
     @Override
-    public void addHotkeys(IKeybindManager manager)
+    public List<KeybindCategory> getHotkeyCategoriesForCombinedView()
     {
-        manager.addHotkeysForCategory(Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST);
+        return ImmutableList.of(new KeybindCategory(Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
     }
 
     @Override
