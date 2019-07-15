@@ -8,7 +8,7 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.GuiScrollBar;
+import fi.dy.masa.malilib.gui.WidgetScrollBar;
 import fi.dy.masa.malilib.gui.widgets.WidgetBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -18,7 +18,7 @@ import net.minecraft.village.MerchantRecipeList;
 
 public class WidgetTradeList extends WidgetBase
 {
-    private final GuiScrollBar scrollBar;
+    private final WidgetScrollBar scrollBar;
     private final GuiMerchant parentGui;
     private final VillagerDataStorage storage;
     private final ArrayList<WidgetTradeEntry> entryList = new ArrayList<>();
@@ -30,7 +30,7 @@ public class WidgetTradeList extends WidgetBase
     {
         super(x, y, 106, 166);
 
-        this.scrollBar = (new GuiScrollBar(Icons.SCROLL_BAR_6)).setRenderBarBackground(false);
+        this.scrollBar = (new WidgetScrollBar(this.x + 93, this.y + 17, 8, 142, Icons.SCROLL_BAR_6)).setRenderBarBackground(false);
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
@@ -64,9 +64,8 @@ public class WidgetTradeList extends WidgetBase
     @Override
     protected boolean onMouseClickedImpl(int mouseX, int mouseY, int mouseButton)
     {
-        if (this.scrollBar.wasMouseOver())
+        if (this.scrollBar.isMouseOver(mouseX, mouseY) && this.scrollBar.onMouseClicked(mouseX, mouseY, mouseButton))
         {
-            this.scrollBar.setIsDragging(true);
             return true;
         }
 
@@ -145,7 +144,7 @@ public class WidgetTradeList extends WidgetBase
             int w = this.getStringWidth(str);
             this.drawString(this.x + this.width / 2 - w / 2, this.y + 6, 0xFF404040, str);
 
-            this.scrollBar.render(mouseX, mouseY, 0, this.x + 93, this.y + 17, 8, 142, this.scrollBarTotalHeight);
+            this.scrollBar.render(mouseX, mouseY, 142, this.scrollBarTotalHeight);
 
             // Render the trades
             for (WidgetTradeEntry entry : this.entryList)
