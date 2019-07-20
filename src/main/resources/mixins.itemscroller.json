@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "package": "fi.dy.masa.itemscroller.mixin",
+    "refmap": "mixins.itemscroller.refmap.json",
+    "minVersion": "0.7",
+    "compatibilityLevel": "JAVA_8",
+    "client": [
+        "IMixinGuiContainer",
+        "MixinContainer",
+        "MixinGuiMerchant"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

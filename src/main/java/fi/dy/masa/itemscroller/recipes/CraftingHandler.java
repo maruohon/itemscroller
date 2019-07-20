@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.ItemScroller;
@@ -14,7 +15,7 @@ public class CraftingHandler
     private static final Map<CraftingOutputSlot, SlotRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, SlotRange>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
 
-    public static void clearDefinitons()
+    public static void clearDefinitions()
     {
         CRAFTING_GRID_SLOTS.clear();
         CRAFTING_GUIS.clear();
@@ -40,6 +41,11 @@ public class CraftingHandler
         }
 
         return false;
+    }
+
+    public static boolean isCraftingGui(GuiScreen gui)
+    {
+        return (gui instanceof GuiContainer) && CRAFTING_GUIS.contains(((GuiContainer) gui).getClass());
     }
 
     /**

@@ -1,14 +1,14 @@
 package fi.dy.masa.itemscroller.recipes;
 
 import javax.annotation.Nonnull;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
+import fi.dy.masa.itemscroller.util.Constants;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.common.util.Constants;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
-import fi.dy.masa.itemscroller.util.InventoryUtils;
 
 public class CraftingRecipe
 {
@@ -52,22 +52,18 @@ public class CraftingRecipe
         {
             if (slot.getHasStack())
             {
-                if (InventoryUtils.areStacksEqual(this.getResult(), slot.getStack()) == false ||
-                        this.getRecipeLength() != range.getSlotCount())
-                    {
-                        int gridSize = range.getSlotCount();
-                        int numSlots = gui.inventorySlots.inventorySlots.size();
+                int gridSize = range.getSlotCount();
+                int numSlots = gui.inventorySlots.inventorySlots.size();
 
-                        this.ensureRecipeSizeAndClearRecipe(gridSize);
+                this.ensureRecipeSizeAndClearRecipe(gridSize);
 
-                        for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
-                        {
-                            Slot slotTmp = gui.inventorySlots.getSlot(s);
-                            this.recipe[i] = slotTmp.getHasStack() ? slotTmp.getStack().copy() : InventoryUtils.EMPTY_STACK;
-                        }
+                for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
+                {
+                    Slot slotTmp = gui.inventorySlots.getSlot(s);
+                    this.recipe[i] = slotTmp.getHasStack() ? slotTmp.getStack().copy() : InventoryUtils.EMPTY_STACK;
+                }
 
-                        this.result = slot.getStack().copy();
-                    }
+                this.result = slot.getStack().copy();
             }
             else if (clearIfEmpty)
             {

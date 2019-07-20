@@ -2,32 +2,29 @@ package fi.dy.masa.itemscroller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.proxy.CommonProxy;
+import fi.dy.masa.itemscroller.event.RenderEventHandler;
+import fi.dy.masa.malilib.event.InitializationHandler;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.MOD_VERSION, certificateFingerprint = Reference.FINGERPRINT,
-    guiFactory = "fi.dy.masa.itemscroller.config.ItemScrollerGuiFactory",
+    guiFactory = "fi.dy.masa.itemscroller.config.gui.ItemScrollerGuiFactory",
     updateJSON = "https://raw.githubusercontent.com/maruohon/itemscroller/master/update.json",
-    clientSideOnly=true, acceptedMinecraftVersions = "1.12")
+    clientSideOnly=true, acceptedMinecraftVersions = "1.12.2")
 public class ItemScroller
 {
     @Mod.Instance(Reference.MOD_ID)
     public static ItemScroller instance;
-
-    @SidedProxy(clientSide = "fi.dy.masa.itemscroller.proxy.ClientProxy", serverSide = "fi.dy.masa.itemscroller.proxy.CommonProxy")
-    public static CommonProxy proxy;
 
     public static final Logger logger = LogManager.getLogger(Reference.MOD_ID);
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        proxy.registerEventHandlers();
-        Configs.loadConfigsFromFile(event.getSuggestedConfigurationFile());
+        MinecraftForge.EVENT_BUS.register(RenderEventHandler.instance());
+        InitializationHandler.getInstance().registerInitializationHandler(new InitHandler());
     }
 
     @Mod.EventHandler

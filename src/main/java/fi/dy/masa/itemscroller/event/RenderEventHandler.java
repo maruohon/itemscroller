@@ -1,24 +1,24 @@
 package fi.dy.masa.itemscroller.event;
 
-import java.util.List;
-import org.lwjgl.input.Mouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.util.AccessorUtils;
+import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.malilib.render.InventoryOverlay;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 
 public class RenderEventHandler
 {
@@ -26,134 +26,169 @@ public class RenderEventHandler
     private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
     private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
 
-    private ScaledResolution scaledResolution;
+    private final Minecraft mc = Minecraft.getMinecraft();
+    private int recipeListX;
+    private int recipeListY;
+    private int recipesPerColumn;
+    private int columnWidth;
+    private int columns;
+    private int numberTextWidth;
+    private int gapColumn;
+    private int entryHeight;
+    private double scale;
 
-    public static RenderEventHandler getInstance()
+    public static RenderEventHandler instance()
     {
         return INSTANCE;
     }
 
     @SubscribeEvent
-    public void onDrawBackground(GuiScreenEvent.BackgroundDrawnEvent event)
+    public void onPotionShift(GuiScreenEvent.PotionShiftEvent event)
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
-        if (InputEventHandler.getInstance().isRecipeViewOpen() && mc.currentScreen instanceof GuiContainer)
+        if (InputUtils.isRecipeViewOpen())
         {
-            GuiContainer gui = (GuiContainer) mc.currentScreen;
-            RecipeStorage recipes = InputEventHandler.getInstance().getRecipes();
-            final int count = recipes.getRecipeCount();
-
-            gui.mc.fontRenderer.drawString("Item Scroller quick crafting", 4, 4, 0xC0C0C0C0);
-
-            for (int recipeId = 0; recipeId < count; recipeId++)
-            {
-                this.renderStoredRecipeStack(recipeId, count, recipes.getRecipe(recipeId).getResult(),
-                        gui, mc, recipeId == recipes.getSelection());
-            }
+            event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void onDrawScreen(GuiScreenEvent.DrawScreenEvent.Post event)
+    public void onDrawBackgroundPost(GuiScreenEvent.BackgroundDrawnEvent event)
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
-        if (InputEventHandler.getInstance().isRecipeViewOpen() && mc.currentScreen instanceof GuiContainer)
+        if (GuiUtils.getCurrentScreen() instanceof GuiContainer && InputUtils.isRecipeViewOpen())
         {
-            GuiContainer gui = (GuiContainer) mc.currentScreen;
-            RecipeStorage recipes = InputEventHandler.getInstance().getRecipes();
+            GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
+            RecipeStorage recipes = RecipeStorage.getInstance();
+            final int first = recipes.getFirstVisibleRecipeId();
+            final int countPerPage = recipes.getRecipeCountPerPage();
+            final int lastOnPage = first + countPerPage - 1;
 
-            final int mouseX = this.getMouseX();
-            final int mouseY = this.getMouseY();
-            final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui, mc);
+            this.calculateRecipePositions(gui);
+
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(this.recipeListX, this.recipeListY, 0);
+            GlStateManager.scale(this.scale, this.scale, 1);
+
+            String str = StringUtils.translate("itemscroller.gui.label.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
+            this.mc.fontRenderer.drawString(str, 16, -12, 0xC0C0C0C0);
+
+            for (int i = 0, recipeId = first; recipeId <= lastOnPage; ++i, ++recipeId)
+            {
+                ItemStack stack = recipes.getRecipe(recipeId).getResult();
+                boolean selected = recipeId == recipes.getSelection();
+                int row = i % this.recipesPerColumn;
+                int column = i / this.recipesPerColumn;
+
+                this.renderStoredRecipeStack(stack, recipeId, row, column, gui, selected);
+            }
+
+            if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
+            {
+                final int mouseX = InputUtils.getMouseX();
+                final int mouseY = InputUtils.getMouseY();
+                final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
+                CraftingRecipe recipe = recipeId >= 0 ? recipes.getRecipe(recipeId) : recipes.getSelectedRecipe();
+
+                this.renderRecipeItems(recipe, recipes.getRecipeCountPerPage(), gui);
+            }
+
+            GlStateManager.popMatrix();
+            GlStateManager.enableBlend(); // Fixes the crafting book icon rendering
+        }
+    }
+
+    @SubscribeEvent
+    public void onDrawScreenPost(GuiScreenEvent.DrawScreenEvent.Post event)
+    {
+        if (GuiUtils.getCurrentScreen() instanceof GuiContainer && InputUtils.isRecipeViewOpen())
+        {
+            GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
+            RecipeStorage recipes = RecipeStorage.getInstance();
+
+            final int mouseX = InputUtils.getMouseX();
+            final int mouseY = InputUtils.getMouseY();
+            final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
 
             if (recipeId >= 0)
             {
                 CraftingRecipe recipe = recipes.getRecipe(recipeId);
-
-                if (Configs.craftingRenderRecipeItems)
-                {
-                    this.renderRecipeItems(recipe, recipes.getRecipeCount(), gui, mc);
-                }
-
-                this.renderHoverTooltip(mouseX, mouseY, recipe, gui, mc);
+                this.renderHoverTooltip(mouseX, mouseY, recipe, gui);
             }
-            else if (Configs.craftingRenderRecipeItems)
+            else if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
             {
                 CraftingRecipe recipe = recipes.getSelectedRecipe();
-                this.renderRecipeItems(recipe, recipes.getRecipeCount(), gui, mc);
-
-                ItemStack stack = this.getHoveredRecipeIngredient(mouseX, mouseY, recipe, recipes.getRecipeCount(), gui, mc);
+                ItemStack stack = this.getHoveredRecipeIngredient(mouseX, mouseY, recipe, recipes.getRecipeCountPerPage(), gui);
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    this.renderStackToolTip(mouseX, mouseY, stack, gui, mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
                 }
             }
         }
     }
 
-    public ScaledResolution getScaledResolution()
+    private void calculateRecipePositions(GuiContainer gui)
     {
-        if (this.scaledResolution == null)
-        {
-            this.scaledResolution = new ScaledResolution(Minecraft.getMinecraft());
-        }
+        RecipeStorage recipes = RecipeStorage.getInstance();
+        final int gapHorizontal = 2;
+        final int gapVertical = 2;
+        final int stackBaseHeight = 16;
+        final int guiLeft = AccessorUtils.getGuiLeft(gui);
 
-        return this.scaledResolution;
+        this.recipesPerColumn = 9;
+        this.columns = (int) Math.ceil((double) recipes.getRecipeCountPerPage() / (double) this.recipesPerColumn);
+        this.numberTextWidth = 12;
+        this.gapColumn = 4;
+
+        int usableHeight = GuiUtils.getScaledWindowHeight();
+        int usableWidth = guiLeft;
+        // Scale the maximum stack size by taking into account the relative gap size
+        double gapScaleVertical = (1D - (double) gapVertical / (double) (stackBaseHeight + gapVertical));
+        // the +1.2 is for the gap and page text height on the top and bottom
+        int maxStackDimensionsVertical = (int) ((usableHeight / ((double) this.recipesPerColumn + 1.2)) * gapScaleVertical);
+        // assume a maximum of 3x3 recipe size for now... thus columns + 3 stacks rendered horizontally
+        double gapScaleHorizontal = (1D - (double) gapHorizontal / (double) (stackBaseHeight + gapHorizontal));
+        int maxStackDimensionsHorizontal = (int) (((usableWidth - (this.columns * (this.numberTextWidth + this.gapColumn))) / (this.columns + 3 + 0.8)) * gapScaleHorizontal);
+        int stackDimensions = (int) Math.min(maxStackDimensionsVertical, maxStackDimensionsHorizontal);
+
+        this.scale = (int) Math.ceil(((double) stackDimensions / (double) stackBaseHeight));
+        this.entryHeight = stackBaseHeight + gapVertical;
+        this.recipeListX = guiLeft - (int) ((this.columns * (stackBaseHeight + this.numberTextWidth + this.gapColumn) + gapHorizontal) * this.scale);
+        this.recipeListY = (int) (this.entryHeight * this.scale);
+        this.columnWidth = stackBaseHeight + this.numberTextWidth + this.gapColumn;
     }
 
-    public int getMouseX()
-    {
-        final ScaledResolution scaledresolution = this.getScaledResolution();
-        final int w = scaledresolution.getScaledWidth();
-        return Mouse.getX() * w / Minecraft.getMinecraft().displayWidth;
-    }
-
-    public int getMouseY()
-    {
-        final ScaledResolution scaledresolution = this.getScaledResolution();
-        final int h = scaledresolution.getScaledHeight();
-        return h - Mouse.getY() * h / Minecraft.getMinecraft().displayHeight - 1;
-    }
-
-    private void renderHoverTooltip(int mouseX, int mouseY, CraftingRecipe recipe, GuiContainer gui, Minecraft mc)
+    private void renderHoverTooltip(int mouseX, int mouseY, CraftingRecipe recipe, GuiContainer gui)
     {
         ItemStack stack = recipe.getResult();
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            this.renderStackToolTip(mouseX, mouseY, stack, gui, mc);
+            InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
         }
     }
 
-    public int getHoveredRecipeId(int mouseX, int mouseY, RecipeStorage recipes, GuiContainer gui, Minecraft mc)
+    public int getHoveredRecipeId(int mouseX, int mouseY, RecipeStorage recipes, GuiContainer gui)
     {
-        if (InputEventHandler.getInstance().isRecipeViewOpen())
+        if (InputUtils.isRecipeViewOpen())
         {
-            ScaledResolution scaledResolution = new ScaledResolution(mc);
-            final int gap = 40;
-            final int recipesPerColumn = 9;
-            final int stackBaseHeight = 16;
-            final int usableHeight = scaledResolution.getScaledHeight() - 2 * gap; // leave a gap on the top and bottom
-            // height of each entry; 9 stored recipes
-            final int entryHeight = (int) (usableHeight / recipesPerColumn);
-            // leave 0.25-th of a stack height gap between each entry
-            final float scale = entryHeight / (stackBaseHeight * 1.25f);
-            final int stackScaledSize = (int) (stackBaseHeight * scale);
-            final int recipeCount = recipes.getRecipeCount();
+            this.calculateRecipePositions(gui);
+            final int stackDimensions = (int) (16 * this.scale);
 
-            for (int recipeId = 0; recipeId < recipeCount; recipeId++)
+            for (int column = 0; column < this.columns; ++column)
             {
-                // Leave a small gap from the rendered stack to the gui's left edge
-                final int columnOffsetCount = (recipeCount / recipesPerColumn) - (recipeId / recipesPerColumn);
-                final float x = gui.getGuiLeft() - (columnOffsetCount + 0.2f) * stackScaledSize - (columnOffsetCount - 1) * scale * 20;
-                final int y = (int) (gap + 0.25f * stackScaledSize + (recipeId % recipesPerColumn) * entryHeight);
+                int startX = this.recipeListX + (int) ((column * this.columnWidth + this.gapColumn + this.numberTextWidth) * this.scale);
 
-                if (mouseX >= x && mouseX < x + stackScaledSize && mouseY >= y && mouseY < y + stackScaledSize)
+                if (mouseX >= startX && mouseX <= startX + stackDimensions)
                 {
-                    return recipeId;
+                    for (int row = 0; row < this.recipesPerColumn; ++row)
+                    {
+                        int startY = this.recipeListY + (int) (row * this.entryHeight * this.scale);
+
+                        if (mouseY >= startY && mouseY <= startY + stackDimensions)
+                        {
+                            return recipes.getFirstVisibleRecipeId() + column * this.recipesPerColumn + row;
+                        }
+                    }
                 }
             }
         }
@@ -161,91 +196,72 @@ public class RenderEventHandler
         return -1;
     }
 
-    private void renderStoredRecipeStack(int recipeId, int recipeCount, ItemStack stack, GuiContainer gui, Minecraft mc, boolean selected)
+    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, GuiContainer gui, boolean selected)
     {
-        FontRenderer font = getFontRenderer(mc, stack);
+        final FontRenderer font = this.mc.fontRenderer;
         final String indexStr = String.valueOf(recipeId + 1);
-        final int strWidth = font.getStringWidth(indexStr);
 
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
-        final int verticalGap = 40;
-        final int recipesPerColumn = 9;
-        final int stackBaseHeight = 16;
-        final int usableHeight = scaledResolution.getScaledHeight() - 2 * verticalGap; // leave a gap on the top and bottom
-        // height of each entry; 9 stored recipes
-        final int entryHeight = (int) (usableHeight / recipesPerColumn);
-        // leave 0.25-th of a stack height gap between each entry
-        final float scale = entryHeight / (stackBaseHeight * 1.25f);
-        final int stackScaledSize = (int) (stackBaseHeight * scale);
-        // Leave a small gap from the rendered stack to the gui's left edge. The +12 is some space for the recipe's number text.
-        final int columnOffsetCount = (recipeCount / recipesPerColumn) - (recipeId / recipesPerColumn);
-        final float x = gui.getGuiLeft() - (columnOffsetCount + 0.2f) * stackScaledSize - (columnOffsetCount - 1) * scale * 20;
-        final float y = verticalGap + 0.25f * stackScaledSize + (recipeId % recipesPerColumn) * entryHeight;
+        int x = column * this.columnWidth + this.gapColumn + this.numberTextWidth;
+        int y = row * this.entryHeight;
+        this.renderStackAt(stack, x, y, selected);
 
-        //System.out.printf("sw: %d sh: %d scale: %.3f left: %d usable h: %d entry h: %d\n",
-        //        scaledResolution.getScaledWidth(), scaledResolution.getScaledHeight(), scale, guiLeft, usableHeight, entryHeight);
+        double scale = 0.75;
+        x = x - (int) (font.getStringWidth(indexStr) * scale) - 2;
+        y = row * this.entryHeight + this.entryHeight / 2 - font.FONT_HEIGHT / 2;
 
-        this.renderStackAt(stack, x, y, selected, scale, stackBaseHeight, mc);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0);
+        GlStateManager.scale(scale, scale, 0);
 
-        font.drawString(indexStr, (int) (x - scale * strWidth), (int) (y + (entryHeight - font.FONT_HEIGHT) / 2 - 2), 0xC0C0C0);
+        font.drawString(indexStr, 0, 0, 0xC0C0C0);
+
+        GlStateManager.popMatrix();
     }
 
-    private void renderRecipeItems(CraftingRecipe recipe, int recipeCount, GuiContainer gui, Minecraft mc)
+    private void renderRecipeItems(CraftingRecipe recipe, int recipeCountPerPage, GuiContainer gui)
     {
-        RecipeLocation location = this.getRecipeLocation(recipe, recipeCount, gui, mc);
-
         ItemStack[] items = recipe.getRecipeItems();
+        final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
+        int x = -3 * 17 + 2;
+        int y = 3 * this.entryHeight;
 
-        for (int i = 0, row = 0; row < location.recipeDimensions; row++)
+        for (int i = 0, row = 0; row < recipeDimensions; row++)
         {
-            for (int col = 0; col < location.recipeDimensions; col++, i++)
+            for (int col = 0; col < recipeDimensions; col++, i++)
             {
-                float xOff = col * ((location.stackBaseHeight + 1) * location.scale);
-                float yOff = row * ((location.stackBaseHeight + 1) * location.scale);
-                this.renderStackAt(items[i], location.x + xOff, location.y + yOff, false, location.scale, location.stackBaseHeight, mc);
+                int xOff = col * 17;
+                int yOff = row * 17;
+
+                this.renderStackAt(items[i], x + xOff, y + yOff, false);
             }
         }
     }
 
-    private RecipeLocation getRecipeLocation(CraftingRecipe recipe, int recipeCount, GuiContainer gui, Minecraft mc)
+    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, CraftingRecipe recipe, int recipeCountPerPage, GuiContainer gui)
     {
-        ScaledResolution scaledResolution = new ScaledResolution(mc);
-        final int verticalGap = 40;
-        final int recipesPerColumn = 9;
-        final int stackBaseHeight = 16;
-        final int usableHeight = scaledResolution.getScaledHeight() - 2 * verticalGap; // leave a gap on the top and bottom
-        // height of each entry; 9 stored recipes
-        final int entryHeight = (int) (usableHeight / recipesPerColumn);
-        // leave 0.25-th of a stack height gap between each entry
-        final float scale = entryHeight / (stackBaseHeight * 1.25f);
-        final int stackScaledSize = (int) (stackBaseHeight * scale);
-        // Leave a small gap from the rendered stack to the gui's left edge. The +12 is some space for the recipe's number text.
-        final int columnOffsetCount = (recipeCount / recipesPerColumn);
-
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
-        final float x = gui.getGuiLeft() - (columnOffsetCount + 0.2f) * stackScaledSize - (columnOffsetCount - 1) * scale * 20 - (stackBaseHeight + 1) * (recipeDimensions + 1) * scale;
-        final float y = scaledResolution.getScaledHeight() / 2 - (stackBaseHeight + 1) * recipeDimensions * scale * 0.5f;
+        int scaledStackDimensions = (int) (16 * this.scale);
+        int scaledGridEntry = (int) (17 * this.scale);
+        int x = this.recipeListX - (int) ((3 * 17 - 2) * this.scale);
+        int y = this.recipeListY + (int) (3 * this.entryHeight * this.scale);
 
-        return new RecipeLocation(x, y, scale, stackBaseHeight, recipeDimensions);
-    }
-
-    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, CraftingRecipe recipe, int recipeCount, GuiContainer gui, Minecraft mc)
-    {
-        RecipeLocation location = this.getRecipeLocation(recipe, recipeCount, gui, mc);
-        final float stackWidth = location.scale * location.stackBaseHeight;
-
-        for (int i = 0, row = 0; row < location.recipeDimensions; row++)
+        if (mouseX >= x && mouseX <= x + recipeDimensions * scaledGridEntry &&
+            mouseY >= y && mouseY <= y + recipeDimensions * scaledGridEntry)
         {
-            for (int col = 0; col < location.recipeDimensions; col++, i++)
+            for (int i = 0, row = 0; row < recipeDimensions; row++)
             {
-                float xOff = col * ((location.stackBaseHeight + 1) * location.scale);
-                float yOff = row * ((location.stackBaseHeight + 1) * location.scale);
-                float xStart = location.x + xOff;
-                float yStart = location.y + yOff;
-
-                if (mouseX >= xStart && mouseX <= xStart + stackWidth && mouseY >= yStart && mouseY <= yStart + stackWidth)
+                for (int col = 0; col < recipeDimensions; col++, i++)
                 {
-                    return recipe.getRecipeItems()[i];
+                    int xOff = col * scaledGridEntry;
+                    int yOff = row * scaledGridEntry;
+                    int xStart = x + xOff;
+                    int yStart = y + yOff;
+
+                    if (mouseX >= xStart && mouseX < xStart + scaledStackDimensions &&
+                        mouseY >= yStart && mouseY < yStart + scaledStackDimensions)
+                    {
+                        return recipe.getRecipeItems()[i];
+                    }
                 }
             }
         }
@@ -253,61 +269,41 @@ public class RenderEventHandler
         return ItemStack.EMPTY;
     }
 
-    private static class RecipeLocation
-    {
-        public final float x;
-        public final float y;
-        public final float scale;
-        public final int stackBaseHeight;
-        public final int recipeDimensions;
-
-        public RecipeLocation(float x, float y, float scale, int stackBaseHeight, int recipeDimensions)
-        {
-            this.x = x;
-            this.y = y;
-            this.scale = scale;
-            this.stackBaseHeight = stackBaseHeight;
-            this.recipeDimensions = recipeDimensions;
-        }
-    }
-
-    private void renderStackAt(ItemStack stack, float x, float y, boolean border, float scale, int stackBaseHeight, Minecraft mc)
+    private void renderStackAt(ItemStack stack, int x, int y, boolean border)
     {
         GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, 0);
-        GlStateManager.scale(scale, scale, 1);
         GlStateManager.disableLighting();
-        final int w = stackBaseHeight;
+        final int w = 16;
 
         if (border)
         {
             // Draw a light/white border around the stack
-            Gui.drawRect(    0,     0, w, 1, 0xFFFFFFFF);
-            Gui.drawRect(    0,     0, 1, w, 0xFFFFFFFF);
-            Gui.drawRect(w - 1,     0, w, w, 0xFFFFFFFF);
-            Gui.drawRect(    0, w - 1, w, w, 0xFFFFFFFF);
+            RenderUtils.drawRect(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF);
+            RenderUtils.drawRect(x - 1, y    , 1    , w + 1, 0xFFFFFFFF);
+            RenderUtils.drawRect(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF);
+            RenderUtils.drawRect(x    , y + w, w + 1, 1    , 0xFFFFFFFF);
 
-            Gui.drawRect(1, 1, w - 1, w - 1, 0x20FFFFFF); // light background for the item
+            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF); // light background for the item
+
         }
         else
         {
-            Gui.drawRect(0, 0, w, w, 0x20FFFFFF); // light background for the item
+            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF); // light background for the item
         }
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            enableGUIStandardItemLighting(scale);
+            enableGUIStandardItemLighting((float) this.scale);
 
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
-            mc.getRenderItem().zLevel += 100;
-            mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, 0, 0);
-            //mc.getRenderItem().renderItemOverlayIntoGUI(mc.fontRenderer, stack, 0, 0, null);
-            mc.getRenderItem().zLevel -= 100;
+            this.mc.getRenderItem().zLevel += 100;
+            this.mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, x, y);
+            this.mc.getRenderItem().zLevel -= 100;
         }
 
+        RenderUtils.disableItemLighting();
         GlStateManager.disableBlend();
-        RenderHelper.disableStandardItemLighting();
         GlStateManager.popMatrix();
     }
 
@@ -343,40 +339,5 @@ public class RenderEventHandler
 
         float ambientLightStrength = 0.4F;
         GlStateManager.glLightModel(2899, RenderHelper.setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
-    }
-
-    private static FontRenderer getFontRenderer(Minecraft mc, ItemStack stack)
-    {
-        FontRenderer fontRenderer = null;
-
-        if (InventoryUtils.isStackEmpty(stack) == false)
-        {
-            fontRenderer = stack.getItem().getFontRenderer(stack);
-        }
-
-        return fontRenderer != null ? fontRenderer : mc.fontRenderer;
-    }
-
-    private void renderStackToolTip(int x, int y, ItemStack stack, GuiContainer gui, Minecraft mc)
-    {
-        List<String> list = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-
-        for (int i = 0; i < list.size(); ++i)
-        {
-            if (i == 0)
-            {
-                list.set(i, stack.getItem().getForgeRarity(stack).getColor() + list.get(i));
-            }
-            else
-            {
-                list.set(i, TextFormatting.GRAY + list.get(i));
-            }
-        }
-
-        FontRenderer font = getFontRenderer(mc, stack);
-
-        net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
-        net.minecraftforge.fml.client.config.GuiUtils.drawHoveringText(list, x, y, gui.width, gui.height, -1, font);
-        net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
     }
 }
