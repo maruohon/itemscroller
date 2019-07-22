@@ -1,0 +1,9 @@
+{
+  "itemscroller.gui.button.config_gui.generic": "一般",
+  "itemscroller.gui.button.config_gui.hotkeys": "ホットキー",
+  "itemscroller.gui.button.config_gui.toggles": "機能の有効／無効化",
+  "itemscroller.gui.label.recipe_page": "%d / %d ページ",
+  "itemscroller.gui.label.trades": "取引",
+  "itemscroller.gui.label.trade_uses": "できるの取引: %d / %d",
+  "itemscroller.gui.title.configs": "Item Scroller の設定"
+}
