@@ -98,6 +98,7 @@ public class Configs implements IConfigHandler
 
         map.put("Generic", Generic.OPTIONS);
         map.put("Toggles", Toggles.OPTIONS);
+        map.put("Hotkeys", Hotkeys.HOTKEY_LIST);
         map.put("Lists",   Lists.OPTIONS);
 
         return map;
