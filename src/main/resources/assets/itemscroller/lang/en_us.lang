@@ -4,6 +4,7 @@ language.code=en_US
 
 itemscroller.gui.button.config_gui.generic=Generic
 itemscroller.gui.button.config_gui.hotkeys=Hotkeys
+itemscroller.gui.button.config_gui.lists=Lists
 itemscroller.gui.button.config_gui.toggles=Toggles
 
 itemscroller.gui.label.recipe_page=Page %d / %d
