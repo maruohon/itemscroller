@@ -1,0 +1,9 @@
+{
+  "itemscroller.gui.button.config_gui.generic": "通用設定",
+  "itemscroller.gui.button.config_gui.hotkeys": "熱鍵設定",
+  "itemscroller.gui.button.config_gui.toggles": "開啟/關閉功能",
+  "itemscroller.gui.label.recipe_page": "頁面 %d / %d",
+  "itemscroller.gui.label.trades": "交易",
+  "itemscroller.gui.label.trade_uses": "已經使用的交易次數: %d / %d",
+  "itemscroller.gui.title.configs": "Item Scroller設定"
+}
