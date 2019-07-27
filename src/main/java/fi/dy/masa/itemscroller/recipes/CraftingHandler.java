@@ -5,20 +5,28 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiCrafting;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.SlotCrafting;
+import fi.dy.masa.itemscroller.LiteModItemScroller;
 
 public class CraftingHandler
 {
     private static final Map<CraftingOutputSlot, SlotRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, SlotRange>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
 
-    public static void clearDefinitions()
+    public static void updateGridDefinitions()
     {
         CRAFTING_GRID_SLOTS.clear();
         CRAFTING_GUIS.clear();
+
+        // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
+        addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 9));
+        //"net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
+        addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 4));
     }
 
     @SuppressWarnings("unchecked")
