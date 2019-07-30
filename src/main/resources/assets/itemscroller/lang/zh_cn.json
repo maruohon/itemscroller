@@ -3,7 +3,7 @@
   "itemscroller.gui.button.config_gui.hotkeys": "快捷键设置",
   "itemscroller.gui.button.config_gui.toggles": "启用/关闭功能",
   "itemscroller.gui.label.recipe_page": "页面 %d / %d",
-  "itemscroller.gui.label.trades": "个交易",
+  "itemscroller.gui.label.trades": "交易",
   "itemscroller.gui.label.trade_uses": "已经使用的交易次数: %d / %d",
   "itemscroller.gui.title.configs": "Item Scroller设置"
 }
