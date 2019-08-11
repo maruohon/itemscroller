@@ -82,6 +82,12 @@ public class Configs implements IConfigHandler
     }
 
     @Override
+    public String getModName()
+    {
+        return Reference.MOD_NAME;
+    }
+
+    @Override
     public String getConfigFileName()
     {
         return Reference.MOD_ID + ".json";
