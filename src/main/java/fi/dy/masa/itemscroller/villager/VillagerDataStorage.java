@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.ListNBT;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
 public class VillagerDataStorage
 {
@@ -94,19 +94,19 @@ public class VillagerDataStorage
         }
     }
 
-    private void readFromNBT(NBTTagCompound nbt)
+    private void readFromNBT(CompoundNBT nbt)
     {
         if (nbt == null || nbt.contains("VillagerData", Constants.NBT.TAG_LIST) == false)
         {
             return;
         }
 
-        NBTTagList tagList = nbt.getList("VillagerData", Constants.NBT.TAG_COMPOUND);
+        ListNBT tagList = nbt.getList("VillagerData", Constants.NBT.TAG_COMPOUND);
         final int count = tagList.size();
 
         for (int i = 0; i < count; i++)
         {
-            NBTTagCompound tag = tagList.getCompound(i);
+            CompoundNBT tag = tagList.getCompound(i);
             VillagerData data = VillagerData.fromNBT(tag);
 
             if (data != null)
@@ -116,9 +116,9 @@ public class VillagerDataStorage
         }
     }
 
-    private NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt)
+    private CompoundNBT writeToNBT(@Nonnull CompoundNBT nbt)
     {
-        NBTTagList tagList = new NBTTagList();
+        ListNBT tagList = new ListNBT();
 
         for (VillagerData data : this.data.values())
         {
@@ -200,7 +200,7 @@ public class VillagerDataStorage
                 File fileTmp  = new File(saveDir, this.getFileName() + ".tmp");
                 File fileReal = new File(saveDir, this.getFileName());
                 FileOutputStream os = new FileOutputStream(fileTmp);
-                CompressedStreamTools.writeCompressed(this.writeToNBT(new NBTTagCompound()), os);
+                CompressedStreamTools.writeCompressed(this.writeToNBT(new CompoundNBT()), os);
                 os.close();
 
                 if (fileReal.exists())

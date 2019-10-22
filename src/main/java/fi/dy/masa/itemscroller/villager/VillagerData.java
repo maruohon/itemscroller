@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.IntNBT;
+import net.minecraft.nbt.ListNBT;
 import fi.dy.masa.itemscroller.util.Constants;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagList;
 
 public class VillagerData
 {
@@ -63,20 +63,20 @@ public class VillagerData
         return this.favorites;
     }
 
-    public NBTTagCompound toNBT()
+    public CompoundNBT toNBT()
     {
-        NBTTagCompound tag = new NBTTagCompound();
+        CompoundNBT tag = new CompoundNBT();
 
         tag.putLong("UUIDM", this.uuid.getMostSignificantBits());
         tag.putLong("UUIDL", this.uuid.getLeastSignificantBits());
         tag.putInt("ListPosition", this.tradeListPosition);
         tag.putInt("CurrentPage", this.lastPage);
 
-        NBTTagList tagList = new NBTTagList();
+        ListNBT tagList = new ListNBT();
 
         for (Integer val : this.favorites)
         {
-            tagList.add(new NBTTagInt(val.intValue()));
+            tagList.add(new IntNBT(val.intValue()));
         }
 
         tag.put("Favorites", tagList);
@@ -85,7 +85,7 @@ public class VillagerData
     }
 
     @Nullable
-    public static VillagerData fromNBT(NBTTagCompound tag)
+    public static VillagerData fromNBT(CompoundNBT tag)
     {
         if (tag.contains("UUIDM", Constants.NBT.TAG_LONG) && tag.contains("UUIDL", Constants.NBT.TAG_LONG))
         {
@@ -93,7 +93,7 @@ public class VillagerData
 
             data.tradeListPosition = tag.getInt("ListPosition");
             data.lastPage = tag.getInt("CurrentPage");
-            NBTTagList tagList = tag.getList("Favorites", Constants.NBT.TAG_INT);
+            ListNBT tagList = tag.getList("Favorites", Constants.NBT.TAG_INT);
 
             final int count = tagList.size();
             data.favorites.clear();

@@ -1,56 +1,92 @@
 package fi.dy.masa.itemscroller.util;
 
-import fi.dy.masa.itemscroller.mixin.IMixinGuiContainer;
-import fi.dy.masa.itemscroller.mixin.IMixinSlot;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Slot;
+import java.lang.invoke.MethodHandle;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.inventory.MerchantScreen;
+import net.minecraft.inventory.container.ClickType;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import fi.dy.masa.itemscroller.ItemScroller;
 
 public class AccessorUtils
 {
-    public static Slot getSlotUnderMouse(GuiContainer gui)
+    private static final MethodHandle methodHandle_handleMouseClick = MethodHandleUtils.getMethodHandleVirtual(ContainerScreen.class,
+            new String[] { "func_184098_a", "handleMouseClick" }, Slot.class, int.class, int.class, ClickType.class);
+
+    public static Slot getSlotUnderMouse(ContainerScreen<?> gui)
     {
-        return ((IMixinGuiContainer) gui).getHoveredSlot();
+        return gui.getSlotUnderMouse();
     }
 
-    public static Slot getSlotAtPosition(GuiContainer gui, int x, int y)
+    public static Slot getSlotAtPosition(ContainerScreen<?> gui, int x, int y)
     {
-        return ((IMixinGuiContainer) gui).getSlotAtPositionInvoker(x, y);
+        Container container = gui.getContainer();
+
+        for (int i = 0; i < container.inventorySlots.size(); ++i)
+        {
+            Slot slot = container.inventorySlots.get(i);
+
+            if (slot.isEnabled() && isSlotSelected(gui, slot, x, y))
+            {
+                return slot;
+            }
+        }
+
+        return null;
     }
 
-    public static void handleMouseClick(GuiContainer gui, Slot slotIn, int slotId, int mouseButton, ClickType type)
+    public static void handleMouseClick(ContainerScreen<?> gui, Slot slotIn, int slotId, int mouseButton, ClickType type)
     {
-        ((IMixinGuiContainer) gui).handleMouseClickInvoker(slotIn, slotId, mouseButton, type);
+        try
+        {
+            methodHandle_handleMouseClick.invokeExact(gui, slotIn, slotId, mouseButton, type);
+        }
+        catch (Throwable e)
+        {
+            ItemScroller.logger.error("Error while trying invoke GuiContainer#handleMouseClick() from {}", gui.getClass().getName(), e);
+        }
     }
 
-    public static int getGuiLeft(GuiContainer gui)
+    public static int getGuiLeft(ContainerScreen<?> gui)
     {
-        return ((IMixinGuiContainer) gui).getGuiLeft();
+        return gui.getGuiLeft();
     }
 
-    public static int getGuiTop(GuiContainer gui)
+    public static int getGuiTop(ContainerScreen<?> gui)
     {
-        return ((IMixinGuiContainer) gui).getGuiTop();
+        return gui.getGuiTop();
     }
 
-    public static int getGuiXSize(GuiContainer gui)
+    public static int getGuiXSize(ContainerScreen<?> gui)
     {
-        return ((IMixinGuiContainer) gui).getGuiSizeX();
+        return gui.getXSize();
     }
 
-    public static int getGuiYSize(GuiContainer gui)
+    public static int getGuiYSize(ContainerScreen<?> gui)
     {
-        return ((IMixinGuiContainer) gui).getGuiSizeY();
+        return gui.getYSize();
     }
 
-    public static int getSelectedMerchantRecipe(GuiMerchant gui)
+    public static int getSelectedMerchantRecipe(MerchantScreen gui)
     {
         return ((IGuiMerchant) gui).getSelectedMerchantRecipe();
     }
 
     public static int getSlotIndex(Slot slot)
     {
-        return ((IMixinSlot) slot).getSlotIndex();
+        return slot.getSlotIndex();
+    }
+
+    public static boolean isSlotSelected(ContainerScreen<?> gui, Slot slotIn, int mouseX, int mouseY)
+    {
+        return isPointInRegion(gui, slotIn.xPos, slotIn.yPos, 16, 16, mouseX, mouseY);
+    }
+
+    public static boolean isPointInRegion(ContainerScreen<?> gui, int x, int y, int width, int height, int mouseX, int mouseY)
+    {
+        mouseX -= gui.getGuiLeft();
+        mouseY -= gui.getGuiTop();
+
+        return mouseX >= (x - 1) && mouseX < (x + width + 1) && mouseY >= (y - 1) && mouseY < (y + height + 1);
     }
 }

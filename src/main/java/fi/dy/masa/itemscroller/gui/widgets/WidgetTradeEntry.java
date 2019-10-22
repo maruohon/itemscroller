@@ -1,6 +1,10 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
@@ -8,19 +12,15 @@ import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.village.MerchantRecipe;
 
-public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
+public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
 {
     public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation("textures/gui/widgets.png");
 
     private final VillagerData data;
 
     public WidgetTradeEntry(int x, int y, int width, int height,
-            MerchantRecipe entry, int listIndex, VillagerData data)
+            MerchantOffer entry, int listIndex, VillagerData data)
     {
         super(x, y, width, height, entry, listIndex);
 
@@ -52,7 +52,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
 
         this.bindTexture(Icons.TEXTURE);
 
-        IGuiIcon icon = this.entry.isRecipeDisabled() ? Icons.TRADE_ARROW_LOCKED : Icons.TRADE_ARROW_AVAILABLE;
+        IGuiIcon icon = this.entry.func_222217_o() ? Icons.TRADE_ARROW_LOCKED : Icons.TRADE_ARROW_AVAILABLE; // isRecipeDisabled
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         RenderUtils.setupBlend();
@@ -69,9 +69,9 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
 
         GlStateManager.disableBlend();
 
-        ItemStack buy1 = this.entry.getItemToBuy();
-        ItemStack buy2 = this.entry.getSecondItemToBuy();
-        ItemStack sell = this.entry.getItemToSell();
+        ItemStack buy1 = this.entry.func_222218_a(); // getItemToBuy();
+        ItemStack buy2 = this.entry.func_222202_c(); // getSecondItemToBuy();
+        ItemStack sell = this.entry.func_222200_d(); // getItemToSell();
 
         if (buy1.isEmpty() == false)
         {
@@ -96,7 +96,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
         {
             if (mouseX >= this.x + 4 && mouseX <= this.x + 4 + 16)
             {
-                ItemStack buy1 = this.entry.getItemToBuy();
+                ItemStack buy1 = this.entry.func_222218_a(); //getItemToBuy();
 
                 if (buy1.isEmpty() == false)
                 {
@@ -105,7 +105,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
             }
             else if (mouseX >= this.x + 22 && mouseX <= this.x + 22 + 16)
             {
-                ItemStack buy2 = this.entry.getSecondItemToBuy();
+                ItemStack buy2 = this.entry.func_222202_c(); // getSecondItemToBuy();
 
                 if (buy2.isEmpty() == false)
                 {
@@ -114,7 +114,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
             }
             else if (mouseX >= this.x + 60 && mouseX <= this.x + 60 + 16)
             {
-                ItemStack sell = this.entry.getItemToSell();
+                ItemStack sell = this.entry.func_222200_d(); // getItemToSell();
 
                 if (sell.isEmpty() == false)
                 {
@@ -124,8 +124,8 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
 
             if (GuiBase.isAltDown())
             {
-                int uses = this.entry.getToolUses();
-                int max = this.entry.getMaxTradeUses();
+                int uses = this.entry.func_222213_g(); // getToolUses();
+                int max = this.entry.func_222214_i(); // getMaxTradeUses();
                 RenderUtils.drawHoverText(mouseX + 6, mouseY + 18, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
             }
         }

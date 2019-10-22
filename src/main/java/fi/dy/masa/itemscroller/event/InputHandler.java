@@ -1,17 +1,23 @@
 package fi.dy.masa.itemscroller.event;
 
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
+import net.minecraft.client.gui.screen.inventory.MerchantScreen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.MerchantOffers;
+import net.minecraft.network.play.client.CSelectTradePacket;
+import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
-import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
@@ -20,17 +26,6 @@ import fi.dy.masa.malilib.hotkeys.IKeyboardInputHandler;
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.KeyCodes;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.inventory.ContainerMerchant;
-import net.minecraft.inventory.Slot;
-import net.minecraft.network.play.client.CPacketSelectTrade;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.village.MerchantRecipeList;
 
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
 {
@@ -131,17 +126,18 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             final int mouseX = fi.dy.masa.malilib.util.InputUtils.getMouseX();
             final int mouseY = fi.dy.masa.malilib.util.InputUtils.getMouseY();
 
+            /*
             if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
             {
                 VillagerDataStorage storage = VillagerDataStorage.getInstance();
 
                 if (GuiUtils.getCurrentScreen() == null && mc.objectMouseOver != null &&
-                    mc.objectMouseOver.type == RayTraceResult.Type.ENTITY &&
-                    mc.objectMouseOver.entity instanceof EntityVillager)
+                    mc.objectMouseOver.getType() == RayTraceResult.Type.ENTITY &&
+                    ((EntityRayTraceResult) mc.objectMouseOver).getEntity() instanceof VillagerEntity)
                 {
-                    storage.setLastInteractedUUID(mc.objectMouseOver.entity.getUniqueID());
+                    storage.setLastInteractedUUID(((EntityRayTraceResult) mc.objectMouseOver).getEntity().getUniqueID());
                 }
-                else if (GuiUtils.getCurrentScreen() instanceof GuiMerchant && storage.hasInteractionTarget())
+                else if (GuiUtils.getCurrentScreen() instanceof MerchantScreen && storage.hasInteractionTarget())
                 {
                     WidgetTradeList widget = ((IGuiMerchant) GuiUtils.getCurrentScreen()).getTradeListWidget();
 
@@ -170,12 +166,13 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                     }
                 }
             }
+            */
 
-            if (GuiUtils.getCurrentScreen() instanceof GuiContainer &&
-                (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
+            if (GuiUtils.getCurrentScreen() instanceof ContainerScreen &&
+                (GuiUtils.getCurrentScreen() instanceof CreativeScreen) == false &&
                 Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
             {
-                GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
+                ContainerScreen<?> gui = (ContainerScreen<?>) GuiUtils.getCurrentScreen();
                 RecipeStorage recipes = RecipeStorage.getInstance();
 
                 if (dWheel != 0)
@@ -253,14 +250,14 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
 
         if (this.callbacks.functionalityEnabled() &&
             mc.player != null &&
-            GuiUtils.getCurrentScreen() instanceof GuiContainer &&
+            GuiUtils.getCurrentScreen() instanceof ContainerScreen &&
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
         {
-            this.handleDragging((GuiContainer) GuiUtils.getCurrentScreen(), mc, mouseX, mouseY, false);
+            this.handleDragging((ContainerScreen<?>) GuiUtils.getCurrentScreen(), mc, mouseX, mouseY, false);
         }
     }
 
-    private boolean handleDragging(GuiContainer gui, Minecraft mc, int mouseX, int mouseY, boolean isClick)
+    private boolean handleDragging(ContainerScreen<?> gui, Minecraft mc, int mouseX, int mouseY, boolean isClick)
     {
         MoveAction action = InventoryUtils.getActiveMoveAction();
 
@@ -276,10 +273,10 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
         return false;
     }
 
-    public static void changeTradePage(GuiMerchant gui, int page)
+    public static void changeTradePage(MerchantScreen gui, int page)
     {
         Minecraft mc = Minecraft.getInstance();
-        MerchantRecipeList trades = gui.getMerchant().getRecipes(mc.player);
+        MerchantOffers trades = gui.getContainer().func_217051_h();;
 
         // The trade list is unfortunately synced after the GUI
         // opens, so the trade list can be null here when we want to
@@ -289,7 +286,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             ((IGuiMerchant) gui).setSelectedMerchantRecipe(page);
         }
 
-        ((ContainerMerchant) gui.inventorySlots).setCurrentRecipeIndex(page);
-        mc.getConnection().sendPacket(new CPacketSelectTrade(page));
+        gui.getContainer().setCurrentRecipeIndex(page);
+        mc.getConnection().sendPacket(new CSelectTradePacket(page));
     }
 }

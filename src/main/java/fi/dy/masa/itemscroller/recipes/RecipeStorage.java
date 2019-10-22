@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import javax.annotation.Nonnull;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.ListNBT;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.inventory.Slot;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 
 public class RecipeStorage
 {
@@ -103,12 +103,12 @@ public class RecipeStorage
         return this.getRecipe(this.getSelection());
     }
 
-    public void storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
+    public void storeCraftingRecipeToCurrentSelection(Slot slot, ContainerScreen<?> gui, boolean clearIfEmpty)
     {
         this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
     }
 
-    public void storeCraftingRecipe(int index, Slot slot, GuiContainer gui, boolean clearIfEmpty)
+    public void storeCraftingRecipe(int index, Slot slot, ContainerScreen<?> gui, boolean clearIfEmpty)
     {
         this.getRecipe(index).storeCraftingRecipe(slot, gui, clearIfEmpty);
         this.dirty = true;
@@ -120,7 +120,7 @@ public class RecipeStorage
         this.dirty = true;
     }
 
-    private void readFromNBT(NBTTagCompound nbt)
+    private void readFromNBT(CompoundNBT nbt)
     {
         if (nbt == null || nbt.contains("Recipes", Constants.NBT.TAG_LIST) == false)
         {
@@ -132,12 +132,12 @@ public class RecipeStorage
             this.recipes[i].clearRecipe();
         }
 
-        NBTTagList tagList = nbt.getList("Recipes", Constants.NBT.TAG_COMPOUND);
+        ListNBT tagList = nbt.getList("Recipes", Constants.NBT.TAG_COMPOUND);
         int count = tagList.size();
 
         for (int i = 0; i < count; i++)
         {
-            NBTTagCompound tag = tagList.getCompound(i);
+            CompoundNBT tag = tagList.getCompound(i);
 
             int index = tag.getByte("RecipeIndex");
 
@@ -150,15 +150,15 @@ public class RecipeStorage
         this.changeSelectedRecipe(nbt.getByte("Selected"));
     }
 
-    private NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt)
+    private CompoundNBT writeToNBT(@Nonnull CompoundNBT nbt)
     {
-        NBTTagList tagRecipes = new NBTTagList();
+        ListNBT tagRecipes = new ListNBT();
 
         for (int i = 0; i < this.recipes.length; i++)
         {
             if (this.recipes[i].isValid())
             {
-                NBTTagCompound tag = new NBTTagCompound();
+                CompoundNBT tag = new CompoundNBT();
                 tag.putByte("RecipeIndex", (byte) i);
                 this.recipes[i].writeToNBT(tag);
                 tagRecipes.add(tag);
@@ -241,7 +241,7 @@ public class RecipeStorage
                 File fileTmp  = new File(saveDir, this.getFileName() + ".tmp");
                 File fileReal = new File(saveDir, this.getFileName());
                 FileOutputStream os = new FileOutputStream(fileTmp);
-                CompressedStreamTools.writeCompressed(this.writeToNBT(new NBTTagCompound()), os);
+                CompressedStreamTools.writeCompressed(this.writeToNBT(new CompoundNBT()), os);
                 os.close();
 
                 if (fileReal.exists())

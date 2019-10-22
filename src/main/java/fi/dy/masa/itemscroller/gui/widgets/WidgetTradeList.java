@@ -2,6 +2,9 @@ package fi.dy.masa.itemscroller.gui.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.gui.screen.inventory.MerchantScreen;
+import net.minecraft.item.MerchantOffer;
+import net.minecraft.item.MerchantOffers;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
@@ -12,21 +15,18 @@ import fi.dy.masa.malilib.gui.GuiScrollBar;
 import fi.dy.masa.malilib.gui.widgets.WidgetBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.village.MerchantRecipe;
-import net.minecraft.village.MerchantRecipeList;
 
 public class WidgetTradeList extends WidgetBase
 {
     private final GuiScrollBar scrollBar;
-    private final GuiMerchant parentGui;
+    private final MerchantScreen parentGui;
     private final VillagerDataStorage storage;
     private final ArrayList<WidgetTradeEntry> entryList = new ArrayList<>();
     private final VillagerData data;
-    private MerchantRecipeList recipeList;
+    private MerchantOffers recipeList;
     private int scrollBarTotalHeight;
 
-    public WidgetTradeList(int x, int y, GuiMerchant parentGui, VillagerData data)
+    public WidgetTradeList(int x, int y, MerchantScreen parentGui, VillagerData data)
     {
         super(x, y, 106, 166);
 
@@ -40,7 +40,7 @@ public class WidgetTradeList extends WidgetBase
     {
         if (this.recipeList == null)
         {
-            this.recipeList = this.parentGui.getMerchant().getRecipes(this.mc.player);
+            this.recipeList = this.parentGui.getContainer().func_217051_h();
 
             if (this.recipeList != null)
             {
@@ -169,7 +169,7 @@ public class WidgetTradeList extends WidgetBase
         {
             this.entryList.clear();
 
-            ArrayList<MerchantRecipe> list = new ArrayList<>();
+            ArrayList<MerchantOffer> list = new ArrayList<>();
             List<Integer> favorites = this.data.getFavorites();
 
             // Some favorites defined
@@ -205,7 +205,7 @@ public class WidgetTradeList extends WidgetBase
             for (int index = scrollBarPos; index < last; ++index)
             {
                 int y = this.y + (index - scrollBarPos) * 20 + 18;
-                MerchantRecipe recipe = list.get(index);
+                MerchantOffer recipe = list.get(index);
 
                 this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, recipe, this.recipeList.indexOf(recipe), this.data));
             }

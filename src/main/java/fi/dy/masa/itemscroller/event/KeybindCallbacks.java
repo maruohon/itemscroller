@@ -1,5 +1,12 @@
 package fi.dy.masa.itemscroller.event;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.SoundEvents;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -17,13 +24,6 @@ import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.util.GuiUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.Slot;
 
 public class KeybindCallbacks implements IHotkeyCallback
 {
@@ -79,12 +79,12 @@ public class KeybindCallbacks implements IHotkeyCallback
             return true;
         }
 
-        if (this.disabled || mc == null || mc.player == null || (GuiUtils.getCurrentScreen() instanceof GuiContainer) == false)
+        if (this.disabled || mc == null || mc.player == null || (GuiUtils.getCurrentScreen() instanceof ContainerScreen) == false)
         {
             return false;
         }
 
-        GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
+        ContainerScreen<?> gui = (ContainerScreen<?>) GuiUtils.getCurrentScreen();
         Slot slot = AccessorUtils.getSlotUnderMouse(gui);
         RecipeStorage recipes = RecipeStorage.getInstance();
         MoveAction moveAction = InputUtils.getDragMoveAction(key);
@@ -115,7 +115,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             else if (key == Hotkeys.KEY_MOVE_STACK_TO_OFFHAND.getKeybind())
             {
                 // Swap the hovered stack to the Offhand
-                if ((gui instanceof GuiInventory) && slot != null)
+                if ((gui instanceof InventoryScreen) && slot != null)
                 {
                     InventoryUtils.swapSlots(gui, slot.slotNumber, 45);
                     return true;
@@ -173,13 +173,13 @@ public class KeybindCallbacks implements IHotkeyCallback
         if (this.disabled == false &&
             mc != null &&
             mc.player != null &&
-            GuiUtils.getCurrentScreen() instanceof GuiContainer &&
-            (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
+            GuiUtils.getCurrentScreen() instanceof ContainerScreen &&
+            (GuiUtils.getCurrentScreen() instanceof CreativeScreen) == false &&
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
             Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld())
         {
-            GuiScreen guiScreen = GuiUtils.getCurrentScreen();
-            GuiContainer gui = (GuiContainer) guiScreen;
+            Screen guiScreen = GuiUtils.getCurrentScreen();
+            ContainerScreen<?> gui = (ContainerScreen<?>) guiScreen;
             Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
             if (outputSlot != null)

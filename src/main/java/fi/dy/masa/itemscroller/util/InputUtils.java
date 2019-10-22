@@ -1,13 +1,13 @@
 package fi.dy.masa.itemscroller.util;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeybindMulti;
 import fi.dy.masa.malilib.util.GuiUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
 
 public class InputUtils
 {
@@ -19,14 +19,14 @@ public class InputUtils
                CraftingHandler.isCraftingGui(GuiUtils.getCurrentScreen());
     }
 
-    public static boolean canShiftDropItems(GuiContainer gui, Minecraft mc, int mouseX, int mouseY)
+    public static boolean canShiftDropItems(ContainerScreen<?> gui, Minecraft mc, int mouseX, int mouseY)
     {
         if (InventoryUtils.isStackEmpty(mc.player.inventory.getItemStack()) == false)
         {
-            int left = AccessorUtils.getGuiLeft(gui);
-            int top = AccessorUtils.getGuiTop(gui);
-            int xSize = AccessorUtils.getGuiXSize(gui);
-            int ySize = AccessorUtils.getGuiYSize(gui);
+            int left = gui.getGuiLeft();
+            int top = gui.getGuiTop();
+            int xSize = gui.getXSize();
+            int ySize = gui.getYSize();
             boolean isOutsideGui = mouseX < left || mouseY < top || mouseX >= left + xSize || mouseY >= top + ySize;
 
             return isOutsideGui && AccessorUtils.getSlotAtPosition(gui, mouseX - left, mouseY - top) == null;
