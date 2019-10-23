@@ -63,3 +63,10 @@ issueTrackerURL="https://github.com/maruohon/itemscroller/issues" #optional
     versionRange="[1.14.4]"
     ordering="NONE"
     side="CLIENT"
+
+[[dependencies.itemscroller]]
+    modId="malilib"
+    mandatory=true
+    versionRange="[0.10.0-dev.19,0.10.0-dev.20)"
+    ordering="NONE"
+    side="CLIENT"
