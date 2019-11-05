@@ -1,5 +1,12 @@
 package fi.dy.masa.itemscroller.event;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
+import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -17,13 +24,6 @@ import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.util.GuiUtils;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.Slot;
 
 public class KeybindCallbacks implements IHotkeyCallback
 {
@@ -123,8 +123,7 @@ public class KeybindCallbacks implements IHotkeyCallback
 
         if (key == Hotkeys.KEY_CRAFT_EVERYTHING.getKeybind())
         {
-            InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
-            return true;
+            return InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
         }
         else if (key == Hotkeys.KEY_THROW_CRAFT_RESULTS.getKeybind())
         {
@@ -138,16 +137,11 @@ public class KeybindCallbacks implements IHotkeyCallback
         }
         else if (key == Hotkeys.KEY_STORE_RECIPE.getKeybind())
         {
-            if (InputUtils.isRecipeViewOpen() && InventoryUtils.isCraftingSlot(gui, slot))
-            {
-                recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
-                return true;
-            }
+            return recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
         }
         else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeybind())
         {
-            InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
-            return true;
+            return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
         }
         else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeybind())
         {

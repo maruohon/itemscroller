@@ -9,18 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.event.InputHandler;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
-import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
-import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.villager.VillagerData;
-import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiMerchant;
@@ -43,6 +31,18 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
+import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.config.Hotkeys;
+import fi.dy.masa.itemscroller.event.InputHandler;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
+import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.villager.VillagerData;
+import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 
 public class InventoryUtils
 {
@@ -680,7 +680,7 @@ public class InventoryUtils
         }
     }
 
-    public static void villagerTradeEverythingPossibleWithAllFavoritedTrades()
+    public static boolean villagerTradeEverythingPossibleWithAllFavoritedTrades()
     {
         if (GuiUtils.getCurrentScreen() instanceof GuiMerchant)
         {
@@ -701,7 +701,11 @@ public class InventoryUtils
 
                 InputHandler.changeTradePage(merchantGui, initialPage);
             }
+
+            return true;
         }
+
+        return false;
     }
 
     private static boolean tryMoveSingleItemToOtherInventory(Slot slot, GuiContainer gui)
@@ -1408,7 +1412,7 @@ public class InventoryUtils
         }
     }
 
-    public static void craftEverythingPossibleWithCurrentRecipe(CraftingRecipe recipe, GuiContainer gui)
+    public static boolean craftEverythingPossibleWithCurrentRecipe(CraftingRecipe recipe, GuiContainer gui)
     {
         Slot slot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
@@ -1419,19 +1423,21 @@ public class InventoryUtils
             if (range != null)
             {
                 // Clear all items from the grid first, to avoid unbalanced stacks
-                if (clearCraftingGridOfItems(recipe, gui, range, false) == false)
+                if (clearCraftingGridOfItems(recipe, gui, range, false))
                 {
-                    return;
+                    tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
+
+                    if (slot.getHasStack())
+                    {
+                        craftAsManyItemsAsPossible(recipe, slot, gui);
+                    }
                 }
 
-                tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
-
-                if (slot.getHasStack())
-                {
-                    craftAsManyItemsAsPossible(recipe, slot, gui);
-                }
+                return true;
             }
         }
+
+        return false;
     }
 
     public static void moveAllCraftingResultsToOtherInventory(CraftingRecipe recipe, GuiContainer gui)

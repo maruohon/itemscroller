@@ -4,17 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import javax.annotation.Nonnull;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
-import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.util.Constants;
-import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.util.Constants;
+import fi.dy.masa.itemscroller.util.InputUtils;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 
 public class RecipeStorage
 {
@@ -103,9 +105,15 @@ public class RecipeStorage
         return this.getRecipe(this.getSelection());
     }
 
-    public void storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
+    public boolean storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
     {
-        this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
+        if (InputUtils.isRecipeViewOpen() && InventoryUtils.isCraftingSlot(gui, slot))
+        {
+            this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
+            return true;
+        }
+
+        return false;
     }
 
     public void storeCraftingRecipe(int index, Slot slot, GuiContainer gui, boolean clearIfEmpty)

@@ -3,6 +3,18 @@ package fi.dy.masa.itemscroller.event;
 import java.util.List;
 import org.lwjgl.input.Keyboard;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMerchant;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiContainerCreative;
+import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.inventory.ContainerMerchant;
+import net.minecraft.inventory.Slot;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -22,18 +34,6 @@ import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
 import fi.dy.masa.malilib.hotkeys.KeybindCategory;
 import fi.dy.masa.malilib.util.GuiUtils;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.inventory.ContainerMerchant;
-import net.minecraft.inventory.Slot;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.CPacketCustomPayload;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.village.MerchantRecipeList;
 
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
 {
@@ -203,9 +203,8 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                             return true;
                         }
                         // Pick-blocking over a crafting output slot with the recipe view open, store the recipe
-                        else if (isPickBlock && InputUtils.isRecipeViewOpen() && InventoryUtils.isCraftingSlot(gui, slot))
+                        else if (isPickBlock && recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true))
                         {
-                            recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
                             cancel = true;
                         }
                     }
