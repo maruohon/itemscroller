@@ -276,7 +276,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     public static void changeTradePage(MerchantScreen gui, int page)
     {
         Minecraft mc = Minecraft.getInstance();
-        MerchantOffers trades = gui.getContainer().func_217051_h();;
+        MerchantOffers trades = gui.getContainer().getOffers();
 
         // The trade list is unfortunately synced after the GUI
         // opens, so the trade list can be null here when we want to

@@ -990,7 +990,7 @@ public class InventoryUtils
 
     public static void tryMoveItemsToMerchantBuySlots(MerchantScreen gui, boolean fillStacks)
     {
-        MerchantOffers list = gui.getContainer().func_217051_h();
+        MerchantOffers list = gui.getContainer().getOffers();
         int index = AccessorUtils.getSelectedMerchantRecipe(gui);
 
         if (list == null || list.size() <= index)
@@ -1004,8 +1004,8 @@ public class InventoryUtils
             return;
         }
 
-        ItemStack buy1 = recipe.func_222218_a(); // getItemToBuy();
-        ItemStack buy2 = recipe.func_222202_c(); // getSecondItemToBuy();
+        ItemStack buy1 = recipe.getBuyingStackFirst();
+        ItemStack buy2 = recipe.getBuyingStackSecond();
 
         if (isStackEmpty(buy1) == false)
         {

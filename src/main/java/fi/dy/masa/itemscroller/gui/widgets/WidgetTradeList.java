@@ -40,7 +40,7 @@ public class WidgetTradeList extends WidgetBase
     {
         if (this.recipeList == null)
         {
-            this.recipeList = this.parentGui.getContainer().func_217051_h();
+            this.recipeList = this.parentGui.getContainer().getOffers();
 
             if (this.recipeList != null)
             {

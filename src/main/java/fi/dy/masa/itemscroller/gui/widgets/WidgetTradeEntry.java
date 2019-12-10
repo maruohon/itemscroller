@@ -52,7 +52,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
 
         this.bindTexture(Icons.TEXTURE);
 
-        IGuiIcon icon = this.entry.func_222217_o() ? Icons.TRADE_ARROW_LOCKED : Icons.TRADE_ARROW_AVAILABLE; // isRecipeDisabled
+        IGuiIcon icon = this.entry.hasNoUsesLeft() ? Icons.TRADE_ARROW_LOCKED : Icons.TRADE_ARROW_AVAILABLE; // isRecipeDisabled
 
         RenderUtils.color(1f, 1f, 1f, 1f);
         RenderUtils.setupBlend();
@@ -69,9 +69,9 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
 
         GlStateManager.disableBlend();
 
-        ItemStack buy1 = this.entry.func_222218_a(); // getItemToBuy();
-        ItemStack buy2 = this.entry.func_222202_c(); // getSecondItemToBuy();
-        ItemStack sell = this.entry.func_222200_d(); // getItemToSell();
+        ItemStack buy1 = this.entry.getBuyingStackFirst();
+        ItemStack buy2 = this.entry.getBuyingStackSecond();
+        ItemStack sell = this.entry.getSellingStack();
 
         if (buy1.isEmpty() == false)
         {
@@ -96,7 +96,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
         {
             if (mouseX >= this.x + 4 && mouseX <= this.x + 4 + 16)
             {
-                ItemStack buy1 = this.entry.func_222218_a(); //getItemToBuy();
+                ItemStack buy1 = this.entry.getBuyingStackFirst();
 
                 if (buy1.isEmpty() == false)
                 {
@@ -105,7 +105,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
             }
             else if (mouseX >= this.x + 22 && mouseX <= this.x + 22 + 16)
             {
-                ItemStack buy2 = this.entry.func_222202_c(); // getSecondItemToBuy();
+                ItemStack buy2 = this.entry.getBuyingStackSecond();
 
                 if (buy2.isEmpty() == false)
                 {
@@ -114,7 +114,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
             }
             else if (mouseX >= this.x + 60 && mouseX <= this.x + 60 + 16)
             {
-                ItemStack sell = this.entry.func_222200_d(); // getItemToSell();
+                ItemStack sell = this.entry.getSellingStack();
 
                 if (sell.isEmpty() == false)
                 {
@@ -124,7 +124,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantOffer>
 
             if (GuiBase.isAltDown())
             {
-                int uses = this.entry.func_222213_g(); // getToolUses();
+                int uses = this.entry.getUses();
                 int max = this.entry.func_222214_i(); // getMaxTradeUses();
                 RenderUtils.drawHoverText(mouseX + 6, mouseY + 18, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
             }
