@@ -6,15 +6,11 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigStringList;
 import fi.dy.masa.malilib.config.options.IConfigBase;
 import fi.dy.masa.malilib.config.options.IConfigValue;
-import net.minecraft.client.gui.inventory.GuiCrafting;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.inventory.SlotCrafting;
 
 public class Configs implements IConfigHandler
 {
@@ -86,6 +82,12 @@ public class Configs implements IConfigHandler
     }
 
     @Override
+    public String getModName()
+    {
+        return Reference.MOD_NAME;
+    }
+
+    @Override
     public String getConfigFileName()
     {
         return Reference.MOD_ID + ".json";
@@ -107,11 +109,6 @@ public class Configs implements IConfigHandler
     @Override
     public void onPostLoad()
     {
-        CraftingHandler.clearDefinitions();
-
-        // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
-        CraftingHandler.addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 9));
-        //"net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
-        CraftingHandler.addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 4));
+        CraftingHandler.updateGridDefinitions();
     }
 }

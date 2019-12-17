@@ -680,7 +680,7 @@ public class InventoryUtils
         }
     }
 
-    public static void villagerTradeEverythingPossibleWithAllFavoritedTrades()
+    public static boolean villagerTradeEverythingPossibleWithAllFavoritedTrades()
     {
         if (GuiUtils.getCurrentScreen() instanceof GuiMerchant)
         {
@@ -701,7 +701,11 @@ public class InventoryUtils
 
                 InputHandler.changeTradePage(merchantGui, initialPage);
             }
+
+            return true;
         }
+
+        return false;
     }
 
     private static boolean tryMoveSingleItemToOtherInventory(Slot slot, GuiContainer gui)
@@ -1408,7 +1412,7 @@ public class InventoryUtils
         }
     }
 
-    public static void craftEverythingPossibleWithCurrentRecipe(CraftingRecipe recipe, GuiContainer gui)
+    public static boolean craftEverythingPossibleWithCurrentRecipe(CraftingRecipe recipe, GuiContainer gui)
     {
         Slot slot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
@@ -1419,19 +1423,21 @@ public class InventoryUtils
             if (range != null)
             {
                 // Clear all items from the grid first, to avoid unbalanced stacks
-                if (clearCraftingGridOfItems(recipe, gui, range, false) == false)
+                if (clearCraftingGridOfItems(recipe, gui, range, false))
                 {
-                    return;
+                    tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
+
+                    if (slot.getHasStack())
+                    {
+                        craftAsManyItemsAsPossible(recipe, slot, gui);
+                    }
                 }
 
-                tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
-
-                if (slot.getHasStack())
-                {
-                    craftAsManyItemsAsPossible(recipe, slot, gui);
-                }
+                return true;
             }
         }
+
+        return false;
     }
 
     public static void moveAllCraftingResultsToOtherInventory(CraftingRecipe recipe, GuiContainer gui)

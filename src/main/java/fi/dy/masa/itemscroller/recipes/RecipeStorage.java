@@ -13,6 +13,8 @@ import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.util.Constants;
+import fi.dy.masa.itemscroller.util.InputUtils;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 
@@ -103,9 +105,15 @@ public class RecipeStorage
         return this.getRecipe(this.getSelection());
     }
 
-    public void storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
+    public boolean storeCraftingRecipeToCurrentSelection(Slot slot, GuiContainer gui, boolean clearIfEmpty)
     {
-        this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
+        if (InputUtils.isRecipeViewOpen() && InventoryUtils.isCraftingSlot(gui, slot))
+        {
+            this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
+            return true;
+        }
+
+        return false;
     }
 
     public void storeCraftingRecipe(int index, Slot slot, GuiContainer gui, boolean clearIfEmpty)

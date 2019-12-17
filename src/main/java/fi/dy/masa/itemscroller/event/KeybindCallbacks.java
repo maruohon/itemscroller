@@ -123,8 +123,7 @@ public class KeybindCallbacks implements IHotkeyCallback
 
         if (key == Hotkeys.KEY_CRAFT_EVERYTHING.getKeybind())
         {
-            InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
-            return true;
+            return InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
         }
         else if (key == Hotkeys.KEY_THROW_CRAFT_RESULTS.getKeybind())
         {
@@ -138,16 +137,11 @@ public class KeybindCallbacks implements IHotkeyCallback
         }
         else if (key == Hotkeys.KEY_STORE_RECIPE.getKeybind())
         {
-            if (InputUtils.isRecipeViewOpen() && InventoryUtils.isCraftingSlot(gui, slot))
-            {
-                recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
-                return true;
-            }
+            return recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
         }
         else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeybind())
         {
-            InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
-            return true;
+            return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
         }
         else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeybind())
         {
