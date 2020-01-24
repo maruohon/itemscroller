@@ -20,7 +20,6 @@ import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
@@ -33,6 +32,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.hotkeys.IKeyboardInputHandler;
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
 import fi.dy.masa.malilib.hotkeys.KeybindCategory;
+import fi.dy.masa.malilib.util.InventoryScreenUtils;
 import io.netty.buffer.Unpooled;
 
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
@@ -187,7 +187,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
                 }
                 else
                 {
-                    Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+                    Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
                     final boolean isShiftDown = GuiBase.isShiftDown();
 
                     if (keyState && isAttackUseOrPick)

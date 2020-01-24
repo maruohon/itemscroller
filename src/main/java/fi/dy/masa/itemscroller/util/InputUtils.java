@@ -1,13 +1,14 @@
 package fi.dy.masa.itemscroller.util;
 
 import org.lwjgl.input.Mouse;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiContainer;
+import fi.dy.masa.malilib.util.InventoryScreenUtils;
 
 public class InputUtils
 {
@@ -35,10 +36,10 @@ public class InputUtils
     {
         if (InventoryUtils.isStackEmpty(mc.player.inventory.getItemStack()) == false)
         {
-            int left = AccessorUtils.getGuiLeft(gui);
-            int top = AccessorUtils.getGuiTop(gui);
-            int xSize = AccessorUtils.getGuiXSize(gui);
-            int ySize = AccessorUtils.getGuiYSize(gui);
+            int left = InventoryScreenUtils.getGuiPosX(gui);
+            int top = InventoryScreenUtils.getGuiPosY(gui);
+            int xSize = InventoryScreenUtils.getGuiSizeX(gui);
+            int ySize = InventoryScreenUtils.getGuiSizeY(gui);
             int mouseAbsX = Mouse.getEventX() * gui.width / GuiUtils.getDisplayWidth();
             int mouseAbsY = gui.height - Mouse.getEventY() * gui.height / GuiUtils.getDisplayHeight() - 1;
             boolean isOutsideGui = mouseAbsX < left || mouseAbsY < top || mouseAbsX >= left + xSize || mouseAbsY >= top + ySize;

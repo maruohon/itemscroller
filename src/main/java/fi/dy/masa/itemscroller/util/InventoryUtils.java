@@ -42,6 +42,7 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
+import fi.dy.masa.malilib.util.InventoryScreenUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class InventoryUtils
@@ -127,7 +128,7 @@ public class InventoryUtils
 
     public static boolean canShiftPlaceItems(GuiContainer gui)
     {
-        Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+        Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
         Minecraft mc = Minecraft.getMinecraft();
         ItemStack stackCursor = mc.player.inventory.getItemStack();
 
@@ -138,7 +139,7 @@ public class InventoryUtils
 
     public static boolean tryMoveItems(GuiContainer gui, RecipeStorage recipes, boolean scrollingUp)
     {
-        Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+        Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
         Minecraft mc = Minecraft.getMinecraft();
 
         // We require an empty cursor
@@ -1099,7 +1100,7 @@ public class InventoryUtils
 
     public static void loadRecipeItemsToGridForOutputSlotUnderMouse(CraftingRecipe recipe, GuiContainer gui)
     {
-        Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+        Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
         loadRecipeItemsToGridForOutputSlot(recipe, gui, slot);
     }
 
@@ -1382,7 +1383,7 @@ public class InventoryUtils
 
     public static void rightClickCraftOneStack(GuiContainer gui)
     {
-        Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+        Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
         Minecraft mc = Minecraft.getMinecraft();
         InventoryPlayer inv = mc.player.inventory;
         ItemStack stackCursor = inv.getItemStack();

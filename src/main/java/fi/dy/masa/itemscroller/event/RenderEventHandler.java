@@ -1,15 +1,5 @@
 package fi.dy.masa.itemscroller.event;
 
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
-import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.AccessorUtils;
-import fi.dy.masa.itemscroller.util.InputUtils;
-import fi.dy.masa.itemscroller.util.InventoryUtils;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.render.InventoryOverlay;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -17,6 +7,16 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.util.InputUtils;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.malilib.gui.util.GuiUtils;
+import fi.dy.masa.malilib.render.InventoryOverlay;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.InventoryScreenUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 
 public class RenderEventHandler
 {
@@ -119,7 +119,7 @@ public class RenderEventHandler
         final int gapHorizontal = 2;
         final int gapVertical = 2;
         final int stackBaseHeight = 16;
-        final int guiLeft = AccessorUtils.getGuiLeft(gui);
+        final int guiLeft = InventoryScreenUtils.getGuiPosX(gui);
 
         this.recipesPerColumn = 9;
         this.columns = (int) Math.ceil((double) recipes.getRecipeCountPerPage() / (double) this.recipesPerColumn);

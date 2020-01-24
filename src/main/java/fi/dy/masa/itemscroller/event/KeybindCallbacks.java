@@ -14,7 +14,6 @@ import fi.dy.masa.itemscroller.gui.GuiConfigs;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
@@ -24,6 +23,7 @@ import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
+import fi.dy.masa.malilib.util.InventoryScreenUtils;
 
 public class KeybindCallbacks implements IHotkeyCallback
 {
@@ -85,7 +85,7 @@ public class KeybindCallbacks implements IHotkeyCallback
         }
 
         GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
-        Slot slot = AccessorUtils.getSlotUnderMouse(gui);
+        Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
         RecipeStorage recipes = RecipeStorage.getInstance();
         MoveAction moveAction = InputUtils.getDragMoveAction(key);
 
