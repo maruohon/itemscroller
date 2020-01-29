@@ -1,6 +1,10 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.village.MerchantRecipe;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
@@ -8,10 +12,6 @@ import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.InventoryOverlay;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.village.MerchantRecipe;
 
 public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
 {
@@ -32,14 +32,14 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        this.bindTexture(BUTTON_TEXTURE);
-
         int v = 66;
 
         if (this.isMouseOver(mouseX, mouseY))
         {
             v += 20;
         }
+
+        this.bindTexture(BUTTON_TEXTURE);
 
         // Button background texture for the trades
         RenderUtils.drawTexturedRect(this.x                 , this.y,   0, v, this.width - 4, this.height);
@@ -50,11 +50,8 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
             RenderUtils.drawOutline(this.x, this.y, this.width, this.height, 0xFFFFB000, 1f);
         }
 
-        this.bindTexture(Icons.TEXTURE);
+        IGuiIcon icon = this.entry.isRecipeDisabled() ? ItemScrollerGuiIcons.TRADE_ARROW_LOCKED : ItemScrollerGuiIcons.TRADE_ARROW_AVAILABLE;
 
-        IGuiIcon icon = this.entry.isRecipeDisabled() ? Icons.TRADE_ARROW_LOCKED : Icons.TRADE_ARROW_AVAILABLE;
-
-        RenderUtils.color(1f, 1f, 1f, 1f);
         RenderUtils.setupBlend();
         GlStateManager.enableAlpha();
 
@@ -64,7 +61,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
         // This entry has been favorited
         if (this.data.getFavorites().contains(this.getListIndex()))
         {
-            Icons.STAR_5.renderAt(this.x + 80, this.y + 2, 1f, false, false);
+            ItemScrollerGuiIcons.STAR_5.renderAt(this.x + 80, this.y + 2, 1f, false, false);
         }
 
         GlStateManager.disableBlend();

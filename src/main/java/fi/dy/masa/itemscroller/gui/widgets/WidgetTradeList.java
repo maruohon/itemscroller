@@ -2,6 +2,9 @@ package fi.dy.masa.itemscroller.gui.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.gui.GuiMerchant;
+import net.minecraft.village.MerchantRecipe;
+import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
@@ -12,9 +15,6 @@ import fi.dy.masa.malilib.gui.widgets.WidgetBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetScrollBar;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.village.MerchantRecipe;
-import net.minecraft.village.MerchantRecipeList;
 
 public class WidgetTradeList extends WidgetBase
 {
@@ -30,7 +30,7 @@ public class WidgetTradeList extends WidgetBase
     {
         super(x, y, 106, 166);
 
-        this.scrollBar = (new WidgetScrollBar(this.x + 93, this.y + 17, 8, 142, Icons.SCROLL_BAR_6)).setRenderBarBackground(false);
+        this.scrollBar = (new WidgetScrollBar(this.x + 93, this.y + 17, 8, 142, ItemScrollerGuiIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
@@ -133,12 +133,10 @@ public class WidgetTradeList extends WidgetBase
             currentPage = Math.min(currentPage, this.recipeList.size() - 1);
             this.updateDataStorage(currentPage);
 
-            RenderUtils.color(1f, 1f, 1f, 1f);
             RenderUtils.disableItemLighting();
-            this.bindTexture(Icons.TEXTURE);
 
             // Background
-            RenderUtils.drawTexturedRect(this.x, this.y, 0, 0, this.width, 166);
+            ItemScrollerGuiIcons.TRADE_LIST_BACKGROUND.renderAt(this.x, this.y, this.zLevel, false, false);
 
             String str = StringUtils.translate("itemscroller.gui.label.trades");
             int w = this.getStringWidth(str);
