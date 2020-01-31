@@ -30,7 +30,7 @@ public class WidgetTradeList extends WidgetBase
     {
         super(x, y, 106, 166);
 
-        this.scrollBar = (new WidgetScrollBar(this.x + 93, this.y + 17, 8, 142, ItemScrollerGuiIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
+        this.scrollBar = (new WidgetScrollBar(x + 93, y + 17, 8, 142, ItemScrollerGuiIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
@@ -57,8 +57,11 @@ public class WidgetTradeList extends WidgetBase
     @Override
     public boolean isMouseOver(int mouseX, int mouseY)
     {
-        return mouseX >= this.x +  5 && mouseX <= this.x + 99 &&
-               mouseY >= this.y + 18 && mouseY <= this.y + 157;
+        int x = this.getX();
+        int y = this.getY();
+
+        return mouseX >= x +  5 && mouseX <= x + 99 &&
+               mouseY >= y + 18 && mouseY <= y + 157;
     }
 
     @Override
@@ -69,9 +72,12 @@ public class WidgetTradeList extends WidgetBase
             return true;
         }
 
-        if (mouseX <= this.x + 92)
+        int x = this.getX();
+        int y = this.getY();
+
+        if (mouseX <= x + 92)
         {
-            int relY = mouseY - (this.y + 18);
+            int relY = mouseY - (y + 18);
             int listIndex = relY / 20;
             WidgetTradeEntry entry = listIndex >= 0 && listIndex < this.entryList.size() ? this.entryList.get(listIndex) : null;
             int recipeIndex = entry != null ? entry.getListIndex() : -1;
@@ -129,18 +135,22 @@ public class WidgetTradeList extends WidgetBase
 
         if (this.recipeList != null)
         {
+            int x = this.getX();
+            int y = this.getY();
+            int width = this.getWidth();
             int currentPage = AccessorUtils.getSelectedMerchantRecipe(this.parentGui);
+
             currentPage = Math.min(currentPage, this.recipeList.size() - 1);
             this.updateDataStorage(currentPage);
 
             RenderUtils.disableItemLighting();
 
             // Background
-            ItemScrollerGuiIcons.TRADE_LIST_BACKGROUND.renderAt(this.x, this.y, this.zLevel, false, false);
+            ItemScrollerGuiIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel(), false, false);
 
             String str = StringUtils.translate("itemscroller.gui.label.trades");
             int w = this.getStringWidth(str);
-            this.drawString(this.x + this.width / 2 - w / 2, this.y + 6, 0xFF404040, str);
+            this.drawString(x + width / 2 - w / 2, y + 6, 0xFF404040, str);
 
             this.scrollBar.render(mouseX, mouseY, 142, this.scrollBarTotalHeight);
 
@@ -197,11 +207,11 @@ public class WidgetTradeList extends WidgetBase
 
             final int scrollBarPos = this.scrollBar.getValue();
             final int last = Math.min(scrollBarPos + 7, list.size());
-            final int x = this.x + 5;
+            final int x = this.getX() + 5;
 
             for (int index = scrollBarPos; index < last; ++index)
             {
-                int y = this.y + (index - scrollBarPos) * 20 + 18;
+                int y = this.getY() + (index - scrollBarPos) * 20 + 18;
                 MerchantRecipe recipe = list.get(index);
 
                 this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, recipe, this.recipeList.indexOf(recipe), this.data));

@@ -32,6 +32,11 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
+        int x = this.getX();
+        int y = this.getY();
+        int z = this.getZLevel();
+        int width = this.getWidth();
+        int height = this.getHeight();
         int v = 66;
 
         if (this.isMouseOver(mouseX, mouseY))
@@ -42,12 +47,12 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
         this.bindTexture(BUTTON_TEXTURE);
 
         // Button background texture for the trades
-        RenderUtils.drawTexturedRect(this.x                 , this.y,   0, v, this.width - 4, this.height);
-        RenderUtils.drawTexturedRect(this.x + this.width - 4, this.y, 196, v,              4, this.height);
+        RenderUtils.drawTexturedRect(x            , y,   0, v, width - 4, height, z);
+        RenderUtils.drawTexturedRect(x + width - 4, y, 196, v,         4, height, z);
 
         if (selected)
         {
-            RenderUtils.drawOutline(this.x, this.y, this.width, this.height, 0xFFFFB000, 1f);
+            RenderUtils.drawOutline(x, y, width, height, 1, 0xFFFFB000, z);
         }
 
         IGuiIcon icon = this.entry.isRecipeDisabled() ? ItemScrollerGuiIcons.TRADE_ARROW_LOCKED : ItemScrollerGuiIcons.TRADE_ARROW_AVAILABLE;
@@ -56,12 +61,12 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
         GlStateManager.enableAlpha();
 
         // Trade arrow
-        icon.renderAt(this.x + 44, this.y + 5, 1f, false, false);
+        icon.renderAt(x + 44, y + 5, z, false, false);
 
         // This entry has been favorited
         if (this.data.getFavorites().contains(this.getListIndex()))
         {
-            ItemScrollerGuiIcons.STAR_5.renderAt(this.x + 80, this.y + 2, 1f, false, false);
+            ItemScrollerGuiIcons.STAR_5.renderAt(x + 80, y + 2, z, false, false);
         }
 
         GlStateManager.disableBlend();
@@ -72,50 +77,55 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
 
         if (buy1.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(buy1, this.x +  4, this.y + 2, 1, this.mc);
+            InventoryOverlay.renderStackAt(buy1, x +  4, y + 2, z, 1f, this.mc);
         }
 
         if (buy2.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(buy2, this.x + 22, this.y + 2, 1, this.mc);
+            InventoryOverlay.renderStackAt(buy2, x + 22, y + 2, z, 1f, this.mc);
         }
 
         if (sell.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(sell, this.x + 60, this.y + 2, 1, this.mc);
+            InventoryOverlay.renderStackAt(sell, x + 60, y + 2, z, 1f, this.mc);
         }
     }
 
     @Override
     public void postRenderHovered(int mouseX, int mouseY, boolean selected)
     {
-        if (mouseY >= this.y + 2 && mouseY <= this.y + this.height - 2)
+        int x = this.getX();
+        int y = this.getY();
+        int z = this.getZLevel() + 1;
+        int height = this.getHeight();
+
+        if (mouseY >= y + 2 && mouseY <= y + height - 2)
         {
-            if (mouseX >= this.x + 4 && mouseX <= this.x + 4 + 16)
+            if (mouseX >= x + 4 && mouseX <= x + 4 + 16)
             {
                 ItemStack buy1 = this.entry.getItemToBuy();
 
                 if (buy1.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, buy1, this.mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, buy1, this.mc);
                 }
             }
-            else if (mouseX >= this.x + 22 && mouseX <= this.x + 22 + 16)
+            else if (mouseX >= x + 22 && mouseX <= x + 22 + 16)
             {
                 ItemStack buy2 = this.entry.getSecondItemToBuy();
 
                 if (buy2.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, buy2, this.mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, buy2, this.mc);
                 }
             }
-            else if (mouseX >= this.x + 60 && mouseX <= this.x + 60 + 16)
+            else if (mouseX >= x + 60 && mouseX <= x + 60 + 16)
             {
                 ItemStack sell = this.entry.getItemToSell();
 
                 if (sell.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, sell, this.mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, sell, this.mc);
                 }
             }
 
@@ -123,7 +133,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
             {
                 int uses = this.entry.getToolUses();
                 int max = this.entry.getMaxTradeUses();
-                RenderUtils.drawHoverText(mouseX + 6, mouseY + 18, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
+                RenderUtils.drawHoverText(mouseX + 6, mouseY + 18, z, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
             }
         }
     }

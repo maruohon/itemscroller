@@ -107,7 +107,7 @@ public class RenderEventHandler
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class RenderEventHandler
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
+            InventoryOverlay.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
         }
     }
 
@@ -261,21 +261,22 @@ public class RenderEventHandler
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         final int w = 16;
+        int z = 10;
 
         if (border)
         {
             // Draw a light/white border around the stack
-            RenderUtils.drawRect(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF);
-            RenderUtils.drawRect(x - 1, y    , 1    , w + 1, 0xFFFFFFFF);
-            RenderUtils.drawRect(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF);
-            RenderUtils.drawRect(x    , y + w, w + 1, 1    , 0xFFFFFFFF);
+            RenderUtils.drawRect(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF, z);
+            RenderUtils.drawRect(x - 1, y    , 1    , w + 1, 0xFFFFFFFF, z);
+            RenderUtils.drawRect(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF, z);
+            RenderUtils.drawRect(x    , y + w, w + 1, 1    , 0xFFFFFFFF, z);
 
-            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF); // light background for the item
+            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF, z); // light background for the item
 
         }
         else
         {
-            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF); // light background for the item
+            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF, z); // light background for the item
         }
 
         if (InventoryUtils.isStackEmpty(stack) == false)
@@ -285,7 +286,7 @@ public class RenderEventHandler
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
             this.mc.getRenderItem().zLevel += 100;
-            this.mc.getRenderItem().renderItemAndEffectIntoGUI(mc.player, stack, x, y);
+            this.mc.getRenderItem().renderItemAndEffectIntoGUI(this.mc.player, stack, x, y);
             this.mc.getRenderItem().zLevel -= 100;
         }
 
