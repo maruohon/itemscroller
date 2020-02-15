@@ -7,17 +7,17 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.gui.GuiMerchant;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.entity.IMerchant;
+import net.minecraft.inventory.Container;
+import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import net.minecraft.client.gui.GuiMerchant;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.entity.IMerchant;
-import net.minecraft.inventory.Container;
-import net.minecraft.village.MerchantRecipeList;
 
 @Mixin(GuiMerchant.class)
 public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerchant
@@ -99,7 +99,7 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
     {
         if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue() && this.widgetTradeList != null)
         {
-            this.widgetTradeList.render(mouseX, mouseY, false);
+            this.widgetTradeList.render(mouseX, mouseY, true, this.widgetTradeList.isHoveredForRender(mouseX, mouseY));
         }
     }
 }

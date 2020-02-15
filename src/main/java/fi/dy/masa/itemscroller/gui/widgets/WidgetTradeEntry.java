@@ -28,7 +28,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected)
+    public void render(int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId, boolean selected)
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
@@ -92,7 +92,7 @@ public class WidgetTradeEntry extends WidgetListEntryBase<MerchantRecipe>
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean selected)
+    public void postRenderHovered(int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId)
     {
         int x = this.getX();
         int y = this.getY();

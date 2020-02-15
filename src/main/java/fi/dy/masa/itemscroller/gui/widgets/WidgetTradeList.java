@@ -129,7 +129,7 @@ public class WidgetTradeList extends WidgetBase
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected)
+    public void render(int mouseX, int mouseY, boolean isActiveGui, boolean hovered)
     {
         this.lazySetRecipeList();
 
@@ -157,14 +157,14 @@ public class WidgetTradeList extends WidgetBase
             // Render the trades
             for (WidgetTradeEntry entry : this.entryList)
             {
-                entry.render(mouseX, mouseY, currentPage == entry.getListIndex());
+                entry.render(mouseX, mouseY, isActiveGui, -1, currentPage == entry.getListIndex());
             }
 
             for (WidgetTradeEntry entry : this.entryList)
             {
                 if (entry.isMouseOver(mouseX, mouseY))
                 {
-                    entry.postRenderHovered(mouseX, mouseY, false);
+                    entry.postRenderHovered(mouseX, mouseY, isActiveGui, -1);
                 }
             }
         }
