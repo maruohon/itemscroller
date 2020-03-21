@@ -12,6 +12,7 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.malilib.util.SlotRange;
 
 public class CraftingHandler
 {
@@ -163,43 +164,5 @@ public class CraftingHandler
             return true;
         }
 
-    }
-
-    public static class SlotRange
-    {
-        private final int first;
-        private final int last;
-
-        public SlotRange(int start, int numSlots)
-        {
-            this.first = start;
-            this.last = start + numSlots - 1;
-        }
-
-        public int getFirst()
-        {
-            return this.first;
-        }
-
-        public int getLast()
-        {
-            return this.last;
-        }
-
-        public int getSlotCount()
-        {
-            return this.last - this.first + 1;
-        }
-
-        public boolean contains(int slot)
-        {
-            return slot >= this.first && slot <= this.last;
-        }
-
-        @Override
-        public String toString()
-        {
-            return String.format("SlotRange: {first: %d, last: %d}", this.first, this.last);
-        }
     }
 }
