@@ -7,6 +7,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.minecraft.client.gui.screen.inventory.CraftingScreen;
+import net.minecraft.client.gui.screen.inventory.InventoryScreen;
+import net.minecraft.inventory.container.CraftingResultSlot;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
@@ -16,9 +19,6 @@ import fi.dy.masa.malilib.config.IConfigValue;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
-import net.minecraft.client.gui.screen.ingame.CraftingTableScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.container.CraftingResultSlot;
 
 public class Configs implements IConfigHandler
 {
@@ -107,7 +107,7 @@ public class Configs implements IConfigHandler
         CraftingHandler.clearDefinitions();
 
         // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
-        CraftingHandler.addCraftingGridDefinition(CraftingTableScreen.class.getName(), CraftingResultSlot.class.getName(), 0, new SlotRange(1, 9));
+        CraftingHandler.addCraftingGridDefinition(CraftingScreen.class.getName(), CraftingResultSlot.class.getName(), 0, new SlotRange(1, 9));
         //"net.minecraft.client.gui.inventory.PlayerInventoryScreen,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
         CraftingHandler.addCraftingGridDefinition(InventoryScreen.class.getName(), CraftingResultSlot.class.getName(), 0, new SlotRange(1, 4));
     }

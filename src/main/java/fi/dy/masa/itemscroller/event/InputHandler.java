@@ -1,6 +1,11 @@
 package fi.dy.masa.itemscroller.event;
 
 import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.inventory.CreativeScreen;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.util.math.MathHelper;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -17,11 +22,6 @@ import fi.dy.masa.malilib.hotkeys.IKeyboardInputHandler;
 import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.KeyCodes;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.container.Slot;
-import net.minecraft.util.math.MathHelper;
 
 public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
 {
@@ -110,7 +110,7 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             InventoryUtils.stopDragging();
         }
 
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         boolean cancel = false;
 
         if (this.callbacks.functionalityEnabled() && mc.player != null)
@@ -122,11 +122,11 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             final int mouseX = fi.dy.masa.malilib.util.InputUtils.getMouseX();
             final int mouseY = fi.dy.masa.malilib.util.InputUtils.getMouseY();
 
-            if (GuiUtils.getCurrentScreen() instanceof AbstractContainerScreen &&
-                (GuiUtils.getCurrentScreen() instanceof CreativeInventoryScreen) == false &&
+            if (GuiUtils.getCurrentScreen() instanceof ContainerScreen &&
+                (GuiUtils.getCurrentScreen() instanceof CreativeScreen) == false &&
                 Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
             {
-                AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>) GuiUtils.getCurrentScreen();
+                ContainerScreen<?> gui = (ContainerScreen<?>) GuiUtils.getCurrentScreen();
                 RecipeStorage recipes = RecipeStorage.getInstance();
 
                 if (dWheel != 0)
@@ -200,18 +200,18 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     @Override
     public void onMouseMove(int mouseX, int mouseY)
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         if (this.callbacks.functionalityEnabled() &&
             mc.player != null &&
-            GuiUtils.getCurrentScreen() instanceof AbstractContainerScreen &&
+            GuiUtils.getCurrentScreen() instanceof ContainerScreen &&
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
         {
-            this.handleDragging((AbstractContainerScreen<?>) GuiUtils.getCurrentScreen(), mc, mouseX, mouseY, false);
+            this.handleDragging((ContainerScreen<?>) GuiUtils.getCurrentScreen(), mc, mouseX, mouseY, false);
         }
     }
 
-    private boolean handleDragging(AbstractContainerScreen<?> gui, MinecraftClient mc, int mouseX, int mouseY, boolean isClick)
+    private boolean handleDragging(ContainerScreen<?> gui, Minecraft mc, int mouseX, int mouseY, boolean isClick)
     {
         MoveAction action = InventoryUtils.getActiveMoveAction();
 

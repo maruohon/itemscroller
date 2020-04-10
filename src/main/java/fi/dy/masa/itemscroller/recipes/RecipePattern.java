@@ -1,15 +1,15 @@
 package fi.dy.masa.itemscroller.recipes;
 
 import javax.annotation.Nonnull;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
-import net.minecraft.container.Container;
-import net.minecraft.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 
 public class RecipePattern
 {
@@ -45,23 +45,23 @@ public class RecipePattern
         this.clearRecipe();
     }
 
-    public void storeCraftingRecipe(Slot slot, AbstractContainerScreen<? extends Container> gui, boolean clearIfEmpty)
+    public void storeCraftingRecipe(Slot slot, ContainerScreen<? extends Container> gui, boolean clearIfEmpty)
     {
         SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
         if (range != null)
         {
-            if (slot.hasStack())
+            if (slot.getHasStack())
             {
                 int gridSize = range.getSlotCount();
-                int numSlots = gui.getContainer().slotList.size();
+                int numSlots = gui.getContainer().inventorySlots.size();
 
                 this.ensureRecipeSizeAndClearRecipe(gridSize);
 
                 for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
                 {
                     Slot slotTmp = gui.getContainer().getSlot(s);
-                    this.recipe[i] = slotTmp.hasStack() ? slotTmp.getStack().copy() : InventoryUtils.EMPTY_STACK;
+                    this.recipe[i] = slotTmp.getHasStack() ? slotTmp.getStack().copy() : InventoryUtils.EMPTY_STACK;
                 }
 
                 this.result = slot.getStack().copy();
@@ -88,11 +88,11 @@ public class RecipePattern
         this.result = InventoryUtils.isStackEmpty(other.getResult()) == false ? other.getResult().copy() : InventoryUtils.EMPTY_STACK;
     }
 
-    public void readFromNBT(@Nonnull CompoundTag nbt)
+    public void readFromNBT(@Nonnull CompoundNBT nbt)
     {
-        if (nbt.containsKey("Result", Constants.NBT.TAG_COMPOUND) && nbt.containsKey("Ingredients", Constants.NBT.TAG_LIST))
+        if (nbt.contains("Result", Constants.NBT.TAG_COMPOUND) && nbt.contains("Ingredients", Constants.NBT.TAG_LIST))
         {
-            ListTag tagIngredients = nbt.getList("Ingredients", Constants.NBT.TAG_COMPOUND);
+            ListNBT tagIngredients = nbt.getList("Ingredients", Constants.NBT.TAG_COMPOUND);
             int count = tagIngredients.size();
             int length = nbt.getInt("Length");
 
@@ -103,39 +103,39 @@ public class RecipePattern
 
             for (int i = 0; i < count; i++)
             {
-                CompoundTag tag = tagIngredients.getCompoundTag(i);
+                CompoundNBT tag = tagIngredients.getCompound(i);
                 int slot = tag.getInt("Slot");
 
                 if (slot >= 0 && slot < this.recipe.length)
                 {
-                    this.recipe[slot] = ItemStack.fromTag(tag);
+                    this.recipe[slot] = ItemStack.read(tag);
                 }
             }
 
-            this.result = ItemStack.fromTag(nbt.getCompound("Result"));
+            this.result = ItemStack.read(nbt.getCompound("Result"));
         }
     }
 
     @Nonnull
-    public CompoundTag writeToNBT(@Nonnull CompoundTag nbt)
+    public CompoundNBT writeToNBT(@Nonnull CompoundNBT nbt)
     {
         if (this.isValid())
         {
-            CompoundTag tag = new CompoundTag();
-            this.result.toTag(tag);
+            CompoundNBT tag = new CompoundNBT();
+            this.result.write(tag);
 
             nbt.putInt("Length", this.recipe.length);
             nbt.put("Result", tag);
 
-            ListTag tagIngredients = new ListTag();
+            ListNBT tagIngredients = new ListNBT();
 
             for (int i = 0; i < this.recipe.length; i++)
             {
                 if (InventoryUtils.isStackEmpty(this.recipe[i]) == false)
                 {
-                    tag = new CompoundTag();
+                    tag = new CompoundNBT();
                     tag.putInt("Slot", i);
-                    this.recipe[i].toTag(tag);
+                    this.recipe[i].write(tag);
                     tagIngredients.add(tag);
                 }
             }

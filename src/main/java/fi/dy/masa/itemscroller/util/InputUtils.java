@@ -1,13 +1,13 @@
 package fi.dy.masa.itemscroller.util;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeybindMulti;
 import fi.dy.masa.malilib.util.GuiUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
 
 public class InputUtils
 {
@@ -19,9 +19,9 @@ public class InputUtils
                CraftingHandler.isCraftingGui(GuiUtils.getCurrentScreen());
     }
 
-    public static boolean canShiftDropItems(AbstractContainerScreen<?> gui, MinecraftClient mc, int mouseX, int mouseY)
+    public static boolean canShiftDropItems(ContainerScreen<?> gui, Minecraft mc, int mouseX, int mouseY)
     {
-        if (InventoryUtils.isStackEmpty(mc.player.inventory.getCursorStack()) == false)
+        if (InventoryUtils.isStackEmpty(mc.player.inventory.getItemStack()) == false)
         {
             int left = AccessorUtils.getGuiLeft(gui);
             int top = AccessorUtils.getGuiTop(gui);
@@ -127,16 +127,16 @@ public class InputUtils
 
     public static boolean isAttack(int keyCode)
     {
-        return keyCode == KeybindMulti.getKeyCode(MinecraftClient.getInstance().options.keyAttack);
+        return keyCode == KeybindMulti.getKeyCode(Minecraft.getInstance().gameSettings.keyBindAttack);
     }
 
     public static boolean isUse(int keyCode)
     {
-        return keyCode == KeybindMulti.getKeyCode(MinecraftClient.getInstance().options.keyUse);
+        return keyCode == KeybindMulti.getKeyCode(Minecraft.getInstance().gameSettings.keyBindUseItem);
     }
 
     public static boolean isPickBlock(int keyCode)
     {
-        return keyCode == KeybindMulti.getKeyCode(MinecraftClient.getInstance().options.keyPickItem);
+        return keyCode == KeybindMulti.getKeyCode(Minecraft.getInstance().gameSettings.keyBindPickBlock);
     }
 }
