@@ -1,16 +1,13 @@
 package fi.dy.masa.itemscroller.event;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.recipes.RecipePattern;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.malilib.render.InventoryOverlay;
@@ -21,8 +18,6 @@ import fi.dy.masa.malilib.util.StringUtils;
 public class RenderEventHandler
 {
     private static final RenderEventHandler INSTANCE = new RenderEventHandler();
-    private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
-    private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
 
     private final Minecraft mc = Minecraft.getInstance();
     private int recipeListX;
@@ -52,9 +47,9 @@ public class RenderEventHandler
 
             this.calculateRecipePositions(gui);
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translatef(this.recipeListX, this.recipeListY, 0);
-            GlStateManager.scaled(this.scale, this.scale, 1);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(this.recipeListX, this.recipeListY, 0);
+            RenderSystem.scaled(this.scale, this.scale, 1);
 
             String str = StringUtils.translate("itemscroller.gui.label.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
             this.mc.fontRenderer.drawString(str, 16, -12, 0xC0C0C0C0);
@@ -79,8 +74,8 @@ public class RenderEventHandler
                 this.renderRecipeItems(recipe, recipes.getRecipeCountPerPage(), gui);
             }
 
-            GlStateManager.popMatrix();
-            GlStateManager.enableBlend(); // Fixes the crafting book icon rendering
+            RenderSystem.popMatrix();
+            RenderSystem.enableBlend(); // Fixes the crafting book icon rendering
         }
     }
 
@@ -94,6 +89,10 @@ public class RenderEventHandler
             final int mouseX = fi.dy.masa.malilib.util.InputUtils.getMouseX();
             final int mouseY = fi.dy.masa.malilib.util.InputUtils.getMouseY();
             final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
+
+            float offset = 300f;
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(0f, 0f, offset);
 
             if (recipeId >= 0)
             {
@@ -110,6 +109,8 @@ public class RenderEventHandler
                     InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
                 }
             }
+
+            RenderSystem.popMatrix();
         }
     }
 
@@ -119,7 +120,7 @@ public class RenderEventHandler
         final int gapHorizontal = 2;
         final int gapVertical = 2;
         final int stackBaseHeight = 16;
-        final int guiLeft = AccessorUtils.getGuiLeft(gui);
+        final int guiLeft = gui.getGuiLeft();
 
         this.recipesPerColumn = 9;
         this.columns = (int) Math.ceil((double) recipes.getRecipeCountPerPage() / (double) this.recipesPerColumn);
@@ -137,7 +138,7 @@ public class RenderEventHandler
         int maxStackDimensionsHorizontal = (int) (((usableWidth - (this.columns * (this.numberTextWidth + this.gapColumn))) / (this.columns + 3 + 0.8)) * gapScaleHorizontal);
         int stackDimensions = (int) Math.min(maxStackDimensionsVertical, maxStackDimensionsHorizontal);
 
-        this.scale = (int) Math.ceil(((double) stackDimensions / (double) stackBaseHeight));
+        this.scale = (double) stackDimensions / (double) stackBaseHeight;
         this.entryHeight = stackBaseHeight + gapVertical;
         this.recipeListX = guiLeft - (int) ((this.columns * (stackBaseHeight + this.numberTextWidth + this.gapColumn) + gapHorizontal) * this.scale);
         this.recipeListY = (int) (this.entryHeight * this.scale);
@@ -196,13 +197,13 @@ public class RenderEventHandler
         x = x - (int) (font.getStringWidth(indexStr) * scale) - 2;
         y = row * this.entryHeight + this.entryHeight / 2 - font.FONT_HEIGHT / 2;
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translatef(x, y, 0);
-        GlStateManager.scaled(scale, scale, 0);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(x, y, 0);
+        RenderSystem.scaled(scale, scale, 0);
 
         font.drawString(indexStr, 0, 0, 0xC0C0C0);
 
-        GlStateManager.popMatrix();
+        RenderSystem.popMatrix();
     }
 
     private void renderRecipeItems(RecipePattern recipe, int recipeCountPerPage, ContainerScreen<?> gui)
@@ -258,8 +259,8 @@ public class RenderEventHandler
 
     private void renderStackAt(ItemStack stack, int x, int y, boolean border)
     {
-        GlStateManager.pushMatrix();
-        GlStateManager.disableLighting();
+        RenderSystem.pushMatrix();
+
         final int w = 16;
 
         if (border)
@@ -280,7 +281,7 @@ public class RenderEventHandler
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            enableGUIStandardItemLighting((float) this.scale);
+            RenderUtils.enableDiffuseLightingGui3D();
 
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
@@ -289,42 +290,6 @@ public class RenderEventHandler
             this.mc.getItemRenderer().zLevel -= 100;
         }
 
-        RenderUtils.disableItemLighting();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
-    }
-
-    public static void enableGUIStandardItemLighting(float scale)
-    {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotatef(-30.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotatef(165.0F, 1.0F, 0.0F, 0.0F);
-
-        enableStandardItemLighting(scale);
-
-        GlStateManager.popMatrix();
-    }
-
-    public static void enableStandardItemLighting(float scale)
-    {
-        GlStateManager.enableLighting();
-        GlStateManager.enableLight(0);
-        GlStateManager.enableLight(1);
-        GlStateManager.enableColorMaterial();
-        GlStateManager.colorMaterial(1032, 5634);
-        GlStateManager.light(16384, 4611, RenderHelper.setColorBuffer((float) LIGHT0_POS.x, (float) LIGHT0_POS.y, (float) LIGHT0_POS.z, 0.0f));
-
-        float lightStrength = 0.3F * scale;
-        GlStateManager.light(16384, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
-        GlStateManager.light(16384, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.light(16384, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.light(16385, 4611, RenderHelper.setColorBuffer((float) LIGHT1_POS.x, (float) LIGHT1_POS.y, (float) LIGHT1_POS.z, 0.0f));
-        GlStateManager.light(16385, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
-        GlStateManager.light(16385, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.light(16385, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.shadeModel(7424);
-
-        float ambientLightStrength = 0.4F;
-        GlStateManager.lightModel(2899, RenderHelper.setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
+        RenderSystem.popMatrix();
     }
 }
