@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.container.Slot;
+import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.sound.SoundEvents;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -185,8 +186,13 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
                 InventoryUtils.tryClearCursor(gui, mc);
                 InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
-                InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
 
+                CraftingRecipe bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
+                if (bookRecipe != null) { // Use recipe book if possible
+                    mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
+                } else {
+                    InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
+                }
                 int failsafe = 0;
 
                 while (++failsafe < 40 && InventoryUtils.areStacksEqual(outputSlot.getStack(), recipe.getResult()))
@@ -202,7 +208,12 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
                     InventoryUtils.tryClearCursor(gui, mc);
                     InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
-                    InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
+                    bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
+                    if (bookRecipe != null) { // Use recipe book if possible
+                        mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
+                    } else {
+                        InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
+                    }
                 }
             }
         }
