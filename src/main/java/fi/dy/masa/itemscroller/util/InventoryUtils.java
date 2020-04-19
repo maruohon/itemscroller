@@ -18,17 +18,22 @@ import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.container.Container;
+import net.minecraft.container.CraftingContainer;
+import net.minecraft.container.CraftingTableContainer;
+import net.minecraft.container.Generic3x3Container;
 import net.minecraft.container.Slot;
 import net.minecraft.container.SlotActionType;
 import net.minecraft.container.TradeOutputSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.BasicInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.RecipeManager;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -1354,23 +1359,69 @@ public class InventoryUtils
         }
     }
 
+    public static Optional<CraftingRecipe> getRecipeFromPattern(RecipePattern recipe)
+    {
+        MinecraftClient mc = MinecraftClient.getInstance();
+
+        // Creates dummy inventories/containers.. probs a better way
+        RecipeManager recipeManager = mc.world.getRecipeManager();
+        Container container = new Generic3x3Container(-1, mc.player.inventory);
+        CraftingInventory search = new CraftingInventory(container, 3, 3);
+        ItemStack[] items = recipe.getRecipeItems(); 
+
+        // Set dummy slots with recipe pattern
+        for (int i = 0; i < items.length; i++) 
+        {
+            search.setInvStack(i, items[i]);;
+        }
+     
+        return recipeManager.getFirstMatch(RecipeType.CRAFTING, search, mc.world);
+    }
+
+    public static CraftingRecipe getBookRecipeFromPattern(RecipePattern recipe)
+    {
+        if (recipe.cachedRecipeFromBook != null) // Check if recipe is already cached (kindof unnecessary)
+        {
+            return recipe.cachedRecipeFromBook;
+        }
+        else 
+        {
+            Optional<CraftingRecipe> optional = getRecipeFromPattern(recipe); // get book recipe if cache not found
+
+            if (optional.isPresent())
+            {
+                recipe.cachedRecipeFromBook = optional.get();
+                return recipe.cachedRecipeFromBook;
+            }
+        }
+        return null;
+    }
+
     public static void craftEverythingPossibleWithCurrentRecipe(RecipePattern recipe, ContainerScreen<? extends Container> gui)
     {
         Slot slot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
         if (slot != null && isStackEmpty(recipe.getResult()) == false)
         {
+
             SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
             if (range != null)
             {
-                // Clear all items from the grid first, to avoid unbalanced stacks
-                if (clearCraftingGridOfItems(recipe, gui, range, false) == false)
-                {
-                    return;
-                }
 
-                tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
+                CraftingRecipe bookRecipe = getBookRecipeFromPattern(recipe);
+                if (bookRecipe != null) { // Use recipe book if possible
+                    MinecraftClient mc = MinecraftClient.getInstance();
+                    mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
+                } else {
+                // Clear all items from the grid first, to avoid unbalanced stacks
+                    if (clearCraftingGridOfItems(recipe, gui, range, false) == false)
+                    {
+                        return;
+                    }
+
+                    tryMoveItemsToCraftingGridSlots(recipe, slot, gui, true);
+                }
 
                 if (slot.hasStack())
                 {

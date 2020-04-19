@@ -7,6 +7,7 @@ import net.minecraft.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.recipe.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
@@ -15,6 +16,7 @@ public class RecipePattern
 {
     private ItemStack result = InventoryUtils.EMPTY_STACK;
     private ItemStack[] recipe = new ItemStack[9];
+    public CraftingRecipe cachedRecipeFromBook = null;
 
     public RecipePattern()
     {
