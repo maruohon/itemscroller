@@ -38,6 +38,7 @@ public class RecipePattern
             this.recipe[i] = InventoryUtils.EMPTY_STACK;
         }
 
+        this.cachedRecipeFromBook = null;
         this.result = InventoryUtils.EMPTY_STACK;
     }
 
