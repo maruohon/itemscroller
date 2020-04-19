@@ -29,8 +29,6 @@ public class KeybindCallbacks implements IHotkeyCallback
 {
     private static final KeybindCallbacks INSTANCE = new KeybindCallbacks();
 
-    private boolean disabled;
-
     public static KeybindCallbacks getInstance()
     {
         return INSTANCE;
@@ -50,7 +48,7 @@ public class KeybindCallbacks implements IHotkeyCallback
 
     public boolean functionalityEnabled()
     {
-        return this.disabled == false;
+        return Configs.Toggles.MAIN_TOGGLE.getBooleanValue();
     }
 
     @Override
@@ -58,17 +56,22 @@ public class KeybindCallbacks implements IHotkeyCallback
     {
         Minecraft mc = Minecraft.getMinecraft();
 
+        if (mc.player == null)
+        {
+            return false;
+        }
+
         if (key == Hotkeys.KEY_MAIN_TOGGLE.getKeybind())
         {
-            this.disabled = ! this.disabled;
+            Configs.Toggles.MAIN_TOGGLE.toggleBooleanValue();
 
-            if (this.disabled)
+            if (this.functionalityEnabled())
             {
-                mc.player.playSound(SoundEvents.BLOCK_NOTE_BASS, 0.8f, 0.8f);
+                mc.player.playSound(SoundEvents.BLOCK_NOTE_PLING, 0.5f, 1.0f);
             }
             else
             {
-                mc.player.playSound(SoundEvents.BLOCK_NOTE_PLING, 0.5f, 1.0f);
+                mc.player.playSound(SoundEvents.BLOCK_NOTE_BASS, 0.8f, 0.8f);
             }
 
             return true;
@@ -79,7 +82,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             return true;
         }
 
-        if (this.disabled || mc == null || mc.player == null || (GuiUtils.getCurrentScreen() instanceof GuiContainer) == false)
+        if ((GuiUtils.getCurrentScreen() instanceof GuiContainer) == false || this.functionalityEnabled() == false)
         {
             return false;
         }
@@ -162,9 +165,8 @@ public class KeybindCallbacks implements IHotkeyCallback
 
     public void onTick(Minecraft mc)
     {
-        if (this.disabled == false &&
-            mc != null &&
-            mc.player != null &&
+        if (mc.player != null &&
+            this.functionalityEnabled() &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
             Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&

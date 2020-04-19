@@ -16,7 +16,7 @@ public class Hotkeys
 
     public static final ConfigHotkey KEY_CRAFT_EVERYTHING       = new ConfigHotkey("craftEverything",    "LCONTROL,C", GUI_NO_ORDER, "Craft everything possible once with the currently selected recipe");
     public static final ConfigHotkey KEY_DROP_ALL_MATCHING      = new ConfigHotkey("dropAllMatching",    "LCONTROL,LSHIFT,Q", GUI_NO_ORDER, "Drop all stacks identical to the hovered stack");
-    public static final ConfigHotkey KEY_MAIN_TOGGLE            = new ConfigHotkey("mainToggle",         "LCONTROL,S", KeybindSettings.GUI, "Toggle all functionality ON/OFF");
+    public static final ConfigHotkey KEY_MAIN_TOGGLE            = new ConfigHotkey("itemScrollerMainToggle", "", KeybindSettings.GUI, "Toggle all functionality ON/OFF");
     public static final ConfigHotkey KEY_MASS_CRAFT             = new ConfigHotkey("massCraft",          "LCONTROL,LMENU,C", GUI_NO_ORDER, "Mass craft and throw out the results with the\ncurrently selected recipe as long as this\nkeybind is held down");
     public static final ConfigHotkey KEY_MOVE_CRAFT_RESULTS     = new ConfigHotkey("moveCraftResults",   "LCONTROL,M", GUI_NO_ORDER, "Move all of the currently selected recipe's\noutput items from the player inventory\nto the other inventory");
     public static final ConfigHotkey KEY_MOVE_STACK_TO_OFFHAND  = new ConfigHotkey("moveStackToOffhand", "F", KeybindSettings.GUI, "Swap the hovered stack with the offhand");
