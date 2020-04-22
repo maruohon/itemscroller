@@ -188,7 +188,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                 InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
 
                 CraftingRecipe bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
-                if (bookRecipe != null) { // Use recipe book if possible
+                if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
                     mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
                 } else {
                     InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
@@ -209,7 +209,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                     InventoryUtils.tryClearCursor(gui, mc);
                     InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
                     bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
-                    if (bookRecipe != null) { // Use recipe book if possible
+                    if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
                         mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
                     } else {
                         InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);

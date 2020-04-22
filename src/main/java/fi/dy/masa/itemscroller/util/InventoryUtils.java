@@ -1410,7 +1410,7 @@ public class InventoryUtils
             {
 
                 CraftingRecipe bookRecipe = getBookRecipeFromPattern(recipe);
-                if (bookRecipe != null) { // Use recipe book if possible
+                if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
                     MinecraftClient mc = MinecraftClient.getInstance();
                     mc.interactionManager.clickRecipe(mc.player.container.syncId, bookRecipe, true);
                 } else {
