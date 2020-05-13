@@ -8,6 +8,7 @@
         "IMixinMerchantScreen",
         "IMixinSlot",
         "MixinAbstractInventoryScreen",
+        "MixinClientPlayerInteractionManager",
         "MixinCraftingTableContainer",
         "MixinGameRenderer",
         "MixinScreen"
