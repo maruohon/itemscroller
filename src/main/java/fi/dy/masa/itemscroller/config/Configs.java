@@ -9,6 +9,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screen.ingame.CraftingTableScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.screen.ingame.StonecutterScreen;
 import net.minecraft.container.CraftingResultSlot;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
@@ -112,9 +113,11 @@ public class Configs implements IConfigHandler
         CraftingHandler.clearDefinitions();
 
         // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
-        CraftingHandler.addCraftingGridDefinition(CraftingTableScreen.class.getName(), CraftingResultSlot.class.getName(), 0, new SlotRange(1, 9));
+        CraftingHandler.addCraftingGridDefinition(CraftingTableScreen.class.getName(), 0, new SlotRange(1, 9));
         //"net.minecraft.client.gui.inventory.PlayerInventoryScreen,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
-        CraftingHandler.addCraftingGridDefinition(InventoryScreen.class.getName(), CraftingResultSlot.class.getName(), 0, new SlotRange(1, 4));
+        CraftingHandler.addCraftingGridDefinition(InventoryScreen.class.getName(), 0, new SlotRange(1, 4));
+        // Stone Cutter
+        CraftingHandler.addCraftingGridDefinition(StonecutterScreen.class.getName(), 1, new SlotRange(0, 1));
     }
 
     public static void saveToFile()

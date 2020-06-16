@@ -23,22 +23,20 @@ public class CraftingHandler
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, SlotRange range)
+    public static boolean addCraftingGridDefinition(String guiClassName, int outputSlot, SlotRange range)
     {
         try
         {
             Class<? extends ContainerScreen<?>> guiClass = (Class<? extends ContainerScreen<?>>) Class.forName(guiClassName);
-            Class<? extends Slot> slotClass = (Class<? extends Slot>) Class.forName(slotClassName);
 
-            CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(guiClass, slotClass, outputSlot), range);
+            CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(guiClass, outputSlot), range);
             CRAFTING_GUIS.add(guiClass);
 
             return true;
         }
         catch (Exception e)
         {
-            ItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: gui: '{}', slot: '{}', outputSlot: {}",
-                    guiClassName, slotClassName, outputSlot);
+            ItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: gui: '{}', outputSlot: {}", guiClassName, outputSlot);
         }
 
         return false;
@@ -58,7 +56,7 @@ public class CraftingHandler
     @Nullable
     public static SlotRange getCraftingGridSlots(ContainerScreen<?> gui, Slot slot)
     {
-        return CRAFTING_GRID_SLOTS.get(CraftingOutputSlot.from(gui, slot));
+        return CRAFTING_GRID_SLOTS.get(CraftingOutputSlot.from(gui, slot.id));
     }
 
     @Nullable
@@ -81,30 +79,23 @@ public class CraftingHandler
     public static class CraftingOutputSlot
     {
         private final Class<? extends ContainerScreen<?>> guiClass;
-        private final Class<? extends Slot> slotClass;
         private final int outputSlot;
 
-        private CraftingOutputSlot (Class<? extends ContainerScreen<?>> guiClass, Class<? extends Slot> slotClass, int outputSlot)
+        private CraftingOutputSlot (Class<? extends ContainerScreen<?>> guiClass, int outputSlot)
         {
             this.guiClass = guiClass;
-            this.slotClass = slotClass;
             this.outputSlot = outputSlot;
         }
 
         @SuppressWarnings("unchecked")
-        public static CraftingOutputSlot from(ContainerScreen<?> gui, Slot slot)
+        public static CraftingOutputSlot from(ContainerScreen<?> gui, int slotId)
         {
-            return new CraftingOutputSlot((Class<? extends ContainerScreen<?>>) gui.getClass(), slot.getClass(), slot.id);
+            return new CraftingOutputSlot((Class<? extends ContainerScreen<?>>) gui.getClass(), slotId);
         }
 
         public Class<? extends ContainerScreen<?>> getGuiClass()
         {
             return this.guiClass;
-        }
-
-        public Class<? extends Slot> getSlotClass()
-        {
-            return this.slotClass;
         }
 
         public int getSlotNumber()
@@ -114,7 +105,7 @@ public class CraftingHandler
 
         public boolean matches(ContainerScreen<?> gui, Slot slot, int outputSlot)
         {
-            return outputSlot == this.outputSlot && gui.getClass() == this.guiClass && slot.getClass() == this.slotClass;
+            return outputSlot == this.outputSlot && gui.getClass() == this.guiClass;
         }
 
         @Override
@@ -124,7 +115,6 @@ public class CraftingHandler
             int result = 1;
             result = prime * result + ((guiClass == null) ? 0 : guiClass.hashCode());
             result = prime * result + outputSlot;
-            result = prime * result + ((slotClass == null) ? 0 : slotClass.hashCode());
             return result;
         }
 
@@ -146,13 +136,6 @@ public class CraftingHandler
             else if (guiClass != other.guiClass)
                 return false;
             if (outputSlot != other.outputSlot)
-                return false;
-            if (slotClass == null)
-            {
-                if (other.slotClass != null)
-                    return false;
-            }
-            else if (slotClass != other.slotClass)
                 return false;
             return true;
         }
