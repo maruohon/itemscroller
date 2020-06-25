@@ -1,9 +1,11 @@
 package fi.dy.masa.itemscroller.recipes;
 
+import java.util.HashSet;
 import javax.annotation.Nonnull;
 import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.container.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,6 +19,7 @@ public class RecipePattern
     private ItemStack result = InventoryUtils.EMPTY_STACK;
     private ItemStack[] recipe = new ItemStack[9];
     public CraftingRecipe cachedRecipeFromBook = null;
+    private HashSet<Item> recipeRemainders = new HashSet<Item>();
 
     public RecipePattern()
     {
@@ -40,12 +43,21 @@ public class RecipePattern
 
         this.cachedRecipeFromBook = null;
         this.result = InventoryUtils.EMPTY_STACK;
+        this.recipeRemainders.clear();
     }
 
     public void ensureRecipeSizeAndClearRecipe(int size)
     {
         this.ensureRecipeSize(size);
         this.clearRecipe();
+    }
+
+    public void initializeRecipe() {
+        for (int i = 0; i < this.recipe.length; i++) {
+            if (this.recipe[i].getItem().hasRecipeRemainder()) {
+                this.recipeRemainders.add(recipe[i].getItem().getRecipeRemainder());
+            }
+        }
     }
 
     public void storeCraftingRecipe(Slot slot, ContainerScreen<? extends Container> gui, boolean clearIfEmpty)
@@ -68,6 +80,7 @@ public class RecipePattern
                 }
 
                 this.result = slot.getStack().copy();
+                this.initializeRecipe();
             }
             else if (clearIfEmpty)
             {
@@ -89,6 +102,7 @@ public class RecipePattern
         }
 
         this.result = InventoryUtils.isStackEmpty(other.getResult()) == false ? other.getResult().copy() : InventoryUtils.EMPTY_STACK;
+        this.initializeRecipe();
     }
 
     public void readFromNBT(@Nonnull CompoundTag nbt)
@@ -116,6 +130,7 @@ public class RecipePattern
             }
 
             this.result = ItemStack.fromTag(nbt.getCompound("Result"));
+            this.initializeRecipe();
         }
     }
 
@@ -162,6 +177,11 @@ public class RecipePattern
     public ItemStack[] getRecipeItems()
     {
         return this.recipe;
+    }
+
+    public HashSet<Item> getRecipeRemainders()
+    {
+        return this.recipeRemainders;
     }
 
     public boolean isValid()

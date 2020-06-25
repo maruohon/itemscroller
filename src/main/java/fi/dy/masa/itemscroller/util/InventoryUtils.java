@@ -30,6 +30,7 @@ import net.minecraft.inventory.BasicInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
@@ -537,6 +538,25 @@ public class InventoryUtils
                 // If this slot is in the same inventory that the items were picked up to the cursor from
                 // and the stack is identical to the one in the cursor, then this stack will get dropped.
                 if (areSlotsInSameInventory(slot, slotReference) == sameInventory && areStacksEqual(slot.getStack(), stackReference))
+                {
+                    // Drop the stack
+                    dropStack(gui, slot.id);
+                }
+            }
+        }
+    }
+
+    public static void dropMultipleStacks(ContainerScreen<? extends Container> gui, HashSet<Item> itemSet, Slot slotReference, boolean sameInventory)
+    {
+        if (slotReference != null)
+        {
+            Container container = gui.getContainer();
+
+            for (Slot slot : container.slots)
+            {
+                // If this slot is in the same inventory that the items were picked up to the cursor from
+                // and the stack's item is in the set, then this stack will get dropped.
+                if (areSlotsInSameInventory(slot, slotReference) == sameInventory && itemSet.contains(slot.getStack().getItem()))
                 {
                     // Drop the stack
                     dropStack(gui, slot.id);
@@ -1470,7 +1490,12 @@ public class InventoryUtils
         if (slot != null && isStackEmpty(recipe.getResult()) == false)
         {
             dropStacks(gui, recipe.getResult(), slot, false);
+
+            if (Configs.Generic.DROP_RECIPE_REMAINDER.getBooleanValue() && recipe.getRecipeRemainders().size() > 0) {
+                dropMultipleStacks(gui, recipe.getRecipeRemainders(), slot, false);
+            } 
         }
+        
     }
 
     private static int putSingleItemIntoSlots(ContainerScreen<? extends Container> gui, List<Integer> targetSlots, int startIndex)
