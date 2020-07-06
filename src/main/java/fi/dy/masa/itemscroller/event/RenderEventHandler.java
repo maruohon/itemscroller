@@ -6,9 +6,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.screen.ingame.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.GlAllocationUtils;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -28,6 +29,7 @@ public class RenderEventHandler
     private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
     private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
     private static final FloatBuffer FLOAT_BUFFER = GlAllocationUtils.allocateFloatBuffer(4);
+    private static final MatrixStack FRESH_MATRIX_STACK = new MatrixStack();
 
     private final MinecraftClient mc = MinecraftClient.getInstance();
     private int recipeListX;
@@ -45,11 +47,11 @@ public class RenderEventHandler
         return INSTANCE;
     }
 
-    public void onDrawBackgroundPost()
+    public void onDrawBackgroundPost(MatrixStack matrixStack)
     {
-        if (GuiUtils.getCurrentScreen() instanceof ContainerScreen && InputUtils.isRecipeViewOpen())
+        if (GuiUtils.getCurrentScreen() instanceof HandledScreen && InputUtils.isRecipeViewOpen())
         {
-            ContainerScreen<?> gui = (ContainerScreen<?>) GuiUtils.getCurrentScreen();
+            HandledScreen<?> gui = (HandledScreen<?>) GuiUtils.getCurrentScreen();
             RecipeStorage recipes = RecipeStorage.getInstance();
             final int first = recipes.getFirstVisibleRecipeId();
             final int countPerPage = recipes.getRecipeCountPerPage();
@@ -62,7 +64,7 @@ public class RenderEventHandler
             RenderSystem.scaled(this.scale, this.scale, 1);
 
             String str = StringUtils.translate("itemscroller.gui.label.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
-            this.mc.textRenderer.draw(str, 16, -12, 0xC0C0C0C0);
+            this.mc.textRenderer.draw(matrixStack, str, 16, -12, 0xC0C0C0C0);
 
             for (int i = 0, recipeId = first; recipeId <= lastOnPage; ++i, ++recipeId)
             {
@@ -71,7 +73,7 @@ public class RenderEventHandler
                 int row = i % this.recipesPerColumn;
                 int column = i / this.recipesPerColumn;
 
-                this.renderStoredRecipeStack(stack, recipeId, row, column, gui, selected);
+                this.renderStoredRecipeStack(stack, recipeId, row, column, gui, selected, matrixStack);
             }
 
             if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
@@ -91,9 +93,9 @@ public class RenderEventHandler
 
     public void onDrawScreenPost()
     {
-        if (GuiUtils.getCurrentScreen() instanceof ContainerScreen && InputUtils.isRecipeViewOpen())
+        if (GuiUtils.getCurrentScreen() instanceof HandledScreen && InputUtils.isRecipeViewOpen())
         {
-            ContainerScreen<?> gui = (ContainerScreen<?>) this.mc.currentScreen;
+            HandledScreen<?> gui = (HandledScreen<?>) this.mc.currentScreen;
             RecipeStorage recipes = RecipeStorage.getInstance();
 
             final int mouseX = fi.dy.masa.malilib.util.InputUtils.getMouseX();
@@ -107,7 +109,7 @@ public class RenderEventHandler
             if (recipeId >= 0)
             {
                 RecipePattern recipe = recipes.getRecipe(recipeId);
-                this.renderHoverTooltip(mouseX, mouseY, recipe, gui);
+                this.renderHoverTooltip(mouseX, mouseY, recipe, gui, FRESH_MATRIX_STACK);
             }
             else if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
             {
@@ -116,7 +118,7 @@ public class RenderEventHandler
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
+                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc, FRESH_MATRIX_STACK);
                 }
             }
 
@@ -124,7 +126,7 @@ public class RenderEventHandler
         }
     }
 
-    private void calculateRecipePositions(ContainerScreen<?> gui)
+    private void calculateRecipePositions(HandledScreen<?> gui)
     {
         RecipeStorage recipes = RecipeStorage.getInstance();
         final int gapHorizontal = 2;
@@ -155,17 +157,17 @@ public class RenderEventHandler
         this.columnWidth = stackBaseHeight + this.numberTextWidth + this.gapColumn;
     }
 
-    private void renderHoverTooltip(int mouseX, int mouseY, RecipePattern recipe, ContainerScreen<?> gui)
+    private void renderHoverTooltip(int mouseX, int mouseY, RecipePattern recipe, HandledScreen<?> gui, MatrixStack matrixStack)
     {
         ItemStack stack = recipe.getResult();
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc);
+            InventoryOverlay.renderStackToolTip(mouseX, mouseY, stack, this.mc, matrixStack);
         }
     }
 
-    public int getHoveredRecipeId(int mouseX, int mouseY, RecipeStorage recipes, ContainerScreen<?> gui)
+    public int getHoveredRecipeId(int mouseX, int mouseY, RecipeStorage recipes, HandledScreen<?> gui)
     {
         if (InputUtils.isRecipeViewOpen())
         {
@@ -194,7 +196,8 @@ public class RenderEventHandler
         return -1;
     }
 
-    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, ContainerScreen<?> gui, boolean selected)
+    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, HandledScreen<?> gui,
+            boolean selected, MatrixStack matrixStack)
     {
         final TextRenderer font = this.mc.textRenderer;
         final String indexStr = String.valueOf(recipeId + 1);
@@ -204,19 +207,19 @@ public class RenderEventHandler
         this.renderStackAt(stack, x, y, selected);
 
         double scale = 0.75;
-        x = x - (int) (font.getStringWidth(indexStr) * scale) - 2;
+        x = x - (int) (font.getWidth(indexStr) * scale) - 2;
         y = row * this.entryHeight + this.entryHeight / 2 - font.fontHeight / 2;
 
         RenderSystem.pushMatrix();
         RenderSystem.translatef(x, y, 0);
         RenderSystem.scaled(scale, scale, 0);
 
-        font.draw(indexStr, 0, 0, 0xC0C0C0);
+        font.draw(matrixStack, indexStr, 0, 0, 0xC0C0C0);
 
         RenderSystem.popMatrix();
     }
 
-    private void renderRecipeItems(RecipePattern recipe, int recipeCountPerPage, ContainerScreen<?> gui)
+    private void renderRecipeItems(RecipePattern recipe, int recipeCountPerPage, HandledScreen<?> gui)
     {
         ItemStack[] items = recipe.getRecipeItems();
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
@@ -235,7 +238,7 @@ public class RenderEventHandler
         }
     }
 
-    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, RecipePattern recipe, int recipeCountPerPage, ContainerScreen<?> gui)
+    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, RecipePattern recipe, int recipeCountPerPage, HandledScreen<?> gui)
     {
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
         int scaledStackDimensions = (int) (16 * this.scale);
@@ -296,7 +299,7 @@ public class RenderEventHandler
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
             this.mc.getItemRenderer().zOffset += 100;
-            this.mc.getItemRenderer().renderGuiItem(this.mc.player, stack, x, y);
+            this.mc.getItemRenderer().renderInGui(stack, x, y);
             this.mc.getItemRenderer().zOffset -= 100;
         }
 
