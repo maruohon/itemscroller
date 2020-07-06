@@ -2,14 +2,14 @@ package fi.dy.masa.itemscroller.recipes;
 
 import java.util.HashSet;
 import javax.annotation.Nonnull;
-import net.minecraft.client.gui.screen.ingame.ContainerScreen;
-import net.minecraft.container.Container;
-import net.minecraft.container.Slot;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.Slot;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
@@ -60,7 +60,7 @@ public class RecipePattern
         }
     }
 
-    public void storeCraftingRecipe(Slot slot, ContainerScreen<? extends Container> gui, boolean clearIfEmpty)
+    public void storeCraftingRecipe(Slot slot, HandledScreen<? extends ScreenHandler> gui, boolean clearIfEmpty)
     {
         SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
@@ -69,13 +69,13 @@ public class RecipePattern
             if (slot.hasStack())
             {
                 int gridSize = range.getSlotCount();
-                int numSlots = gui.getContainer().slots.size();
+                int numSlots = gui.getScreenHandler().slots.size();
 
                 this.ensureRecipeSizeAndClearRecipe(gridSize);
 
                 for (int i = 0, s = range.getFirst(); i < gridSize && s < numSlots; i++, s++)
                 {
-                    Slot slotTmp = gui.getContainer().getSlot(s);
+                    Slot slotTmp = gui.getScreenHandler().getSlot(s);
                     this.recipe[i] = slotTmp.hasStack() ? slotTmp.getStack().copy() : InventoryUtils.EMPTY_STACK;
                 }
 
