@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.container.Container;
 import net.minecraft.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -45,7 +45,7 @@ public class RecipePattern
         this.clearRecipe();
     }
 
-    public void storeCraftingRecipe(Slot slot, AbstractContainerScreen<? extends Container> gui, boolean clearIfEmpty)
+    public void storeCraftingRecipe(Slot slot, ContainerScreen<? extends Container> gui, boolean clearIfEmpty)
     {
         SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
@@ -54,7 +54,7 @@ public class RecipePattern
             if (slot.hasStack())
             {
                 int gridSize = range.getSlotCount();
-                int numSlots = gui.getContainer().slotList.size();
+                int numSlots = gui.getContainer().slots.size();
 
                 this.ensureRecipeSizeAndClearRecipe(gridSize);
 
@@ -90,7 +90,7 @@ public class RecipePattern
 
     public void readFromNBT(@Nonnull CompoundTag nbt)
     {
-        if (nbt.containsKey("Result", Constants.NBT.TAG_COMPOUND) && nbt.containsKey("Ingredients", Constants.NBT.TAG_LIST))
+        if (nbt.contains("Result", Constants.NBT.TAG_COMPOUND) && nbt.contains("Ingredients", Constants.NBT.TAG_LIST))
         {
             ListTag tagIngredients = nbt.getList("Ingredients", Constants.NBT.TAG_COMPOUND);
             int count = tagIngredients.size();
@@ -103,7 +103,7 @@ public class RecipePattern
 
             for (int i = 0; i < count; i++)
             {
-                CompoundTag tag = tagIngredients.getCompoundTag(i);
+                CompoundTag tag = tagIngredients.getCompound(i);
                 int slot = tag.getInt("Slot");
 
                 if (slot >= 0 && slot < this.recipe.length)

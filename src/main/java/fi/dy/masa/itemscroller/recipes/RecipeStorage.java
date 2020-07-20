@@ -10,7 +10,7 @@ import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.screen.ingame.AbstractContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ContainerScreen;
 import net.minecraft.container.Slot;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -103,12 +103,12 @@ public class RecipeStorage
         return this.getRecipe(this.getSelection());
     }
 
-    public void storeCraftingRecipeToCurrentSelection(Slot slot, AbstractContainerScreen<?> gui, boolean clearIfEmpty)
+    public void storeCraftingRecipeToCurrentSelection(Slot slot, ContainerScreen<?> gui, boolean clearIfEmpty)
     {
         this.storeCraftingRecipe(this.getSelection(), slot, gui, clearIfEmpty);
     }
 
-    public void storeCraftingRecipe(int index, Slot slot, AbstractContainerScreen<?> gui, boolean clearIfEmpty)
+    public void storeCraftingRecipe(int index, Slot slot, ContainerScreen<?> gui, boolean clearIfEmpty)
     {
         this.getRecipe(index).storeCraftingRecipe(slot, gui, clearIfEmpty);
         this.dirty = true;
@@ -122,7 +122,7 @@ public class RecipeStorage
 
     private void readFromNBT(CompoundTag nbt)
     {
-        if (nbt == null || nbt.containsKey("Recipes", Constants.NBT.TAG_LIST) == false)
+        if (nbt == null || nbt.contains("Recipes", Constants.NBT.TAG_LIST) == false)
         {
             return;
         }
@@ -137,7 +137,7 @@ public class RecipeStorage
 
         for (int i = 0; i < count; i++)
         {
-            CompoundTag tag = tagList.getCompoundTag(i);
+            CompoundTag tag = tagList.getCompound(i);
 
             int index = tag.getByte("RecipeIndex");
 
