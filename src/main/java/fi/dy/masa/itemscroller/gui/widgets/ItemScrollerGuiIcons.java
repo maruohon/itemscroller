@@ -2,9 +2,9 @@ package fi.dy.masa.itemscroller.gui.widgets;
 
 import net.minecraft.util.ResourceLocation;
 import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.malilib.gui.util.GuiIconBase;
+import fi.dy.masa.malilib.gui.util.BaseGuiIcon;
 
-public class ItemScrollerGuiIcons extends GuiIconBase
+public class ItemScrollerGuiIcons extends BaseGuiIcon
 {
     public static final ResourceLocation ITEMSCROLLER_GUI_TEXTURES = new ResourceLocation(Reference.MOD_ID, "textures/gui/gui_widgets.png");
 

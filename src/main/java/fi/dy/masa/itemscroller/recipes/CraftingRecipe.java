@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
-import fi.dy.masa.malilib.util.SlotRange;
+import fi.dy.masa.malilib.util.data.IntRange;
 
 public class CraftingRecipe
 {
@@ -46,13 +46,13 @@ public class CraftingRecipe
 
     public void storeCraftingRecipe(Slot slot, GuiContainer gui, boolean clearIfEmpty)
     {
-        SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
+        IntRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
         if (range != null)
         {
             if (slot.getHasStack())
             {
-                int gridSize = range.getSlotCount();
+                int gridSize = range.getLength();
                 int numSlots = gui.inventorySlots.inventorySlots.size();
 
                 this.ensureRecipeSizeAndClearRecipe(gridSize);

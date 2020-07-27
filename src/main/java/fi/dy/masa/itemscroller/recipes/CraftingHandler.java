@@ -12,11 +12,11 @@ import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
-import fi.dy.masa.malilib.util.SlotRange;
+import fi.dy.masa.malilib.util.data.IntRange;
 
 public class CraftingHandler
 {
-    private static final Map<CraftingOutputSlot, SlotRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, SlotRange>();
+    private static final Map<CraftingOutputSlot, IntRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, IntRange>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
 
     public static void updateGridDefinitions()
@@ -25,13 +25,13 @@ public class CraftingHandler
         CRAFTING_GUIS.clear();
 
         // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
-        addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 9));
+        addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 9));
         //"net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
-        addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new SlotRange(1, 4));
+        addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 4));
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, SlotRange range)
+    public static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, IntRange range)
     {
         try
         {
@@ -64,7 +64,7 @@ public class CraftingHandler
      * @return the SlotRange of the crafting grid, or null, if the given slot is not a crafting output slot
      */
     @Nullable
-    public static SlotRange getCraftingGridSlots(GuiContainer gui, Slot slot)
+    public static IntRange getCraftingGridSlots(GuiContainer gui, Slot slot)
     {
         return CRAFTING_GRID_SLOTS.get(CraftingOutputSlot.from(gui, slot));
     }

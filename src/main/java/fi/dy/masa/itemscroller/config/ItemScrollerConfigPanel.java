@@ -1,8 +1,8 @@
 package fi.dy.masa.itemscroller.config;
 
 import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.malilib.config.gui.GuiModConfigs;
-import fi.dy.masa.malilib.config.gui.liteloader.ConfigPanelBase;
+import fi.dy.masa.malilib.gui.config.GuiModConfigs;
+import fi.dy.masa.malilib.gui.config.liteloader.ConfigPanelBase;
 
 public class ItemScrollerConfigPanel extends ConfigPanelBase
 {

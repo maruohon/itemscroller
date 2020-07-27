@@ -17,13 +17,13 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
+import fi.dy.masa.malilib.config.option.ConfigHotkey;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
-import fi.dy.masa.malilib.hotkeys.IKeybind;
-import fi.dy.masa.malilib.hotkeys.KeyAction;
-import fi.dy.masa.malilib.util.InventoryScreenUtils;
+import fi.dy.masa.malilib.input.IHotkeyCallback;
+import fi.dy.masa.malilib.input.IKeyBind;
+import fi.dy.masa.malilib.input.KeyAction;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class KeybindCallbacks implements IHotkeyCallback
 {
@@ -42,7 +42,7 @@ public class KeybindCallbacks implements IHotkeyCallback
     {
         for (ConfigHotkey hotkey : Hotkeys.HOTKEY_LIST)
         {
-            hotkey.getKeybind().setCallback(this);
+            hotkey.getKeyBind().setCallback(this);
         }
     }
 
@@ -52,7 +52,7 @@ public class KeybindCallbacks implements IHotkeyCallback
     }
 
     @Override
-    public boolean onKeyAction(KeyAction action, IKeybind key)
+    public boolean onKeyAction(KeyAction action, IKeyBind key)
     {
         Minecraft mc = Minecraft.getMinecraft();
 
@@ -61,7 +61,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             return false;
         }
 
-        if (key == Hotkeys.KEY_MAIN_TOGGLE.getKeybind())
+        if (key == Hotkeys.KEY_MAIN_TOGGLE.getKeyBind())
         {
             Configs.Toggles.MAIN_TOGGLE.toggleBooleanValue();
 
@@ -76,7 +76,7 @@ public class KeybindCallbacks implements IHotkeyCallback
 
             return true;
         }
-        else if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeybind())
+        else if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
         {
             GuiBase.openGui(new GuiConfigs());
             return true;
@@ -98,12 +98,12 @@ public class KeybindCallbacks implements IHotkeyCallback
             {
                 return InventoryUtils.dragMoveItems(gui, mc, moveAction, true);
             }
-            else if (key == Hotkeys.KEY_MOVE_EVERYTHING.getKeybind())
+            else if (key == Hotkeys.KEY_MOVE_EVERYTHING.getKeyBind())
             {
                 InventoryUtils.tryMoveStacks(slot, gui, false, true, false);
                 return true;
             }
-            else if (key == Hotkeys.KEY_DROP_ALL_MATCHING.getKeybind())
+            else if (key == Hotkeys.KEY_DROP_ALL_MATCHING.getKeyBind())
             {
                 if (Configs.Toggles.DROP_MATCHING.getBooleanValue() &&
                     Configs.Lists.GUI_BLACKLIST.getStrings().contains(gui.getClass().getName()) == false &&
@@ -113,7 +113,7 @@ public class KeybindCallbacks implements IHotkeyCallback
                     return true;
                 }
             }
-            else if (key == Hotkeys.KEY_MOVE_STACK_TO_OFFHAND.getKeybind())
+            else if (key == Hotkeys.KEY_MOVE_STACK_TO_OFFHAND.getKeyBind())
             {
                 // Swap the hovered stack to the Offhand
                 if ((gui instanceof GuiInventory) && slot != null)
@@ -124,29 +124,29 @@ public class KeybindCallbacks implements IHotkeyCallback
             }
         }
 
-        if (key == Hotkeys.KEY_CRAFT_EVERYTHING.getKeybind())
+        if (key == Hotkeys.KEY_CRAFT_EVERYTHING.getKeyBind())
         {
             return InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
         }
-        else if (key == Hotkeys.KEY_THROW_CRAFT_RESULTS.getKeybind())
+        else if (key == Hotkeys.KEY_THROW_CRAFT_RESULTS.getKeyBind())
         {
             InventoryUtils.throwAllCraftingResultsToGround(recipes.getSelectedRecipe(), gui);
             return true;
         }
-        else if (key == Hotkeys.KEY_MOVE_CRAFT_RESULTS.getKeybind())
+        else if (key == Hotkeys.KEY_MOVE_CRAFT_RESULTS.getKeyBind())
         {
             InventoryUtils.moveAllCraftingResultsToOtherInventory(recipes.getSelectedRecipe(), gui);
             return true;
         }
-        else if (key == Hotkeys.KEY_STORE_RECIPE.getKeybind())
+        else if (key == Hotkeys.KEY_STORE_RECIPE.getKeyBind())
         {
             return recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
         }
-        else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeybind())
+        else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeyBind())
         {
             return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
         }
-        else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeybind())
+        else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeyBind())
         {
             if (slot != null)
             {
@@ -170,7 +170,7 @@ public class KeybindCallbacks implements IHotkeyCallback
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
             Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
-            Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld())
+            Hotkeys.KEY_MASS_CRAFT.getKeyBind().isKeyBindHeld())
         {
             GuiScreen guiScreen = GuiUtils.getCurrentScreen();
             GuiContainer gui = (GuiContainer) guiScreen;

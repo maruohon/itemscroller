@@ -7,10 +7,10 @@ import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.config.IConfigHandler;
-import fi.dy.masa.malilib.config.options.ConfigBoolean;
-import fi.dy.masa.malilib.config.options.ConfigStringList;
-import fi.dy.masa.malilib.config.options.IConfigBase;
-import fi.dy.masa.malilib.config.options.IConfigValue;
+import fi.dy.masa.malilib.config.option.ConfigBoolean;
+import fi.dy.masa.malilib.config.option.ConfigStringList;
+import fi.dy.masa.malilib.config.option.IConfigBase;
+import fi.dy.masa.malilib.config.option.IConfigValue;
 
 public class Configs implements IConfigHandler
 {

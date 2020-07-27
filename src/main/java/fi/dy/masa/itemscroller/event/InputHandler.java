@@ -27,15 +27,15 @@ import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.GuiBase;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.hotkeys.IHotkey;
-import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
-import fi.dy.masa.malilib.hotkeys.IKeyboardInputHandler;
-import fi.dy.masa.malilib.hotkeys.IMouseInputHandler;
-import fi.dy.masa.malilib.hotkeys.KeybindCategory;
-import fi.dy.masa.malilib.util.InventoryScreenUtils;
+import fi.dy.masa.malilib.input.IHotkey;
+import fi.dy.masa.malilib.input.IKeyBindProvider;
+import fi.dy.masa.malilib.input.IKeyboardInputHandler;
+import fi.dy.masa.malilib.input.IMouseInputHandler;
+import fi.dy.masa.malilib.input.KeyBindCategory;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import io.netty.buffer.Unpooled;
 
-public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IMouseInputHandler
+public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IMouseInputHandler
 {
     private final KeybindCallbacks callbacks;
 
@@ -51,13 +51,13 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
     }
 
     @Override
-    public List<KeybindCategory> getHotkeyCategoriesForCombinedView()
+    public List<KeyBindCategory> getHotkeyCategoriesForCombinedView()
     {
-        return ImmutableList.of(new KeybindCategory(Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
+        return ImmutableList.of(new KeyBindCategory(Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
     }
 
     @Override
-    public boolean onKeyInput(int eventKey, boolean eventKeyState)
+    public boolean onKeyInput(int keyCode, int scanCode, int modifiers, boolean eventKeyState)
     {
         if (InputUtils.isRecipeViewOpen() && eventKeyState)
         {
@@ -67,23 +67,23 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             int recipesPerPage = recipes.getRecipeCountPerPage();
             int recipeIndexChange = GuiBase.isShiftDown() ? recipesPerPage : recipesPerPage / 2;
 
-            if (eventKey >= Keyboard.KEY_1 && eventKey <= Keyboard.KEY_9)
+            if (keyCode >= Keyboard.KEY_1 && keyCode <= Keyboard.KEY_9)
             {
-                index = MathHelper.clamp(eventKey - Keyboard.KEY_1, 0, 8);
+                index = MathHelper.clamp(keyCode - Keyboard.KEY_1, 0, 8);
             }
-            else if (eventKey == Keyboard.KEY_UP && oldIndex > 0)
+            else if (keyCode == Keyboard.KEY_UP && oldIndex > 0)
             {
                 index = oldIndex - 1;
             }
-            else if (eventKey == Keyboard.KEY_DOWN && oldIndex < (recipes.getTotalRecipeCount() - 1))
+            else if (keyCode == Keyboard.KEY_DOWN && oldIndex < (recipes.getTotalRecipeCount() - 1))
             {
                 index = oldIndex + 1;
             }
-            else if (eventKey == Keyboard.KEY_LEFT && oldIndex >= recipeIndexChange)
+            else if (keyCode == Keyboard.KEY_LEFT && oldIndex >= recipeIndexChange)
             {
                 index = oldIndex - recipeIndexChange;
             }
-            else if (eventKey == Keyboard.KEY_RIGHT && oldIndex < (recipes.getTotalRecipeCount() - recipeIndexChange))
+            else if (keyCode == Keyboard.KEY_RIGHT && oldIndex < (recipes.getTotalRecipeCount() - recipeIndexChange))
             {
                 index = oldIndex + recipeIndexChange;
             }
@@ -95,13 +95,13 @@ public class InputHandler implements IKeybindProvider, IKeyboardInputHandler, IM
             }
         }
 
-        return this.handleInput(eventKey, eventKeyState, 0);
+        return this.handleInput(keyCode, eventKeyState, 0);
     }
 
     @Override
-    public boolean onMouseInput(int eventButton, int dWheel, boolean eventButtonState)
+    public boolean onMouseInput(int eventButton, int wheelDelta, boolean eventButtonState)
     {
-        return this.handleInput(eventButton - 100, eventButtonState, dWheel);
+        return this.handleInput(eventButton - 100, eventButtonState, wheelDelta);
     }
 
     private boolean handleInput(int keyCode, boolean keyState, int dWheel)

@@ -41,9 +41,9 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.hotkeys.KeybindMulti;
-import fi.dy.masa.malilib.util.InventoryScreenUtils;
-import fi.dy.masa.malilib.util.SlotRange;
+import fi.dy.masa.malilib.input.KeyBindMulti;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
+import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class InventoryUtils
@@ -152,9 +152,9 @@ public class InventoryUtils
         // Villager handling only happens when scrolling over the trade output slot
         boolean villagerHandling = Configs.Toggles.SCROLL_VILLAGER.getBooleanValue() && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
         boolean craftingHandling = Configs.Toggles.CRAFTING_FEATURES.getBooleanValue() && isCraftingSlot(gui, slot);
-        boolean keyActiveMoveEverything = Hotkeys.MODIFIER_MOVE_EVERYTHING.getKeybind().isKeybindHeld();
-        boolean keyActiveMoveMatching = Hotkeys.MODIFIER_MOVE_MATCHING.getKeybind().isKeybindHeld();
-        boolean keyActiveMoveStacks = Hotkeys.MODIFIER_MOVE_STACK.getKeybind().isKeybindHeld();
+        boolean keyActiveMoveEverything = Hotkeys.MODIFIER_MOVE_EVERYTHING.getKeyBind().isKeyBindHeld();
+        boolean keyActiveMoveMatching = Hotkeys.MODIFIER_MOVE_MATCHING.getKeyBind().isKeyBindHeld();
+        boolean keyActiveMoveStacks = Hotkeys.MODIFIER_MOVE_STACK.getKeyBind().isKeyBindHeld();
         boolean nonSingleMove = keyActiveMoveEverything || keyActiveMoveMatching || keyActiveMoveStacks;
         boolean moveToOtherInventory = scrollingUp;
 
@@ -1047,7 +1047,7 @@ public class InventoryUtils
             if (isRightClick)
             {
                 Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
-                boolean dropKeyDown = KeybindMulti.isKeyDown(mc.gameSettings.keyBindDrop.getKeyCode());
+                boolean dropKeyDown = KeyBindMulti.isKeyDown(mc.gameSettings.keyBindDrop.getKeyCode());
 
                 if (outputSlot != null)
                 {
@@ -1187,7 +1187,7 @@ public class InventoryUtils
 
         if (craftingOutputSlot != null)
         {
-            SlotRange range = CraftingHandler.getCraftingGridSlots(gui, craftingOutputSlot);
+            IntRange range = CraftingHandler.getCraftingGridSlots(gui, craftingOutputSlot);
             clearCraftingGridOfItems(recipe, gui, range, clearNonMatchingOnly);
         }
     }
@@ -1198,15 +1198,15 @@ public class InventoryUtils
 
         if (craftingOutputSlot != null)
         {
-            SlotRange range = CraftingHandler.getCraftingGridSlots(gui, craftingOutputSlot);
+            IntRange range = CraftingHandler.getCraftingGridSlots(gui, craftingOutputSlot);
             clearCraftingGridOfAllItems(gui, range);
         }
     }
 
-    private static boolean clearCraftingGridOfItems(CraftingRecipe recipe, GuiContainer gui, SlotRange range, boolean clearNonMatchingOnly)
+    private static boolean clearCraftingGridOfItems(CraftingRecipe recipe, GuiContainer gui, IntRange range, boolean clearNonMatchingOnly)
     {
         final int invSlots = gui.inventorySlots.inventorySlots.size();
-        final int rangeSlots = range.getSlotCount();
+        final int rangeSlots = range.getLength();
         final int recipeSize = recipe.getRecipeLength();
         final int slotCount = Math.min(rangeSlots, recipeSize);
 
@@ -1230,10 +1230,10 @@ public class InventoryUtils
         return true;
     }
 
-    private static boolean clearCraftingGridOfAllItems(GuiContainer gui, SlotRange range)
+    private static boolean clearCraftingGridOfAllItems(GuiContainer gui, IntRange range)
     {
         final int invSlots = gui.inventorySlots.inventorySlots.size();
-        final int rangeSlots = range.getSlotCount();
+        final int rangeSlots = range.getLength();
         boolean clearedAll = true;
 
         for (int i = 0, slotNum = range.getFirst(); i < rangeSlots && slotNum < invSlots; i++, slotNum++)
@@ -1259,10 +1259,10 @@ public class InventoryUtils
     {
         Container container = gui.inventorySlots;
         int numSlots = container.inventorySlots.size();
-        SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
+        IntRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
         // Check that the slot range is valid and that the recipe can fit into this type of crafting grid
-        if (range != null && range.getLast() < numSlots && recipe.getRecipeLength() <= range.getSlotCount())
+        if (range != null && range.getLast() < numSlots && recipe.getRecipeLength() <= range.getLength())
         {
             // Clear non-matching items from the grid first
             if (clearCraftingGridOfItems(recipe, gui, range, true) == false)
@@ -1420,7 +1420,7 @@ public class InventoryUtils
 
         if (slot != null && isStackEmpty(recipe.getResult()) == false)
         {
-            SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
+            IntRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
 
             if (range != null)
             {

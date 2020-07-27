@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.malilib.config.gui.ConfigGuiTabBase;
-import fi.dy.masa.malilib.gui.GuiConfigsBase;
+import fi.dy.masa.malilib.gui.config.ConfigGuiTabBase;
+import fi.dy.masa.malilib.gui.config.GuiConfigsBase;
 import fi.dy.masa.malilib.gui.interfaces.IConfigGuiTab;
 
 public class GuiConfigs extends GuiConfigsBase
