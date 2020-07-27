@@ -26,6 +26,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
 import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.hotkeys.KeyCallbackToggleBooleanConfigWithMessage;
 
 public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 {
@@ -48,6 +49,8 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
         {
             hotkey.getKeybind().setCallback(this);
         }
+
+        Hotkeys.KEY_MASS_CRAFT_TOGGLE.getKeybind().setCallback(new KeyCallbackToggleBooleanConfigWithMessage(Configs.Generic.MASS_CRAFT_HOLD));
     }
 
     public boolean functionalityEnabled()
@@ -174,7 +177,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
             GuiUtils.getCurrentScreen() instanceof HandledScreen &&
             (GuiUtils.getCurrentScreen() instanceof CreativeInventoryScreen) == false &&
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
-            Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld())
+            (Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld() || Configs.Generic.MASS_CRAFT_HOLD.getBooleanValue()))
         {
             Screen guiScreen = GuiUtils.getCurrentScreen();
             HandledScreen<?> gui = (HandledScreen<?>) guiScreen;
