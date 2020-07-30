@@ -7,7 +7,7 @@ import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.IKeyBind;
+import fi.dy.masa.malilib.input.KeyBind;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class InputUtils
@@ -50,7 +50,7 @@ public class InputUtils
         return false;
     }
 
-    public static MoveAction getDragMoveAction(IKeyBind key)
+    public static MoveAction getDragMoveAction(KeyBind key)
     {
              if (key == Hotkeys.KEY_DRAG_FULL_STACKS.getKeyBind())      { return MoveAction.MOVE_TO_OTHER_STACKS;       }
         else if (key == Hotkeys.KEY_DRAG_LEAVE_ONE.getKeyBind())        { return MoveAction.MOVE_TO_OTHER_LEAVE_ONE;    }

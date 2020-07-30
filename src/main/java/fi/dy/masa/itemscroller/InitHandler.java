@@ -5,21 +5,22 @@ import fi.dy.masa.itemscroller.event.ClientWorldChangeHandler;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.malilib.config.ConfigManager;
+import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.dispatch.ClientWorldChangeEventDispatcher;
-import fi.dy.masa.malilib.event.dispatch.InputEventDispatcher;
-import fi.dy.masa.malilib.event.IInitializationHandler;
+import fi.dy.masa.malilib.event.dispatch.InputDispatcher;
+import fi.dy.masa.malilib.event.dispatch.KeyBindManager;
 
-public class InitHandler implements IInitializationHandler
+public class InitHandler implements InitializationHandler
 {
     @Override
     public void registerModHandlers()
     {
-        ConfigManager.INSTANCE.registerConfigHandler(Reference.MOD_ID, new Configs());
+        ConfigManager.INSTANCE.registerConfigHandler(new Configs());
 
         InputHandler handler = new InputHandler();
-        InputEventDispatcher.getKeyBindManager().registerKeyBindProvider(handler);
-        InputEventDispatcher.getInputManager().registerKeyboardInputHandler(handler);
-        InputEventDispatcher.getInputManager().registerMouseInputHandler(handler);
+        KeyBindManager.INSTANCE.registerKeyBindProvider(handler);
+        InputDispatcher.INSTANCE.registerKeyboardInputHandler(handler);
+        InputDispatcher.INSTANCE.registerMouseInputHandler(handler);
 
         ClientWorldChangeHandler listener = new ClientWorldChangeHandler();
         ClientWorldChangeEventDispatcher.INSTANCE.registerClientWorldChangeHandler(listener);

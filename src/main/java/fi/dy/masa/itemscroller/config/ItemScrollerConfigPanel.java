@@ -1,10 +1,10 @@
 package fi.dy.masa.itemscroller.config;
 
 import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.malilib.gui.config.GuiModConfigs;
-import fi.dy.masa.malilib.gui.config.liteloader.ConfigPanelBase;
+import fi.dy.masa.malilib.gui.config.ModConfigScreen;
+import fi.dy.masa.malilib.gui.config.liteloader.BaseConfigPanel;
 
-public class ItemScrollerConfigPanel extends ConfigPanelBase
+public class ItemScrollerConfigPanel extends BaseConfigPanel
 {
     @Override
     protected String getPanelTitlePrefix()
@@ -17,8 +17,8 @@ public class ItemScrollerConfigPanel extends ConfigPanelBase
     {
         String modId = Reference.MOD_ID;
 
-        this.addSubPanel((new GuiModConfigs(modId, Configs.Toggles.OPTIONS, "itemscroller.gui.button.config_gui.toggles")).setConfigWidth(100));
-        this.addSubPanel((new GuiModConfigs(modId, Configs.Generic.OPTIONS, "itemscroller.gui.button.config_gui.generic")).setConfigWidth(160));
-        this.addSubPanel((new GuiModConfigs(modId, Hotkeys.HOTKEY_LIST, "itemscroller.gui.button.config_gui.hotkeys")).setConfigWidth(210));
+        this.addSubPanel((new ModConfigScreen(modId, Configs.Toggles.OPTIONS, "itemscroller.gui.button.config_gui.toggles")).setConfigElementsWidth(100));
+        this.addSubPanel((new ModConfigScreen(modId, Configs.Generic.OPTIONS, "itemscroller.gui.button.config_gui.generic")).setConfigElementsWidth(160));
+        this.addSubPanel((new ModConfigScreen(modId, Hotkeys.HOTKEY_LIST, "itemscroller.gui.button.config_gui.hotkeys")).setConfigElementsWidth(210));
     }
 }

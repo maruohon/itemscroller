@@ -10,27 +10,26 @@ import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.widget.WidgetBase;
-import fi.dy.masa.malilib.gui.widget.WidgetScrollBar;
+import fi.dy.masa.malilib.gui.BaseScreen;
+import fi.dy.masa.malilib.gui.widget.BaseWidget;
+import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 
-public class WidgetTradeList extends WidgetBase
+public class WidgetTradeList extends BaseWidget
 {
-    private final WidgetScrollBar scrollBar;
+    private final ScrollBarWidget scrollBar;
     private final GuiMerchant parentGui;
     private final VillagerDataStorage storage;
     private final ArrayList<WidgetTradeEntry> entryList = new ArrayList<>();
     private final VillagerData data;
     private MerchantRecipeList recipeList;
-    private int scrollBarTotalHeight;
 
     public WidgetTradeList(int x, int y, GuiMerchant parentGui, VillagerData data)
     {
         super(x, y, 106, 166);
 
-        this.scrollBar = (new WidgetScrollBar(x + 93, y + 17, 8, 142, ItemScrollerGuiIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
+        this.scrollBar = (new ScrollBarWidget(x + 93, y + 17, 8, 142, ItemScrollerIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
@@ -45,9 +44,10 @@ public class WidgetTradeList extends WidgetBase
             if (this.recipeList != null)
             {
                 int max = Math.max(0, this.recipeList.size() - 7);
+                int scrollBarTotalHeight = Math.max(140, this.recipeList.size() * 20);
                 this.scrollBar.setMaxValue(max);
                 this.scrollBar.setValue(this.data.getTradeListPosition());
-                this.scrollBarTotalHeight = Math.max(140, this.recipeList.size() * 20);
+                this.scrollBar.setTotalHeight(scrollBarTotalHeight);
 
                 this.reCreateEntryWidgets();
             }
@@ -95,7 +95,7 @@ public class WidgetTradeList extends WidgetBase
                     boolean samePage = AccessorUtils.getSelectedMerchantRecipe(this.parentGui) == recipeIndex;
                     InputHandler.changeTradePage(this.parentGui, recipeIndex);
 
-                    if (GuiBase.isShiftDown() || samePage || mouseButton == 1)
+                    if (BaseScreen.isShiftDown() || samePage || mouseButton == 1)
                     {
                         InventoryUtils.villagerClearTradeInputSlots();
 
@@ -146,13 +146,13 @@ public class WidgetTradeList extends WidgetBase
             RenderUtils.disableItemLighting();
 
             // Background
-            ItemScrollerGuiIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel(), false, false);
+            ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel(), false, false);
 
             String str = StringUtils.translate("itemscroller.gui.label.trades");
             int w = this.getStringWidth(str);
             this.drawString(x + width / 2 - w / 2, y + 6, 0xFF404040, str);
 
-            this.scrollBar.render(mouseX, mouseY, 142, this.scrollBarTotalHeight);
+            this.scrollBar.render(mouseX, mouseY);
 
             // Render the trades
             for (WidgetTradeEntry entry : this.entryList)
@@ -214,7 +214,8 @@ public class WidgetTradeList extends WidgetBase
                 int y = this.getY() + (index - scrollBarPos) * 20 + 18;
                 MerchantRecipe recipe = list.get(index);
 
-                this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, recipe, this.recipeList.indexOf(recipe), this.data));
+                int listIndex = this.recipeList.indexOf(recipe);
+                this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, recipe, listIndex, listIndex, this.data));
             }
         }
     }

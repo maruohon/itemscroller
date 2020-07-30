@@ -41,7 +41,7 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.KeyBindMulti;
+import fi.dy.masa.malilib.input.KeyBindImpl;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.malilib.util.StringUtils;
@@ -1047,7 +1047,7 @@ public class InventoryUtils
             if (isRightClick)
             {
                 Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
-                boolean dropKeyDown = KeyBindMulti.isKeyDown(mc.gameSettings.keyBindDrop.getKeyCode());
+                boolean dropKeyDown = KeyBindImpl.isKeyDown(mc.gameSettings.keyBindDrop.getKeyCode());
 
                 if (outputSlot != null)
                 {

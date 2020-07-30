@@ -10,22 +10,22 @@ import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.gui.GuiConfigs;
+import fi.dy.masa.itemscroller.gui.ConfigScreen;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
-import fi.dy.masa.malilib.config.option.ConfigHotkey;
-import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.config.option.HotkeyConfig;
+import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.IHotkeyCallback;
-import fi.dy.masa.malilib.input.IKeyBind;
+import fi.dy.masa.malilib.input.callback.HotkeyCallback;
+import fi.dy.masa.malilib.input.KeyBind;
 import fi.dy.masa.malilib.input.KeyAction;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
-public class KeybindCallbacks implements IHotkeyCallback
+public class KeybindCallbacks implements HotkeyCallback
 {
     private static final KeybindCallbacks INSTANCE = new KeybindCallbacks();
 
@@ -40,7 +40,7 @@ public class KeybindCallbacks implements IHotkeyCallback
 
     public void setCallbacks()
     {
-        for (ConfigHotkey hotkey : Hotkeys.HOTKEY_LIST)
+        for (HotkeyConfig hotkey : Hotkeys.HOTKEY_LIST)
         {
             hotkey.getKeyBind().setCallback(this);
         }
@@ -52,7 +52,7 @@ public class KeybindCallbacks implements IHotkeyCallback
     }
 
     @Override
-    public boolean onKeyAction(KeyAction action, IKeyBind key)
+    public boolean onKeyAction(KeyAction action, KeyBind key)
     {
         Minecraft mc = Minecraft.getMinecraft();
 
@@ -78,7 +78,7 @@ public class KeybindCallbacks implements IHotkeyCallback
         }
         else if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
         {
-            GuiBase.openGui(new GuiConfigs());
+            BaseScreen.openGui(new ConfigScreen());
             return true;
         }
 

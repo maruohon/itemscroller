@@ -25,17 +25,17 @@ import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.IHotkey;
-import fi.dy.masa.malilib.input.IKeyBindProvider;
-import fi.dy.masa.malilib.input.IKeyboardInputHandler;
-import fi.dy.masa.malilib.input.IMouseInputHandler;
+import fi.dy.masa.malilib.input.Hotkey;
 import fi.dy.masa.malilib.input.KeyBindCategory;
+import fi.dy.masa.malilib.input.KeyBindProvider;
+import fi.dy.masa.malilib.input.KeyboardInputHandler;
+import fi.dy.masa.malilib.input.MouseInputHandler;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import io.netty.buffer.Unpooled;
 
-public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IMouseInputHandler
+public class InputHandler implements KeyBindProvider, KeyboardInputHandler, MouseInputHandler
 {
     private final KeybindCallbacks callbacks;
 
@@ -45,7 +45,7 @@ public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IM
     }
 
     @Override
-    public List<? extends IHotkey> getAllHotkeys()
+    public List<? extends Hotkey> getAllHotkeys()
     {
         return Hotkeys.HOTKEY_LIST;
     }
@@ -53,7 +53,7 @@ public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IM
     @Override
     public List<KeyBindCategory> getHotkeyCategoriesForCombinedView()
     {
-        return ImmutableList.of(new KeyBindCategory(Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
+        return ImmutableList.of(new KeyBindCategory(Reference.MOD_ID, Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IM
             RecipeStorage recipes = RecipeStorage.getInstance();
             int oldIndex = recipes.getSelection();
             int recipesPerPage = recipes.getRecipeCountPerPage();
-            int recipeIndexChange = GuiBase.isShiftDown() ? recipesPerPage : recipesPerPage / 2;
+            int recipeIndexChange = BaseScreen.isShiftDown() ? recipesPerPage : recipesPerPage / 2;
 
             if (keyCode >= Keyboard.KEY_1 && keyCode <= Keyboard.KEY_9)
             {
@@ -188,7 +188,7 @@ public class InputHandler implements IKeyBindProvider, IKeyboardInputHandler, IM
                 else
                 {
                     Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
-                    final boolean isShiftDown = GuiBase.isShiftDown();
+                    final boolean isShiftDown = BaseScreen.isShiftDown();
 
                     if (keyState && isAttackUseOrPick)
                     {
