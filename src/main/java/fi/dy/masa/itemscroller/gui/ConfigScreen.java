@@ -4,16 +4,16 @@ import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.malilib.gui.config.BaseConfigTab;
 import fi.dy.masa.malilib.gui.config.BaseConfigScreen;
+import fi.dy.masa.malilib.gui.config.BaseConfigTab;
 import fi.dy.masa.malilib.gui.config.ConfigTab;
 
 public class ConfigScreen extends BaseConfigScreen
 {
-    private static final BaseConfigTab GENERIC = new BaseConfigTab("itemscroller.gui.button.config_gui.generic", 100, false, Configs.Generic.OPTIONS);
-    private static final BaseConfigTab TOGGLES = new BaseConfigTab("itemscroller.gui.button.config_gui.toggles", 100, false, Configs.Toggles.OPTIONS);
-    private static final BaseConfigTab HOTKEYS = new BaseConfigTab("itemscroller.gui.button.config_gui.hotkeys", 204, true, Hotkeys.HOTKEY_LIST);
-    private static final BaseConfigTab LISTS   = new BaseConfigTab("itemscroller.gui.button.config_gui.lists", 204, false, Configs.Lists.OPTIONS);
+    private static final BaseConfigTab GENERIC = new BaseConfigTab("itemscroller.gui.button.config_gui.generic", Reference.MOD_NAME, 100, false, Configs.Generic.OPTIONS);
+    private static final BaseConfigTab TOGGLES = new BaseConfigTab("itemscroller.gui.button.config_gui.toggles", Reference.MOD_NAME, 100, false, Configs.Toggles.OPTIONS);
+    private static final BaseConfigTab HOTKEYS = new BaseConfigTab("itemscroller.gui.button.config_gui.hotkeys", Reference.MOD_NAME, 204, true, Hotkeys.HOTKEY_LIST);
+    private static final BaseConfigTab LISTS   = new BaseConfigTab("itemscroller.gui.button.config_gui.lists", Reference.MOD_NAME, 204, false, Configs.Lists.OPTIONS);
 
     private static final ImmutableList<ConfigTab> TABS = ImmutableList.of(
             GENERIC,

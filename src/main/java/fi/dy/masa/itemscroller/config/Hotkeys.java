@@ -8,47 +8,47 @@ import fi.dy.masa.malilib.input.KeyBindSettings;
 
 public class Hotkeys
 {
-    private static final KeyBindSettings GUI_RELAXED = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, true, false, false, false);
+    private static final KeyBindSettings GUI_RELAXED        = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, true, false, false, false);
     private static final KeyBindSettings GUI_RELAXED_CANCEL = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, true, false, false, true);
-    private static final KeyBindSettings GUI_NO_ORDER = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, false, false, false, true);
+    private static final KeyBindSettings GUI_NO_ORDER       = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, false, false, false, true);
 
-    public static final HotkeyConfig KEY_OPEN_CONFIG_GUI        = new HotkeyConfig("openConfigGui", "I,C", "Open the in-game config GUI");
+    public static final HotkeyConfig KEY_OPEN_CONFIG_GUI            = new HotkeyConfig("openConfigGui", "I,C", "Open the in-game config GUI");
 
-    public static final HotkeyConfig KEY_CRAFT_EVERYTHING       = new HotkeyConfig("craftEverything", "LCONTROL,C", GUI_NO_ORDER, "Craft everything possible once with the currently selected recipe");
-    public static final HotkeyConfig KEY_DROP_ALL_MATCHING      = new HotkeyConfig("dropAllMatching", "LCONTROL,LSHIFT,Q", GUI_NO_ORDER, "Drop all stacks identical to the hovered stack");
-    public static final HotkeyConfig KEY_MAIN_TOGGLE            = new HotkeyConfig("itemScrollerMainToggle", "", KeyBindSettings.GUI, "Toggle all functionality ON/OFF");
-    public static final HotkeyConfig KEY_MASS_CRAFT             = new HotkeyConfig("massCraft", "LCONTROL,LMENU,C", GUI_NO_ORDER, "Mass craft and throw out the results with the\ncurrently selected recipe as long as this\nkeybind is held down");
-    public static final HotkeyConfig KEY_MOVE_CRAFT_RESULTS     = new HotkeyConfig("moveCraftResults", "LCONTROL,M", GUI_NO_ORDER, "Move all of the currently selected recipe's\noutput items from the player inventory\nto the other inventory");
-    public static final HotkeyConfig KEY_MOVE_STACK_TO_OFFHAND  = new HotkeyConfig("moveStackToOffhand", "F", KeyBindSettings.GUI, "Swap the hovered stack with the offhand");
-    public static final HotkeyConfig KEY_RECIPE_VIEW            = new HotkeyConfig("recipeView", "A", GUI_RELAXED, "Show the Item Scroller recipe GUI");
-    public static final HotkeyConfig KEY_SLOT_DEBUG             = new HotkeyConfig("slotDebug", "LCONTROL,LMENU,LSHIFT,I", GUI_NO_ORDER, "Print debug info for the hovered slot or GUI");
-    public static final HotkeyConfig KEY_STORE_RECIPE           = new HotkeyConfig("storeRecipe", "BUTTON2", GUI_RELAXED_CANCEL, "Store a recipe while hovering over a crafting output item");
-    public static final HotkeyConfig KEY_THROW_CRAFT_RESULTS    = new HotkeyConfig("throwCraftResults", "LCONTROL,T", GUI_NO_ORDER, "Throw all of the currently selected recipe's\noutput items to the ground from the player inventory");
-    public static final HotkeyConfig KEY_VILLAGER_TRADE_FAVORITES = new HotkeyConfig("villagerTradeFavorites", "", KeyBindSettings.GUI, "Trade everything possible with all the favorited trades\nof the current villager");
+    public static final HotkeyConfig KEY_CRAFT_EVERYTHING           = new HotkeyConfig("craftEverything", "LCONTROL,C", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DROP_ALL_MATCHING          = new HotkeyConfig("dropAllMatching", "LCONTROL,LSHIFT,Q", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_MAIN_TOGGLE                = new HotkeyConfig("itemScrollerMainToggle", "", KeyBindSettings.GUI);
+    public static final HotkeyConfig KEY_MASS_CRAFT                 = new HotkeyConfig("massCraft", "LCONTROL,LMENU,C", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_MOVE_CRAFT_RESULTS         = new HotkeyConfig("moveCraftResults", "LCONTROL,M", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_MOVE_STACK_TO_OFFHAND      = new HotkeyConfig("moveStackToOffhand", "F", KeyBindSettings.GUI);
+    public static final HotkeyConfig KEY_RECIPE_VIEW                = new HotkeyConfig("recipeView", "A", GUI_RELAXED);
+    public static final HotkeyConfig KEY_SLOT_DEBUG                 = new HotkeyConfig("slotDebug", "LCONTROL,LMENU,LSHIFT,I", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_STORE_RECIPE               = new HotkeyConfig("storeRecipe", "BUTTON2", GUI_RELAXED_CANCEL);
+    public static final HotkeyConfig KEY_THROW_CRAFT_RESULTS        = new HotkeyConfig("throwCraftResults", "LCONTROL,T", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_VILLAGER_TRADE_FAVORITES   = new HotkeyConfig("villagerTradeFavorites", "", KeyBindSettings.GUI);
 
-    public static final HotkeyConfig KEY_DRAG_LEAVE_ONE         = new HotkeyConfig("keyDragMoveLeaveOne", "LSHIFT,BUTTON1", GUI_NO_ORDER, "Key to move all but the last item from\nall the stacks dragged over");
-    public static final HotkeyConfig KEY_DRAG_MATCHING          = new HotkeyConfig("keyDragMoveMatching", "LMENU,BUTTON0", GUI_NO_ORDER, "Key to move all matching items dragged over");
-    public static final HotkeyConfig KEY_DRAG_MOVE_ONE          = new HotkeyConfig("keyDragMoveOne", "LCONTROL,BUTTON0", GUI_NO_ORDER, "Key to move one item from each stack dragged over");
-    public static final HotkeyConfig KEY_DRAG_FULL_STACKS       = new HotkeyConfig("keyDragMoveStacks", "LSHIFT,BUTTON0", GUI_NO_ORDER, "Key to move the entire stacks dragged over");
+    public static final HotkeyConfig KEY_DRAG_LEAVE_ONE             = new HotkeyConfig("keyDragMoveLeaveOne", "LSHIFT,BUTTON1", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DRAG_MATCHING              = new HotkeyConfig("keyDragMoveMatching", "LMENU,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DRAG_MOVE_ONE              = new HotkeyConfig("keyDragMoveOne", "LCONTROL,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DRAG_FULL_STACKS           = new HotkeyConfig("keyDragMoveStacks", "LSHIFT,BUTTON0", GUI_NO_ORDER);
 
-    public static final HotkeyConfig KEY_DRAG_DROP_LEAVE_ONE    = new HotkeyConfig("keyDragDropLeaveOne", "LSHIFT,Q,BUTTON1", GUI_NO_ORDER, "Key to drop all but the last item from each stack dragged over");
-    public static final HotkeyConfig KEY_DRAG_DROP_SINGLE       = new HotkeyConfig("keyDragDropSingle", "Q,BUTTON0", GUI_NO_ORDER, "Key to drop one item from each stack dragged over");
-    public static final HotkeyConfig KEY_DRAG_DROP_STACKS       = new HotkeyConfig("keyDragDropStacks", "LSHIFT,Q,BUTTON0", GUI_NO_ORDER, "Key to drop the entire stacks dragged over");
+    public static final HotkeyConfig KEY_DRAG_DROP_LEAVE_ONE        = new HotkeyConfig("keyDragDropLeaveOne", "LSHIFT,Q,BUTTON1", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DRAG_DROP_SINGLE           = new HotkeyConfig("keyDragDropSingle", "Q,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_DRAG_DROP_STACKS           = new HotkeyConfig("keyDragDropStacks", "LSHIFT,Q,BUTTON0", GUI_NO_ORDER);
 
-    public static final HotkeyConfig KEY_MOVE_EVERYTHING        = new HotkeyConfig("keyMoveEverything", "LMENU,LSHIFT,BUTTON0", GUI_NO_ORDER, "Key to move ALL items to the other\ninventory when clicking a stack");
+    public static final HotkeyConfig KEY_MOVE_EVERYTHING            = new HotkeyConfig("keyMoveEverything", "LMENU,LSHIFT,BUTTON0", GUI_NO_ORDER);
 
-    public static final HotkeyConfig KEY_WS_MOVE_DOWN_LEAVE_ONE = new HotkeyConfig("wsMoveDownLeaveOne", "S,BUTTON1", GUI_NO_ORDER, "The key to move all but the last item from each stack\n\"down\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_DOWN_MATCHING  = new HotkeyConfig("wsMoveDownMatching", "LMENU,S,BUTTON0", GUI_NO_ORDER, "The key to move all matching items \"down\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_DOWN_SINGLE    = new HotkeyConfig("wsMoveDownSingle", "S,BUTTON0", GUI_NO_ORDER, "The key to move single items \"down\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_DOWN_STACKS    = new HotkeyConfig("wsMoveDownStacks", "LSHIFT,S,BUTTON0", GUI_NO_ORDER, "The key to move stacks \"down\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_UP_LEAVE_ONE   = new HotkeyConfig("wsMoveUpLeaveOne", "W,BUTTON1", GUI_NO_ORDER, "The key to move all but the last item from each stack\n\"up\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_UP_MATCHING    = new HotkeyConfig("wsMoveUpMatching", "LMENU,W,BUTTON0", GUI_NO_ORDER, "The key to move all matching items \"up\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_UP_SINGLE      = new HotkeyConfig("wsMoveUpSingle", "W,BUTTON0", GUI_NO_ORDER, "The key to move single items \"up\" in the inventory");
-    public static final HotkeyConfig KEY_WS_MOVE_UP_STACKS      = new HotkeyConfig("wsMoveUpStacks", "LSHIFT,W,BUTTON0", GUI_NO_ORDER, "The key to move stacks \"up\" in the inventory");
+    public static final HotkeyConfig KEY_WS_MOVE_DOWN_LEAVE_ONE     = new HotkeyConfig("wsMoveDownLeaveOne", "S,BUTTON1", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_DOWN_MATCHING      = new HotkeyConfig("wsMoveDownMatching", "LMENU,S,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_DOWN_SINGLE        = new HotkeyConfig("wsMoveDownSingle", "S,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_DOWN_STACKS        = new HotkeyConfig("wsMoveDownStacks", "LSHIFT,S,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_UP_LEAVE_ONE       = new HotkeyConfig("wsMoveUpLeaveOne", "W,BUTTON1", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_UP_MATCHING        = new HotkeyConfig("wsMoveUpMatching", "LMENU,W,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_UP_SINGLE          = new HotkeyConfig("wsMoveUpSingle", "W,BUTTON0", GUI_NO_ORDER);
+    public static final HotkeyConfig KEY_WS_MOVE_UP_STACKS          = new HotkeyConfig("wsMoveUpStacks", "LSHIFT,W,BUTTON0", GUI_NO_ORDER);
 
-    public static final HotkeyConfig MODIFIER_MOVE_EVERYTHING   = new HotkeyConfig("modifierMoveEverything", "LMENU,LSHIFT", GUI_NO_ORDER, "Modifier key to move ALL items to the other\ninventory when scrolling over a stack");
-    public static final HotkeyConfig MODIFIER_MOVE_MATCHING     = new HotkeyConfig("modifierMoveMatching", "LMENU", GUI_NO_ORDER, "Modifier key to move all matching items to the other\ninventory when scrolling over a stack");
-    public static final HotkeyConfig MODIFIER_MOVE_STACK        = new HotkeyConfig("modifierMoveStack", "LSHIFT", GUI_NO_ORDER, "Modifier key to move the entire stack to the other\ninventory when scrolling over it");
+    public static final HotkeyConfig MODIFIER_MOVE_EVERYTHING       = new HotkeyConfig("modifierMoveEverything", "LMENU,LSHIFT", GUI_NO_ORDER);
+    public static final HotkeyConfig MODIFIER_MOVE_MATCHING         = new HotkeyConfig("modifierMoveMatching", "LMENU", GUI_NO_ORDER);
+    public static final HotkeyConfig MODIFIER_MOVE_STACK            = new HotkeyConfig("modifierMoveStack", "LSHIFT", GUI_NO_ORDER);
 
     public static final List<HotkeyConfig> HOTKEY_LIST = ImmutableList.of(
             KEY_OPEN_CONFIG_GUI,
