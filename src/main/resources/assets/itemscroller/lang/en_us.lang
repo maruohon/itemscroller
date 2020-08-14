@@ -31,14 +31,14 @@ itemscroller.config.comment.guiblacklist=A list of inventory screens where Item 
 itemscroller.config.comment.slotblacklist=A list of slots that Item Scroller should not operate on
 
 itemscroller.config.name.carpetctrlqcraftingenabledonserver=Carpet Ctrl+Q Crafting
-itemscroller.config.name.clientcraftingfixon1.12=Client crafting fix on 1.12+
-itemscroller.config.name.craftingrecipessavefileisglobal=Recipe save file is global
-itemscroller.config.name.craftingrecipessavetofile=Save crafting recipes to file
-itemscroller.config.name.craftingrenderrecipeitems=Render recipe items
-itemscroller.config.name.reversescrolldirectionsingle=Reverse scroll direction (single)
-itemscroller.config.name.reversescrolldirectionstacks=Reverse scroll direction (stacks)
-itemscroller.config.name.useslotpositionawarescrolldirection=Use slot y-pos based scroll direction
-itemscroller.config.name.villagertradelistrememberpage=Villager trade list remembers page
+itemscroller.config.name.clientcraftingfixon1.12=Client Crafting Fix on 1.12+
+itemscroller.config.name.craftingrecipessavefileisglobal=Recipe Save File Is Global
+itemscroller.config.name.craftingrecipessavetofile=Save Crafting Recipes To File
+itemscroller.config.name.craftingrenderrecipeitems=Render Recipe Items
+itemscroller.config.name.reversescrolldirectionsingle=Reverse Scroll Direction (Single)
+itemscroller.config.name.reversescrolldirectionstacks=Reverse Scroll Direction (Stacks)
+itemscroller.config.name.useslotpositionawarescrolldirection=Use Slot y-pos Based Scroll Direction
+itemscroller.config.name.villagertradelistrememberpage=Villager Trade List Remembers Page
 
 itemscroller.config.name.enablecraftingfeatures=Crafting Features
 itemscroller.config.name.enabledropkeydropmatching=Drop Key Drop Matching
