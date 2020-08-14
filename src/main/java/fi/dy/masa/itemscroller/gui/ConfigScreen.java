@@ -8,12 +8,12 @@ import fi.dy.masa.malilib.gui.config.BaseConfigScreen;
 import fi.dy.masa.malilib.gui.config.BaseConfigTab;
 import fi.dy.masa.malilib.gui.config.ConfigTab;
 
-public class ConfigScreen extends BaseConfigScreen
+public class ConfigScreen
 {
-    private static final BaseConfigTab GENERIC = new BaseConfigTab("itemscroller.gui.button.config_gui.generic", Reference.MOD_NAME, 100, false, Configs.Generic.OPTIONS);
-    private static final BaseConfigTab TOGGLES = new BaseConfigTab("itemscroller.gui.button.config_gui.toggles", Reference.MOD_NAME, 100, false, Configs.Toggles.OPTIONS);
-    private static final BaseConfigTab HOTKEYS = new BaseConfigTab("itemscroller.gui.button.config_gui.hotkeys", Reference.MOD_NAME, 204, true, Hotkeys.HOTKEY_LIST);
-    private static final BaseConfigTab LISTS   = new BaseConfigTab("itemscroller.gui.button.config_gui.lists", Reference.MOD_NAME, 204, false, Configs.Lists.OPTIONS);
+    private static final BaseConfigTab GENERIC = new BaseConfigTab("itemscroller.gui.button.config_gui.generic", Reference.MOD_NAME, 100, Configs.Generic.OPTIONS);
+    private static final BaseConfigTab TOGGLES = new BaseConfigTab("itemscroller.gui.button.config_gui.toggles", Reference.MOD_NAME,  60, Configs.Toggles.OPTIONS);
+    private static final BaseConfigTab HOTKEYS = new BaseConfigTab("itemscroller.gui.button.config_gui.hotkeys", Reference.MOD_NAME, 200, Hotkeys.HOTKEY_LIST);
+    private static final BaseConfigTab LISTS   = new BaseConfigTab("itemscroller.gui.button.config_gui.lists",   Reference.MOD_NAME, 200, Configs.Lists.OPTIONS);
 
     private static final ImmutableList<ConfigTab> TABS = ImmutableList.of(
             GENERIC,
@@ -22,22 +22,13 @@ public class ConfigScreen extends BaseConfigScreen
             LISTS
     );
 
-    private static ConfigTab tab = GENERIC;
-
-    public ConfigScreen()
+    public static BaseConfigScreen create()
     {
-        super(10, 50, Reference.MOD_ID, null, TABS, "itemscroller.gui.title.configs");
+        return new BaseConfigScreen(10, 50, Reference.MOD_ID, null, TABS, GENERIC, "itemscroller.gui.title.configs");
     }
 
-    @Override
-    public ConfigTab getCurrentTab()
+    public static ImmutableList<ConfigTab> getConfigTabs()
     {
-        return tab;
-    }
-
-    @Override
-    public void setCurrentTab(ConfigTab tab)
-    {
-        ConfigScreen.tab = tab;
+        return TABS;
     }
 }

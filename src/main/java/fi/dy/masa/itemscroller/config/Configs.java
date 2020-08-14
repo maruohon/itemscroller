@@ -4,7 +4,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
-import fi.dy.masa.malilib.config.BaseConfigCategory;
+import fi.dy.masa.malilib.config.BaseConfigOptionCategory;
 import fi.dy.masa.malilib.config.ConfigOptionCategory;
 import fi.dy.masa.malilib.config.ModConfig;
 import fi.dy.masa.malilib.config.option.BooleanConfig;
@@ -83,10 +83,10 @@ public class Configs implements ModConfig
     }
 
     private static final ImmutableList<ConfigOptionCategory> CATEGORIES = ImmutableList.of(
-            BaseConfigCategory.normal("Generic", "itemscroller.config.category.generic", Reference.MOD_NAME, Generic.OPTIONS),
-            BaseConfigCategory.normal("Toggles", "itemscroller.config.category.toggles", Reference.MOD_NAME, Toggles.OPTIONS),
-            BaseConfigCategory.normal("Hotkeys", "itemscroller.config.category.hotkeys", Reference.MOD_NAME, Hotkeys.HOTKEY_LIST),
-            BaseConfigCategory.normal("Lists",   "itemscroller.config.category.lists",   Reference.MOD_NAME, Lists.OPTIONS)
+            BaseConfigOptionCategory.normal("Generic", Generic.OPTIONS),
+            BaseConfigOptionCategory.normal("Toggles", Toggles.OPTIONS),
+            BaseConfigOptionCategory.normal("Hotkeys", Hotkeys.HOTKEY_LIST),
+            BaseConfigOptionCategory.normal("Lists",   Lists.OPTIONS)
     );
 
     @Override
