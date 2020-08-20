@@ -152,7 +152,7 @@ public class WidgetTradeList extends BaseWidget
             int w = this.getStringWidth(str);
             this.drawString(x + width / 2 - w / 2, y + 6, 0xFF404040, str);
 
-            this.scrollBar.render(mouseX, mouseY);
+            this.scrollBar.render(mouseX, mouseY, isActiveGui, this.scrollBar.isHoveredForRender(mouseX, mouseY));
 
             // Render the trades
             for (WidgetTradeEntry entry : this.entryList)

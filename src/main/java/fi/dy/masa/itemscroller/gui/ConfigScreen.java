@@ -24,7 +24,7 @@ public class ConfigScreen
 
     public static BaseConfigScreen create()
     {
-        return new BaseConfigScreen(10, 50, Reference.MOD_ID, null, TABS, GENERIC, "itemscroller.gui.title.configs");
+        return new BaseConfigScreen(Reference.MOD_ID, null, TABS, GENERIC, "itemscroller.gui.title.configs");
     }
 
     public static ImmutableList<ConfigTab> getConfigTabs()
