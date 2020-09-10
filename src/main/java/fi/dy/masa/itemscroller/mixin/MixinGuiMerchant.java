@@ -22,15 +22,9 @@ import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 @Mixin(GuiMerchant.class)
 public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerchant
 {
-    @Shadow
-    @Final
-    private IMerchant merchant;
-
-    @Shadow
-    private int selectedMerchantRecipe;
-
-    @Nullable
-    private WidgetTradeList widgetTradeList;
+    @Shadow @Final private IMerchant merchant;
+    @Shadow private int selectedMerchantRecipe;
+    @Nullable private WidgetTradeList widgetTradeList;
 
     public MixinGuiMerchant(Container inventorySlotsIn)
     {
@@ -99,7 +93,8 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
     {
         if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue() && this.widgetTradeList != null)
         {
-            this.widgetTradeList.render(mouseX, mouseY, true, this.widgetTradeList.isHoveredForRender(mouseX, mouseY));
+            WidgetTradeList widget = this.widgetTradeList;
+            widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), mouseX, mouseY, true, widget.isHoveredForRender(mouseX, mouseY));
         }
     }
 }

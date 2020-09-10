@@ -13,10 +13,10 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.render.overlay.InventoryOverlay;
+import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class RenderEventHandler
 {
@@ -107,7 +107,7 @@ public class RenderEventHandler
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
                 }
             }
         }
@@ -150,7 +150,7 @@ public class RenderEventHandler
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            InventoryOverlay.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
+            ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
         }
     }
 

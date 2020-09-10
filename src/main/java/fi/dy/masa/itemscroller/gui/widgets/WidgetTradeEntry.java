@@ -9,8 +9,8 @@ import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.icon.Icon;
 import fi.dy.masa.malilib.gui.widget.list.entry.BaseDataListEntryWidget;
+import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.render.overlay.InventoryOverlay;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
@@ -28,13 +28,10 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId, boolean selected)
+    public void renderAt(int x, int y, float z, int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId, boolean selected)
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
-        int x = this.getX();
-        int y = this.getY();
-        int z = this.getZLevel();
         int width = this.getWidth();
         int height = this.getHeight();
         int v = 66;
@@ -78,17 +75,17 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
         if (buy1.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(buy1, x +  4, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f, this.mc);
         }
 
         if (buy2.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(buy2, x + 22, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f, this.mc);
         }
 
         if (sell.isEmpty() == false)
         {
-            InventoryOverlay.renderStackAt(sell, x + 60, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f, this.mc);
         }
     }
 
@@ -97,7 +94,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
     {
         int x = this.getX();
         int y = this.getY();
-        int z = this.getZLevel() + 1;
+        float z = this.getZLevel() + 1;
         int height = this.getHeight();
 
         if (mouseY >= y + 2 && mouseY <= y + height - 2)
@@ -110,7 +107,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (buy1.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, buy1, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1, this.mc);
                 }
             }
             else if (mouseX >= x + 22 && mouseX <= x + 22 + 16)
@@ -119,7 +116,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (buy2.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, buy2, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2, this.mc);
                 }
             }
             else if (mouseX >= x + 60 && mouseX <= x + 60 + 16)
@@ -128,7 +125,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (sell.isEmpty() == false)
                 {
-                    InventoryOverlay.renderStackToolTip(mouseX, mouseY, z, sell, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell, this.mc);
                 }
             }
 

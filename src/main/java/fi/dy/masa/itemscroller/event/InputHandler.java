@@ -167,7 +167,7 @@ public class InputHandler implements KeyBindProvider, KeyboardInputHandler, Mous
 
             if (GuiUtils.getCurrentScreen() instanceof GuiContainer &&
                 (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
-                Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
+                Configs.Lists.GUI_BLACKLIST.getValues().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
             {
                 GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
                 RecipeStorage recipes = RecipeStorage.getInstance();
@@ -249,7 +249,7 @@ public class InputHandler implements KeyBindProvider, KeyboardInputHandler, Mous
         if (this.callbacks.functionalityEnabled() &&
             mc.player != null &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
-            Configs.Lists.GUI_BLACKLIST.getStrings().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
+            Configs.Lists.GUI_BLACKLIST.getValues().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
         {
             this.handleDragging((GuiContainer) GuiUtils.getCurrentScreen(), mc, false);
         }

@@ -129,14 +129,12 @@ public class WidgetTradeList extends BaseWidget
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean isActiveGui, boolean hovered)
+    public void renderAt(int x, int y, float z, int mouseX, int mouseY, boolean isActiveGui, boolean hovered)
     {
         this.lazySetRecipeList();
 
         if (this.recipeList != null)
         {
-            int x = this.getX();
-            int y = this.getY();
             int width = this.getWidth();
             int currentPage = AccessorUtils.getSelectedMerchantRecipe(this.parentGui);
 
@@ -150,21 +148,24 @@ public class WidgetTradeList extends BaseWidget
 
             String str = StringUtils.translate("itemscroller.gui.label.trades");
             int w = this.getStringWidth(str);
-            this.drawString(x + width / 2 - w / 2, y + 6, 0xFF404040, str);
+            this.drawString(x + width / 2 - w / 2, y + 6, z, 0xFF404040, str);
 
-            this.scrollBar.render(mouseX, mouseY, isActiveGui, this.scrollBar.isHoveredForRender(mouseX, mouseY));
+            int wx = this.scrollBar.getX();
+            int wy = this.scrollBar.getY();
+            float wz = this.scrollBar.getZLevel();
+            this.scrollBar.renderAt(wx, wy, wz, mouseX, mouseY, isActiveGui, this.scrollBar.isHoveredForRender(mouseX, mouseY));
 
             // Render the trades
-            for (WidgetTradeEntry entry : this.entryList)
+            for (WidgetTradeEntry widget : this.entryList)
             {
-                entry.render(mouseX, mouseY, isActiveGui, -1, currentPage == entry.getListIndex());
+                widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), mouseX, mouseY, isActiveGui, -1, currentPage == widget.getListIndex());
             }
 
-            for (WidgetTradeEntry entry : this.entryList)
+            for (WidgetTradeEntry widget : this.entryList)
             {
-                if (entry.isMouseOver(mouseX, mouseY))
+                if (widget.isMouseOver(mouseX, mouseY))
                 {
-                    entry.postRenderHovered(mouseX, mouseY, isActiveGui, -1);
+                    widget.postRenderHovered(mouseX, mouseY, isActiveGui, -1);
                 }
             }
         }

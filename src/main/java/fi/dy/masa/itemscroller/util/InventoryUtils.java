@@ -42,9 +42,9 @@ import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.KeyBindImpl;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
-import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.data.IntRange;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class InventoryUtils
 {
@@ -103,7 +103,7 @@ public class InventoryUtils
         return gui.inventorySlots != null && gui.inventorySlots.inventorySlots != null &&
                 slot != null && gui.inventorySlots.inventorySlots.contains(slot) &&
                 (requireItems == false || slot.getHasStack()) &&
-                Configs.Lists.SLOT_BLACKLIST.getStrings().contains(slot.getClass().getName()) == false;
+                Configs.Lists.SLOT_BLACKLIST.getValues().contains(slot.getClass().getName()) == false;
     }
 
     public static boolean isCraftingSlot(GuiContainer gui, @Nullable Slot slot)
