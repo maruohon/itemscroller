@@ -266,17 +266,17 @@ public class RenderEventHandler
         if (border)
         {
             // Draw a light/white border around the stack
-            RenderUtils.drawRect(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF, z);
-            RenderUtils.drawRect(x - 1, y    , 1    , w + 1, 0xFFFFFFFF, z);
-            RenderUtils.drawRect(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF, z);
-            RenderUtils.drawRect(x    , y + w, w + 1, 1    , 0xFFFFFFFF, z);
+            RenderUtils.renderRectangle(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF, z);
+            RenderUtils.renderRectangle(x - 1, y    , 1    , w + 1, 0xFFFFFFFF, z);
+            RenderUtils.renderRectangle(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF, z);
+            RenderUtils.renderRectangle(x    , y + w, w + 1, 1    , 0xFFFFFFFF, z);
 
-            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF, z); // light background for the item
+            RenderUtils.renderRectangle(x, y, w, w, 0x20FFFFFF, z); // light background for the item
 
         }
         else
         {
-            RenderUtils.drawRect(x, y, w, w, 0x20FFFFFF, z); // light background for the item
+            RenderUtils.renderRectangle(x, y, w, w, 0x20FFFFFF, z); // light background for the item
         }
 
         if (InventoryUtils.isStackEmpty(stack) == false)

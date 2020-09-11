@@ -44,12 +44,12 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         this.bindTexture(BUTTON_TEXTURE);
 
         // Button background texture for the trades
-        RenderUtils.drawTexturedRect(x            , y,   0, v, width - 4, height, z);
-        RenderUtils.drawTexturedRect(x + width - 4, y, 196, v,         4, height, z);
+        RenderUtils.renderTexturedRectangle(x            , y,   0, v, width - 4, height, z);
+        RenderUtils.renderTexturedRectangle(x + width - 4, y, 196, v,         4, height, z);
 
         if (selected)
         {
-            RenderUtils.drawOutline(x, y, width, height, 1, 0xFFFFB000, z);
+            RenderUtils.renderOutline(x, y, width, height, 1, 0xFFFFB000, z);
         }
 
         MerchantRecipe recipe = this.getData();
@@ -133,7 +133,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 int uses = recipe.getToolUses();
                 int max = recipe.getMaxTradeUses();
-                RenderUtils.drawHoverText(mouseX + 6, mouseY + 18, z, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
+                RenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
             }
         }
     }
