@@ -1,8 +1,10 @@
 package fi.dy.masa.itemscroller.config;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
@@ -14,6 +16,9 @@ import fi.dy.masa.malilib.config.options.IConfigValue;
 
 public class Configs implements IConfigHandler
 {
+    // Dummy, to fix a crash with the /dank/null mod's integration for now...
+    public static final Set<String> SLOT_BLACKLIST = new HashSet<>();
+
     public static class Generic
     {
         public static final ConfigBoolean CARPET_CTRL_Q_CRAFTING                = new ConfigBoolean("carpetCtrlQCraftingEnabledOnServer",   false, "Set to true if the server is running the Carpet mod,\nand has the ctrlQCrafting option enabled.\nThis just changes which method Item Scroller uses\nfor the Drop key + Shift + Right click crafting.");
@@ -73,7 +78,7 @@ public class Configs implements IConfigHandler
     public static class Lists
     {
         public static final ConfigStringList GUI_BLACKLIST   = new ConfigStringList("guiBlacklist", ImmutableList.of(), "A list of GUIs where Item Scroller shouldn't be active");
-        public static final ConfigStringList SLOT_BLACKLIST  = new ConfigStringList("slotBlacklist", ImmutableList.of(), "A list of slots that Item Scroller should not operate on");
+        public static final ConfigStringList SLOT_BLACKLIST  = new ConfigStringList("slotBlacklist", ImmutableList.of("p455w0rd.danknull.inventory.slot.SlotDankNull", "p455w0rd.danknull.inventory.slot.SlotDankNullDock", "appeng.client.me.SlotME", "slimeknights.mantle.inventory.SlotWrapper"), "A list of slots that Item Scroller should not operate on");
 
         public static final ImmutableList<ConfigStringList> OPTIONS = ImmutableList.of(
                 GUI_BLACKLIST,
