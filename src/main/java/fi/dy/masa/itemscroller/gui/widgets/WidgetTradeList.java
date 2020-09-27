@@ -153,7 +153,7 @@ public class WidgetTradeList extends BaseWidget
             int wx = this.scrollBar.getX();
             int wy = this.scrollBar.getY();
             float wz = this.scrollBar.getZLevel();
-            this.scrollBar.renderAt(wx, wy, wz, mouseX, mouseY, isActiveGui, this.scrollBar.isHoveredForRender(mouseX, mouseY));
+            this.scrollBar.renderAt(wx, wy, wz, mouseX, mouseY, isActiveGui, this.scrollBar.isMouseOver(mouseX, mouseY));
 
             // Render the trades
             for (WidgetTradeEntry widget : this.entryList)
