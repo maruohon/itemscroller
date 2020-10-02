@@ -1,0 +1,11 @@
+{
+    "itemscroller.gui.button.config_gui.generic": "Générique",
+    "itemscroller.gui.button.config_gui.hotkeys": "Raccourcis",
+    "itemscroller.gui.button.config_gui.toggles": "Bascule",
+
+    "itemscroller.gui.label.recipe_page": "Page %d / %d",
+    "itemscroller.gui.label.trades": "Echange",
+    "itemscroller.gui.label.trade_uses": "Echange utilisées: %d / %d",
+
+    "itemscroller.gui.title.configs": "Configuration d'Item Scroller"
+}
