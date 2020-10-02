@@ -1,0 +1,16 @@
+language.name=Français
+language.region=fr
+language.code=fr_FR
+
+itemscroller.gui.button.config_gui.generic=Générique
+itemscroller.gui.button.config_gui.hotkeys=Raccourcis
+itemscroller.gui.button.config_gui.lists=Listes
+itemscroller.gui.button.config_gui.toggles=Bascule
+
+itemscroller.gui.label.recipe_page=Page %d sur %d
+itemscroller.gui.label.trades=Echanges
+itemscroller.gui.label.trade_uses=Echanges : %d / %d
+
+itemscroller.gui.title.configs=Configuration d'Item Scroller
+
+itemscroller.hotkeys.category.hotkeysRaccourcis génériques
