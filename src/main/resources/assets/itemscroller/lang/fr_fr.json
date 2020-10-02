@@ -3,9 +3,9 @@
     "itemscroller.gui.button.config_gui.hotkeys": "Raccourcis",
     "itemscroller.gui.button.config_gui.toggles": "Bascule",
 
-    "itemscroller.gui.label.recipe_page": "Page %d / %d",
+    "itemscroller.gui.label.recipe_page": "Page %d sur %d",
     "itemscroller.gui.label.trades": "Echange",
-    "itemscroller.gui.label.trade_uses": "Echange utilisées: %d / %d",
+    "itemscroller.gui.label.trade_uses": "Echange utilisés: %d sur %d",
 
     "itemscroller.gui.title.configs": "Configuration d'Item Scroller"
 }
