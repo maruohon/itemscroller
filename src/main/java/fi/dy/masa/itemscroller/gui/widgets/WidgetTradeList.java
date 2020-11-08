@@ -216,7 +216,7 @@ public class WidgetTradeList extends BaseWidget
                 MerchantRecipe recipe = list.get(index);
 
                 int listIndex = this.recipeList.indexOf(recipe);
-                this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, recipe, listIndex, listIndex, this.data));
+                this.entryList.add(new WidgetTradeEntry(x, y, 88, 20, listIndex, listIndex, recipe, this.data));
             }
         }
     }

@@ -19,10 +19,10 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
     private final VillagerData data;
 
-    public WidgetTradeEntry(int x, int y, int width, int height,
-            MerchantRecipe entry, int listIndex, int originalListIndex, VillagerData data)
+    public WidgetTradeEntry(int x, int y, int width, int height, int listIndex, int originalListIndex,
+                            MerchantRecipe entry, VillagerData data)
     {
-        super(x, y, width, height, listIndex, originalListIndex, entry);
+        super(x, y, width, height, listIndex, originalListIndex, entry, null);
 
         this.data = data;
     }
