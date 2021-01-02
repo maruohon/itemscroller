@@ -4,11 +4,14 @@ This is a customized version of Masa's itemscroller mod that fixes crafting feat
 Customizations:
 * More accurate/faster crafting through recipe book protocol
 * Toggleable crafting (so you can keep crafting without holding down a key, eg for crafting millions of pistons)
+* Honey crafting
 
 ### What's different?
 Post 1.13, Mojang has changed the crafting mechanics of the game. Before 1.13, crafting was very fast as much of the logic was handled client-side. In 1.13, most of the crafting logic was moved to the server. This broke Itemscroller's fast crafting features, since every ingredient now had to be moved one slot at a time to the crafting grid for it to work. This drastically worsened server-client desync, a compounding problem, leading to an increasing number of failed crafting attempts and accidental ingredient leaks which made afk crafting impossible. 
 
 This customized version of the mod, fixes the problem by handling ingredient movement server-side using the recipe book protocols when it can. 
+
+**Note: Some recipes like fireworks rockets that are not in the recipe book do not take advantage of this protocol, in those cases old itemscroller methods will be used**
 
 Item Scroller
 ==============
