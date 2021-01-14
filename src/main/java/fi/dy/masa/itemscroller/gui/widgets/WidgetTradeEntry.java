@@ -59,12 +59,12 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         GlStateManager.enableAlpha();
 
         // Trade arrow
-        icon.renderAt(x + 44, y + 5, z, false, false);
+        icon.renderAt(x + 44, y + 5, z);
 
         // This entry has been favorited
         if (this.data.getFavorites().contains(this.getListIndex()))
         {
-            ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z, false, false);
+            ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z);
         }
 
         GlStateManager.disableBlend();

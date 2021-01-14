@@ -144,7 +144,7 @@ public class WidgetTradeList extends BaseWidget
             RenderUtils.disableItemLighting();
 
             // Background
-            ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel(), false, false);
+            ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel());
 
             String str = StringUtils.translate("itemscroller.gui.label.trades");
             int w = this.getStringWidth(str);

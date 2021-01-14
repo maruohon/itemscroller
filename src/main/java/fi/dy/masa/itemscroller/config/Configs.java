@@ -9,7 +9,7 @@ import fi.dy.masa.malilib.config.category.ConfigOptionCategory;
 import fi.dy.masa.malilib.config.ModConfig;
 import fi.dy.masa.malilib.config.option.BooleanConfig;
 import fi.dy.masa.malilib.config.ConfigOption;
-import fi.dy.masa.malilib.config.option.StringListConfig;
+import fi.dy.masa.malilib.config.option.list.StringListConfig;
 
 public class Configs implements ModConfig
 {
