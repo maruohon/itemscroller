@@ -16,6 +16,7 @@ import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.RecipePattern;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
+import fi.dy.masa.itemscroller.util.ClickPacketBuffer;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
@@ -60,6 +61,20 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
     @Override
     public boolean onKeyAction(KeyAction action, IKeybind key)
+    {
+        if (Configs.Generic.RATE_LIMIT_CLICK_PACKETS.getBooleanValue())
+        {
+            ClickPacketBuffer.setShouldBufferClickPackets(true);
+        }
+
+        boolean cancel = this.onKeyActionImpl(action, key);
+
+        ClickPacketBuffer.setShouldBufferClickPackets(false);
+
+        return cancel;
+    }
+
+    private boolean onKeyActionImpl(KeyAction action, IKeybind key)
     {
         MinecraftClient mc = MinecraftClient.getInstance();
 
@@ -156,6 +171,10 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                 return true;
             }
         }
+        else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeybind())
+        {
+            return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
+        }
         else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeybind())
         {
             if (slot != null)
@@ -176,10 +195,19 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
     @Override
     public void onClientTick(MinecraftClient mc)
     {
-        if (this.disabled == false &&
-            mc != null &&
-            mc.player != null &&
-            GuiUtils.getCurrentScreen() instanceof HandledScreen &&
+        if (this.disabled || mc.player == null)
+        {
+            return;
+        }
+
+        ClickPacketBuffer.sendBufferedPackets(Configs.Generic.PACKET_RATE_LIMIT.getIntegerValue());
+
+        if (ClickPacketBuffer.shouldCancelWindowClicks())
+        {
+            return;
+        }
+
+        if (GuiUtils.getCurrentScreen() instanceof HandledScreen &&
             (GuiUtils.getCurrentScreen() instanceof CreativeInventoryScreen) == false &&
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
             (Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld() || Configs.Generic.MASS_CRAFT_HOLD.getBooleanValue()))
@@ -190,6 +218,11 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
             if (outputSlot != null)
             {
+                if (Configs.Generic.RATE_LIMIT_CLICK_PACKETS.getBooleanValue())
+                {
+                    ClickPacketBuffer.setShouldBufferClickPackets(true);
+                }
+
                 RecipePattern recipe = RecipeStorage.getInstance().getSelectedRecipe();
 
                 InventoryUtils.tryClearCursor(gui, mc);
@@ -214,15 +247,21 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                         InventoryUtils.dropStacksWhileHasItem(gui, outputSlot.id, recipe.getResult());
                     }
 
-                    InventoryUtils.tryClearCursor(gui, mc);
+                    //InventoryUtils.tryClearCursor(gui, mc);
                     InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+                    
+                    if (Configs.Generic.DROP_NON_RECIPE_ITEMS.getBooleanValue()) InventoryUtils.throwAllNonRecipeItemsToGround(recipe, gui);
                     bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
                     if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
                         mc.interactionManager.clickRecipe(gui.getScreenHandler().syncId, bookRecipe, true);
                     } else {
                         InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
                     }
+                   
+                    InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
                 }
+
+                ClickPacketBuffer.setShouldBufferClickPackets(false);
             }
         }
     }
