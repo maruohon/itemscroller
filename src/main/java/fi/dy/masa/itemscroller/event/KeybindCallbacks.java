@@ -258,7 +258,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                         InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
                     }
                    
-                    InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
+                    //InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
                 }
 
                 ClickPacketBuffer.setShouldBufferClickPackets(false);
