@@ -8,5 +8,5 @@
     "itemscroller.gui.label.trades": "Trades",
     "itemscroller.gui.label.trade_uses": "Trade uses: %d / %d",
 
-    "itemscroller.gui.title.configs": "Item Scroller Configs"
+    "itemscroller.gui.title.configs": "Item Scroller (Andrew fork) Configs"
 }
