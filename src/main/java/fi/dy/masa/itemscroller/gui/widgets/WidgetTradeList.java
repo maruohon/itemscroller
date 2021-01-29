@@ -65,9 +65,9 @@ public class WidgetTradeList extends BaseWidget
     }
 
     @Override
-    protected boolean onMouseClickedImpl(int mouseX, int mouseY, int mouseButton)
+    protected boolean onMouseClicked(int mouseX, int mouseY, int mouseButton)
     {
-        if (this.scrollBar.isMouseOver(mouseX, mouseY) && this.scrollBar.onMouseClicked(mouseX, mouseY, mouseButton))
+        if (this.scrollBar.isMouseOver(mouseX, mouseY) && this.scrollBar.tryMouseClick(mouseX, mouseY, mouseButton))
         {
             return true;
         }
@@ -116,13 +116,13 @@ public class WidgetTradeList extends BaseWidget
     }
 
     @Override
-    public void onMouseReleasedImpl(int mouseX, int mouseY, int mouseButton)
+    public void onMouseReleased(int mouseX, int mouseY, int mouseButton)
     {
         this.scrollBar.setIsDragging(false);
     }
 
     @Override
-    public boolean onMouseScrolledImpl(int mouseX, int mouseY, double mouseWheelDelta)
+    protected boolean onMouseScrolled(int mouseX, int mouseY, double mouseWheelDelta)
     {
         this.scrollBar.offsetValue(mouseWheelDelta < 0 ? 1 : -1);
         return true;

@@ -1,17 +1,13 @@
 package fi.dy.masa.itemscroller.config;
 
-import java.util.List;
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler;
+import fi.dy.masa.malilib.config.option.ConfigOption;
 import fi.dy.masa.malilib.config.category.BaseConfigOptionCategory;
 import fi.dy.masa.malilib.config.category.ConfigOptionCategory;
-import fi.dy.masa.malilib.config.ModConfig;
 import fi.dy.masa.malilib.config.option.BooleanConfig;
-import fi.dy.masa.malilib.config.ConfigOption;
 import fi.dy.masa.malilib.config.option.list.StringListConfig;
 
-public class Configs implements ModConfig
+public class Configs
 {
     public static class Generic
     {
@@ -82,40 +78,10 @@ public class Configs implements ModConfig
         );
     }
 
-    private static final ImmutableList<ConfigOptionCategory> CATEGORIES = ImmutableList.of(
+    public static final ImmutableList<ConfigOptionCategory> CATEGORIES = ImmutableList.of(
             BaseConfigOptionCategory.normal("Generic", Generic.OPTIONS),
             BaseConfigOptionCategory.normal("Toggles", Toggles.OPTIONS),
             BaseConfigOptionCategory.normal("Hotkeys", Hotkeys.HOTKEY_LIST),
             BaseConfigOptionCategory.normal("Lists",   Lists.OPTIONS)
     );
-
-    @Override
-    public String getModId()
-    {
-        return Reference.MOD_ID;
-    }
-
-    @Override
-    public String getModName()
-    {
-        return Reference.MOD_NAME;
-    }
-
-    @Override
-    public String getConfigFileName()
-    {
-        return Reference.MOD_ID + ".json";
-    }
-
-    @Override
-    public List<ConfigOptionCategory> getConfigOptionCategories()
-    {
-        return CATEGORIES;
-    }
-
-    @Override
-    public void onPostLoad()
-    {
-        CraftingHandler.updateGridDefinitions();
-    }
 }

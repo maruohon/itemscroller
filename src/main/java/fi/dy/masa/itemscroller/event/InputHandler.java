@@ -147,12 +147,12 @@ public class InputHandler implements KeyBindProvider, KeyboardInputHandler, Mous
                         {
                             if (dWheel != 0)
                             {
-                                widget.onMouseScrolled(mouseX, mouseY, dWheel);
+                                widget.tryMouseScroll(mouseX, mouseY, dWheel);
                                 return true;
                             }
                             else if (keyState && isAttackUseOrPick)
                             {
-                                widget.onMouseClicked(mouseX, mouseY, mouseButton);
+                                widget.tryMouseClick(mouseX, mouseY, mouseButton);
                                 return true;
                             }
                         }
