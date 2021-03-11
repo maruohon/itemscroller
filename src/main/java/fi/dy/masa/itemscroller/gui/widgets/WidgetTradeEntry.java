@@ -1,6 +1,5 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -11,6 +10,8 @@ import fi.dy.masa.malilib.gui.icon.Icon;
 import fi.dy.masa.malilib.gui.widget.list.entry.BaseDataListEntryWidget;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.render.ShapeRenderUtils;
+import fi.dy.masa.malilib.render.TextRenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
@@ -44,12 +45,12 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         this.bindTexture(BUTTON_TEXTURE);
 
         // Button background texture for the trades
-        RenderUtils.renderTexturedRectangle(x            , y,   0, v, width - 4, height, z);
-        RenderUtils.renderTexturedRectangle(x + width - 4, y, 196, v,         4, height, z);
+        ShapeRenderUtils.renderTexturedRectangle(x            , y, z,   0, v, width - 4, height);
+        ShapeRenderUtils.renderTexturedRectangle(x + width - 4, y, z, 196, v,         4, height);
 
         if (selected)
         {
-            RenderUtils.renderOutline(x, y, width, height, 1, 0xFFFFB000, z);
+            ShapeRenderUtils.renderOutline(x, y, z, width, height, 1, 0xFFFFB000);
         }
 
         MerchantRecipe recipe = this.getData();
@@ -133,7 +134,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 int uses = recipe.getToolUses();
                 int max = recipe.getMaxTradeUses();
-                RenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, ImmutableList.of(StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max)));
+                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max));
             }
         }
     }

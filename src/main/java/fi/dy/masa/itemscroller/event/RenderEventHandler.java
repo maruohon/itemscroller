@@ -15,6 +15,7 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.render.ShapeRenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
@@ -266,17 +267,17 @@ public class RenderEventHandler
         if (border)
         {
             // Draw a light/white border around the stack
-            RenderUtils.renderRectangle(x - 1, y - 1, w + 1, 1    , 0xFFFFFFFF, z);
-            RenderUtils.renderRectangle(x - 1, y    , 1    , w + 1, 0xFFFFFFFF, z);
-            RenderUtils.renderRectangle(x + w, y - 1, 1    , w + 1, 0xFFFFFFFF, z);
-            RenderUtils.renderRectangle(x    , y + w, w + 1, 1    , 0xFFFFFFFF, z);
+            ShapeRenderUtils.renderRectangle(x - 1, y - 1, z, w + 1, 1    , 0xFFFFFFFF);
+            ShapeRenderUtils.renderRectangle(x - 1, y    , z, 1    , w + 1, 0xFFFFFFFF);
+            ShapeRenderUtils.renderRectangle(x + w, y - 1, z, 1    , w + 1, 0xFFFFFFFF);
+            ShapeRenderUtils.renderRectangle(x    , y + w, z, w + 1, 1    , 0xFFFFFFFF);
 
-            RenderUtils.renderRectangle(x, y, w, w, 0x20FFFFFF, z); // light background for the item
+            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF); // light background for the item
 
         }
         else
         {
-            RenderUtils.renderRectangle(x, y, w, w, 0x20FFFFFF, z); // light background for the item
+            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF); // light background for the item
         }
 
         if (InventoryUtils.isStackEmpty(stack) == false)

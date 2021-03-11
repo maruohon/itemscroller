@@ -11,18 +11,19 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.widget.BaseWidget;
+import fi.dy.masa.malilib.gui.widget.InteractableWidget;
 import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
 import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.render.text.StyledTextLine;
 
-public class WidgetTradeList extends BaseWidget
+public class WidgetTradeList extends InteractableWidget
 {
-    private final ScrollBarWidget scrollBar;
-    private final GuiMerchant parentGui;
-    private final VillagerDataStorage storage;
     private final ArrayList<WidgetTradeEntry> entryList = new ArrayList<>();
+    private final VillagerDataStorage storage;
     private final VillagerData data;
+    private final GuiMerchant parentGui;
+    private final ScrollBarWidget scrollBar;
+    private final StyledTextLine titleText;
     private MerchantRecipeList recipeList;
 
     public WidgetTradeList(int x, int y, GuiMerchant parentGui, VillagerData data)
@@ -33,6 +34,7 @@ public class WidgetTradeList extends BaseWidget
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
+        this.titleText = StyledTextLine.translatedOf("itemscroller.gui.label.trades");
     }
 
     private void lazySetRecipeList()
@@ -146,9 +148,8 @@ public class WidgetTradeList extends BaseWidget
             // Background
             ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel());
 
-            String str = StringUtils.translate("itemscroller.gui.label.trades");
-            int w = this.getStringWidth(str);
-            this.drawString(x + width / 2 - w / 2, y + 6, z, 0xFF404040, str);
+            int w = this.titleText.renderWidth;
+            this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, this.titleText);
 
             int wx = this.scrollBar.getX();
             int wy = this.scrollBar.getY();

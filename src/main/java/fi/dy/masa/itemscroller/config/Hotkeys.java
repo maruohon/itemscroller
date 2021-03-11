@@ -3,28 +3,30 @@ package fi.dy.masa.itemscroller.config;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.option.HotkeyConfig;
+import fi.dy.masa.malilib.input.CancelCondition;
+import fi.dy.masa.malilib.input.Context;
 import fi.dy.masa.malilib.input.KeyAction;
 import fi.dy.masa.malilib.input.KeyBindSettings;
 
 public class Hotkeys
 {
-    private static final KeyBindSettings GUI_RELAXED        = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, true, false, false, false);
-    private static final KeyBindSettings GUI_RELAXED_CANCEL = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, true, false, false, true);
-    private static final KeyBindSettings GUI_NO_ORDER       = KeyBindSettings.create(KeyBindSettings.Context.GUI, KeyAction.PRESS, false, false, false, true);
+    private static final KeyBindSettings GUI_RELAXED        = KeyBindSettings.create(Context.GUI, KeyAction.PRESS, true, false, false, CancelCondition.NEVER);
+    private static final KeyBindSettings GUI_RELAXED_CANCEL = KeyBindSettings.create(Context.GUI, KeyAction.PRESS, true, false, false, CancelCondition.ALWAYS);
+    private static final KeyBindSettings GUI_NO_ORDER       = KeyBindSettings.create(Context.GUI, KeyAction.PRESS, false, false, false, CancelCondition.ALWAYS);
 
     public static final HotkeyConfig KEY_OPEN_CONFIG_GUI            = new HotkeyConfig("openConfigGui", "I,C", "Open the in-game config GUI");
 
     public static final HotkeyConfig KEY_CRAFT_EVERYTHING           = new HotkeyConfig("craftEverything", "LCONTROL,C", GUI_NO_ORDER);
     public static final HotkeyConfig KEY_DROP_ALL_MATCHING          = new HotkeyConfig("dropAllMatching", "LCONTROL,LSHIFT,Q", GUI_NO_ORDER);
-    public static final HotkeyConfig KEY_MAIN_TOGGLE                = new HotkeyConfig("itemScrollerMainToggle", "", KeyBindSettings.GUI);
+    public static final HotkeyConfig KEY_MAIN_TOGGLE                = new HotkeyConfig("itemScrollerMainToggle", "", KeyBindSettings.GUI_DEFAULT);
     public static final HotkeyConfig KEY_MASS_CRAFT                 = new HotkeyConfig("massCraft", "LCONTROL,LMENU,C", GUI_NO_ORDER);
     public static final HotkeyConfig KEY_MOVE_CRAFT_RESULTS         = new HotkeyConfig("moveCraftResults", "LCONTROL,M", GUI_NO_ORDER);
-    public static final HotkeyConfig KEY_MOVE_STACK_TO_OFFHAND      = new HotkeyConfig("moveStackToOffhand", "F", KeyBindSettings.GUI);
+    public static final HotkeyConfig KEY_MOVE_STACK_TO_OFFHAND      = new HotkeyConfig("moveStackToOffhand", "F", KeyBindSettings.GUI_DEFAULT);
     public static final HotkeyConfig KEY_RECIPE_VIEW                = new HotkeyConfig("recipeView", "A", GUI_RELAXED);
     public static final HotkeyConfig KEY_SLOT_DEBUG                 = new HotkeyConfig("slotDebug", "LCONTROL,LMENU,LSHIFT,I", GUI_NO_ORDER);
     public static final HotkeyConfig KEY_STORE_RECIPE               = new HotkeyConfig("storeRecipe", "BUTTON2", GUI_RELAXED_CANCEL);
     public static final HotkeyConfig KEY_THROW_CRAFT_RESULTS        = new HotkeyConfig("throwCraftResults", "LCONTROL,T", GUI_NO_ORDER);
-    public static final HotkeyConfig KEY_VILLAGER_TRADE_FAVORITES   = new HotkeyConfig("villagerTradeFavorites", "", KeyBindSettings.GUI);
+    public static final HotkeyConfig KEY_VILLAGER_TRADE_FAVORITES   = new HotkeyConfig("villagerTradeFavorites", "", KeyBindSettings.GUI_DEFAULT);
 
     public static final HotkeyConfig KEY_DRAG_LEAVE_ONE             = new HotkeyConfig("keyDragMoveLeaveOne", "LSHIFT,BUTTON1", GUI_NO_ORDER);
     public static final HotkeyConfig KEY_DRAG_MATCHING              = new HotkeyConfig("keyDragMoveMatching", "LMENU,BUTTON0", GUI_NO_ORDER);
