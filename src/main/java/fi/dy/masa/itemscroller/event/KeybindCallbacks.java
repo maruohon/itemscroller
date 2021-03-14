@@ -78,7 +78,7 @@ public class KeybindCallbacks implements HotkeyCallback
         }
         else if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
         {
-            BaseScreen.openGui(ConfigScreen.create());
+            BaseScreen.openScreen(ConfigScreen.create(null));
             return true;
         }
 
