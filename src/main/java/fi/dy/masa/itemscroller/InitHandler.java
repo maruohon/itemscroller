@@ -5,12 +5,12 @@ import fi.dy.masa.itemscroller.event.ClientWorldChangeHandler;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
+import fi.dy.masa.malilib.config.BaseModConfig;
 import fi.dy.masa.malilib.config.ConfigManager;
-import fi.dy.masa.malilib.config.JsonModConfig;
 import fi.dy.masa.malilib.event.InitializationHandler;
 import fi.dy.masa.malilib.event.dispatch.ClientWorldChangeEventDispatcher;
-import fi.dy.masa.malilib.event.dispatch.InputDispatcher;
-import fi.dy.masa.malilib.event.dispatch.KeyBindManager;
+import fi.dy.masa.malilib.input.InputDispatcher;
+import fi.dy.masa.malilib.input.HotkeyManager;
 import fi.dy.masa.malilib.gui.config.ConfigTabRegistry;
 
 public class InitHandler implements InitializationHandler
@@ -18,11 +18,11 @@ public class InitHandler implements InitializationHandler
     @Override
     public void registerModHandlers()
     {
-        ConfigManager.INSTANCE.registerConfigHandler(new JsonModConfig(Reference.MOD_ID, Reference.MOD_NAME, Configs.CATEGORIES, 1));
-        ConfigTabRegistry.INSTANCE.registerConfigTabProvider(Reference.MOD_ID, ConfigScreen::getConfigTabs);
+        ConfigManager.INSTANCE.registerConfigHandler(BaseModConfig.createDefaultModConfig(Reference.MOD_INFO, 1, Configs.CATEGORIES));
+        ConfigTabRegistry.INSTANCE.registerConfigTabProvider(Reference.MOD_INFO, ConfigScreen::getConfigTabs);
 
         InputHandler handler = new InputHandler();
-        KeyBindManager.INSTANCE.registerKeyBindProvider(handler);
+        HotkeyManager.INSTANCE.registerHotkeyProvider(handler);
         InputDispatcher.INSTANCE.registerKeyboardInputHandler(handler);
         InputDispatcher.INSTANCE.registerMouseInputHandler(handler);
 

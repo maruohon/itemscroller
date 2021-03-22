@@ -1,7 +1,3 @@
-itemscroller.config.category.generic=Generic
-itemscroller.config.category.hotkeys=Hotkeys
-itemscroller.config.category.lists=Lists
-itemscroller.config.category.toggles=Toggles
 
 itemscroller.config.comment.carpetctrlqcraftingenabledonserver=Set to true if the server is running the Carpet mod,\nand has the ctrlQCrafting rule enabled.\nThis just changes which method Item Scroller uses\nfor the Drop key + Shift + Right click crafting.
 itemscroller.config.comment.clientcraftingfixon1.12=Enable updating the crafting recipe output directly on the client side.\nThis fixes the quick/mass crafting and right-click-to-craft-a-stack\nfeatures otherwise being broken in 1.12+,\nbecause in vanilla the client would have to wait for the server\nto sync the recipe output after each crafted item.
@@ -121,10 +117,10 @@ itemscroller.hotkey.name.wsmoveupmatching=W/S Move Up Matching
 itemscroller.hotkey.name.wsmoveupsingle=W/S Move Up Single
 itemscroller.hotkey.name.wsmoveupstacks=W/S Move Up Stacks
 
-itemscroller.gui.button.config_gui.generic=Generic
-itemscroller.gui.button.config_gui.hotkeys=Hotkeys
-itemscroller.gui.button.config_gui.lists=Lists
-itemscroller.gui.button.config_gui.toggles=Toggles
+itemscroller.label.config_tab.generic=Generic
+itemscroller.label.config_tab.hotkeys=Hotkeys
+itemscroller.label.config_tab.lists=Lists
+itemscroller.label.config_tab.toggles=Toggles
 
 itemscroller.gui.label.recipe_page=Page %d / %d
 itemscroller.gui.label.trades=Trades

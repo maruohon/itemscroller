@@ -28,14 +28,14 @@ import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.Hotkey;
-import fi.dy.masa.malilib.input.KeyBindCategory;
-import fi.dy.masa.malilib.input.KeyBindProvider;
+import fi.dy.masa.malilib.input.HotkeyCategory;
+import fi.dy.masa.malilib.input.HotkeyProvider;
 import fi.dy.masa.malilib.input.KeyboardInputHandler;
 import fi.dy.masa.malilib.input.MouseInputHandler;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import io.netty.buffer.Unpooled;
 
-public class InputHandler implements KeyBindProvider, KeyboardInputHandler, MouseInputHandler
+public class InputHandler implements HotkeyProvider, KeyboardInputHandler, MouseInputHandler
 {
     private final KeybindCallbacks callbacks;
 
@@ -51,9 +51,9 @@ public class InputHandler implements KeyBindProvider, KeyboardInputHandler, Mous
     }
 
     @Override
-    public List<KeyBindCategory> getHotkeyCategoriesForCombinedView()
+    public List<HotkeyCategory> getHotkeysByCategories()
     {
-        return ImmutableList.of(new KeyBindCategory(Reference.MOD_ID, Reference.MOD_NAME, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
+        return ImmutableList.of(new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
     }
 
     @Override
