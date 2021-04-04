@@ -18,6 +18,7 @@
 
     "license": "LGPLv3",
 
+    "icon": "assets/itemscroller/icon.png",
     "environment": "client",
     "entrypoints": {
         "main": [
