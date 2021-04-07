@@ -1,11 +1,14 @@
 package fi.dy.masa.itemscroller.config;
 
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.config.option.ConfigOption;
 import fi.dy.masa.malilib.config.category.BaseConfigOptionCategory;
 import fi.dy.masa.malilib.config.category.ConfigOptionCategory;
 import fi.dy.masa.malilib.config.option.BooleanConfig;
+import fi.dy.masa.malilib.config.option.ConfigOption;
+import fi.dy.masa.malilib.config.option.HotkeyedBooleanConfig;
 import fi.dy.masa.malilib.config.option.list.StringListConfig;
+import fi.dy.masa.malilib.input.Hotkey;
+import fi.dy.masa.malilib.input.KeyBindSettings;
 
 public class Configs
 {
@@ -38,7 +41,7 @@ public class Configs
     {
         public static final BooleanConfig CRAFTING_FEATURES         = new BooleanConfig("enableCraftingFeatures", true);
         public static final BooleanConfig DROP_MATCHING             = new BooleanConfig("enableDropkeyDropMatching", true);
-        public static final BooleanConfig MAIN_TOGGLE               = new BooleanConfig("mainToggle", true);
+        public static final HotkeyedBooleanConfig MAIN_TOGGLE       = new HotkeyedBooleanConfig("modFeaturesMainToggle", true, "", KeyBindSettings.GUI_DEFAULT);
         public static final BooleanConfig RIGHT_CLICK_CRAFT_STACK   = new BooleanConfig("enableRightClickCraftingOneStack", true);
         public static final BooleanConfig SCROLL_EVERYTHING         = new BooleanConfig("enableScrollingEverything", true);
         public static final BooleanConfig SCROLL_MATCHING           = new BooleanConfig("enableScrollingMatchingStacks", true);
@@ -64,6 +67,10 @@ public class Configs
                 SHIFT_DROP_ITEMS,
                 SHIFT_PLACE_ITEMS,
                 VILLAGER_TRADE_LIST
+        );
+
+        public static final ImmutableList<? extends Hotkey> HOTKEYS = ImmutableList.of(
+                MAIN_TOGGLE
         );
     }
 

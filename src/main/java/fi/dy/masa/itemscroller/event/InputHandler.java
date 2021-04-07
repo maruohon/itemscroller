@@ -37,23 +37,17 @@ import io.netty.buffer.Unpooled;
 
 public class InputHandler implements HotkeyProvider, KeyboardInputHandler, MouseInputHandler
 {
-    private final KeybindCallbacks callbacks;
-
-    public InputHandler()
-    {
-        this.callbacks = KeybindCallbacks.getInstance();
-    }
-
     @Override
     public List<? extends Hotkey> getAllHotkeys()
     {
-        return Hotkeys.HOTKEY_LIST;
+        return Hotkeys.ALL_HOTKEYS;
     }
 
     @Override
     public List<HotkeyCategory> getHotkeysByCategories()
     {
-        return ImmutableList.of(new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST));
+        return ImmutableList.of(new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST),
+                                new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.toggles", Configs.Toggles.HOTKEYS));
     }
 
     @Override
@@ -116,7 +110,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
         Minecraft mc = Minecraft.getMinecraft();
         boolean cancel = false;
 
-        if (this.callbacks.functionalityEnabled() && mc.player != null)
+        if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() && mc.player != null)
         {
             final boolean isAttack = InputUtils.isAttack(keyCode);
             final boolean isUse = InputUtils.isUse(keyCode);
@@ -246,7 +240,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
     {
         Minecraft mc = Minecraft.getMinecraft();
 
-        if (this.callbacks.functionalityEnabled() &&
+        if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() &&
             mc.player != null &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             Configs.Lists.GUI_BLACKLIST.getValue().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)

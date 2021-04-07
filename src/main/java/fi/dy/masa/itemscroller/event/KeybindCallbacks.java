@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -46,11 +45,6 @@ public class KeybindCallbacks implements HotkeyCallback
         }
     }
 
-    public boolean functionalityEnabled()
-    {
-        return Configs.Toggles.MAIN_TOGGLE.getBooleanValue();
-    }
-
     @Override
     public boolean onKeyAction(KeyAction action, KeyBind key)
     {
@@ -61,28 +55,14 @@ public class KeybindCallbacks implements HotkeyCallback
             return false;
         }
 
-        if (key == Hotkeys.KEY_MAIN_TOGGLE.getKeyBind())
-        {
-            Configs.Toggles.MAIN_TOGGLE.toggleBooleanValue();
-
-            if (this.functionalityEnabled())
-            {
-                mc.player.playSound(SoundEvents.BLOCK_NOTE_PLING, 0.5f, 1.0f);
-            }
-            else
-            {
-                mc.player.playSound(SoundEvents.BLOCK_NOTE_BASS, 0.8f, 0.8f);
-            }
-
-            return true;
-        }
-        else if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
+        if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
         {
             BaseScreen.openScreen(ConfigScreen.create(null));
             return true;
         }
 
-        if ((GuiUtils.getCurrentScreen() instanceof GuiContainer) == false || this.functionalityEnabled() == false)
+        if ((GuiUtils.getCurrentScreen() instanceof GuiContainer) == false ||
+            Configs.Toggles.MAIN_TOGGLE.getBooleanValue() == false)
         {
             return false;
         }
@@ -166,7 +146,7 @@ public class KeybindCallbacks implements HotkeyCallback
     public void onTick(Minecraft mc)
     {
         if (mc.player != null &&
-            this.functionalityEnabled() &&
+            Configs.Toggles.MAIN_TOGGLE.getBooleanValue() &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             (GuiUtils.getCurrentScreen() instanceof GuiContainerCreative) == false &&
             Configs.Lists.GUI_BLACKLIST.getValue().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&

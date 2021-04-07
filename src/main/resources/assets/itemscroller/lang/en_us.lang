@@ -22,6 +22,7 @@ itemscroller.config.comment.enableshiftdropitems=Enables dropping all matching i
 itemscroller.config.comment.enableshiftplaceitems=Enables moving all matching stacks at once by holding\nshift while placing items to an empty slot
 itemscroller.config.comment.enablevillagertradelist=Render a 1.14+ style trade list in villager GUIs
 itemscroller.config.comment.maintoggle=Turn off all Item Scroller functionality
+itemscroller.config.comment.modfeaturesmaintoggle=Toggle all Item Scroller functionality ON/OFF
 
 itemscroller.config.comment.guiblacklist=A list of inventory screens where Item Scroller shouldn't be active
 itemscroller.config.comment.slotblacklist=A list of slots that Item Scroller should not operate on
@@ -49,13 +50,13 @@ itemscroller.config.name.enableshiftdropitems=Shift Drop Matching
 itemscroller.config.name.enableshiftplaceitems=Shift Place Matching
 itemscroller.config.name.enablevillagertradelist=Villager Trade List
 itemscroller.config.name.maintoggle=Mod Features Enabled
+itemscroller.config.name.modfeaturesmaintoggle=Mod Features Main Toggle
 
 itemscroller.config.name.guiblacklist=Inventory Screen BlackList
 itemscroller.config.name.slotblacklist=Slot BlackList
 
 itemscroller.hotkey.comment.crafteverything=Craft everything possible once with the currently selected recipe
 itemscroller.hotkey.comment.dropallmatching=Drop all stacks identical to the hovered stack
-itemscroller.hotkey.comment.itemscrollermaintoggle=Toggle all Item Scroller functionality ON/OFF
 itemscroller.hotkey.comment.keydragdropleaveone=Key to drop all but the last item from each stack dragged over
 itemscroller.hotkey.comment.keydragdropsingle=Key to drop one item from each stack dragged over
 itemscroller.hotkey.comment.keydragdropstacks=Key to drop the entire stacks dragged over
@@ -87,7 +88,6 @@ itemscroller.hotkey.comment.wsmoveupstacks=The key to move stacks "up" in the in
 
 itemscroller.hotkey.name.crafteverything=Craft Everything Once
 itemscroller.hotkey.name.dropallmatching=Drop All Matching
-itemscroller.hotkey.name.itemscrollermaintoggle=Mod Main Toggle
 itemscroller.hotkey.name.keydragdropleaveone=Drag Drop Leave One
 itemscroller.hotkey.name.keydragdropsingle=Drag Drop Single
 itemscroller.hotkey.name.keydragdropstacks=Drag Drop Stacks
@@ -129,3 +129,4 @@ itemscroller.gui.label.trade_uses=Trade uses: %d / %d
 itemscroller.gui.title.configs=Item Scroller Configs
 
 itemscroller.hotkeys.category.hotkeys=Generic Hotkeys
+itemscroller.hotkeys.category.toggles=Toggles
