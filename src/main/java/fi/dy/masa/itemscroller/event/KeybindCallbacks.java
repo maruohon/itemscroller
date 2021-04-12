@@ -19,6 +19,7 @@ import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.malilib.config.option.HotkeyConfig;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
+import fi.dy.masa.malilib.input.ActionResult;
 import fi.dy.masa.malilib.input.KeyAction;
 import fi.dy.masa.malilib.input.KeyBind;
 import fi.dy.masa.malilib.input.callback.HotkeyCallback;
@@ -46,25 +47,25 @@ public class KeybindCallbacks implements HotkeyCallback
     }
 
     @Override
-    public boolean onKeyAction(KeyAction action, KeyBind key)
+    public ActionResult onKeyAction(KeyAction action, KeyBind key)
     {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (mc.player == null)
         {
-            return false;
+            return ActionResult.FAIL;
         }
 
         if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
         {
             BaseScreen.openScreen(ConfigScreen.create(null));
-            return true;
+            return ActionResult.SUCCESS;
         }
 
         if ((GuiUtils.getCurrentScreen() instanceof GuiContainer) == false ||
             Configs.Toggles.MAIN_TOGGLE.getBooleanValue() == false)
         {
-            return false;
+            return ActionResult.FAIL;
         }
 
         GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
@@ -76,12 +77,12 @@ public class KeybindCallbacks implements HotkeyCallback
         {
             if (moveAction != MoveAction.NONE)
             {
-                return InventoryUtils.dragMoveItems(gui, mc, moveAction, true);
+                return InventoryUtils.dragMoveItems(gui, mc, moveAction, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
             }
             else if (key == Hotkeys.KEY_MOVE_EVERYTHING.getKeyBind())
             {
                 InventoryUtils.tryMoveStacks(slot, gui, false, true, false);
-                return true;
+                return ActionResult.SUCCESS;
             }
             else if (key == Hotkeys.KEY_DROP_ALL_MATCHING.getKeyBind())
             {
@@ -90,7 +91,7 @@ public class KeybindCallbacks implements HotkeyCallback
                     slot.getHasStack())
                 {
                     InventoryUtils.dropStacks(gui, slot.getStack(), slot, true);
-                    return true;
+                    return ActionResult.SUCCESS;
                 }
             }
             else if (key == Hotkeys.KEY_MOVE_STACK_TO_OFFHAND.getKeyBind())
@@ -99,32 +100,32 @@ public class KeybindCallbacks implements HotkeyCallback
                 if ((gui instanceof GuiInventory) && slot != null)
                 {
                     InventoryUtils.swapSlots(gui, slot.slotNumber, 45);
-                    return true;
+                    return ActionResult.SUCCESS;
                 }
             }
         }
 
         if (key == Hotkeys.KEY_CRAFT_EVERYTHING.getKeyBind())
         {
-            return InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui);
+            return InventoryUtils.craftEverythingPossibleWithCurrentRecipe(recipes.getSelectedRecipe(), gui) ? ActionResult.SUCCESS : ActionResult.FAIL;
         }
         else if (key == Hotkeys.KEY_THROW_CRAFT_RESULTS.getKeyBind())
         {
             InventoryUtils.throwAllCraftingResultsToGround(recipes.getSelectedRecipe(), gui);
-            return true;
+            return ActionResult.SUCCESS;
         }
         else if (key == Hotkeys.KEY_MOVE_CRAFT_RESULTS.getKeyBind())
         {
             InventoryUtils.moveAllCraftingResultsToOtherInventory(recipes.getSelectedRecipe(), gui);
-            return true;
+            return ActionResult.SUCCESS;
         }
         else if (key == Hotkeys.KEY_STORE_RECIPE.getKeyBind())
         {
-            return recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true);
+            return recipes.storeCraftingRecipeToCurrentSelection(slot, gui, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
         }
         else if (key == Hotkeys.KEY_VILLAGER_TRADE_FAVORITES.getKeyBind())
         {
-            return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades();
+            return InventoryUtils.villagerTradeEverythingPossibleWithAllFavoritedTrades() ? ActionResult.SUCCESS : ActionResult.FAIL;
         }
         else if (key == Hotkeys.KEY_SLOT_DEBUG.getKeyBind())
         {
@@ -137,10 +138,10 @@ public class KeybindCallbacks implements HotkeyCallback
                 LiteModItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
             }
 
-            return true;
+            return ActionResult.SUCCESS;
         }
 
-        return false;
+        return ActionResult.PASS;
     }
 
     public void onTick(Minecraft mc)
