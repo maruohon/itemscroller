@@ -9,7 +9,7 @@ import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.gui.ConfigScreen;
+import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -17,7 +17,6 @@ import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.malilib.config.option.HotkeyConfig;
-import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.ActionResult;
 import fi.dy.masa.malilib.input.KeyAction;
@@ -27,22 +26,19 @@ import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class KeybindCallbacks implements HotkeyCallback
 {
-    private static final KeybindCallbacks INSTANCE = new KeybindCallbacks();
-
-    public static KeybindCallbacks getInstance()
-    {
-        return INSTANCE;
-    }
-
-    private KeybindCallbacks()
-    {
-    }
+    public static final KeybindCallbacks INSTANCE = new KeybindCallbacks();
 
     public void setCallbacks()
     {
+        CraftingHandler.updateGridDefinitions(); // TODO move to grid config load/change handler
+        Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind().setCallback(HotkeyCallback.of(Actions.OPEN_CONFIG_SCREEN));
+
         for (HotkeyConfig hotkey : Hotkeys.HOTKEY_LIST)
         {
-            hotkey.getKeyBind().setCallback(this);
+            if (hotkey != Hotkeys.KEY_OPEN_CONFIG_GUI)
+            {
+                hotkey.getKeyBind().setCallback(this);
+            }
         }
     }
 
@@ -54,12 +50,6 @@ public class KeybindCallbacks implements HotkeyCallback
         if (mc.player == null)
         {
             return ActionResult.FAIL;
-        }
-
-        if (key == Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind())
-        {
-            BaseScreen.openScreen(ConfigScreen.create(null));
-            return ActionResult.SUCCESS;
         }
 
         if ((GuiUtils.getCurrentScreen() instanceof GuiContainer) == false ||

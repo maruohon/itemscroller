@@ -7,10 +7,10 @@ import com.mumfrey.liteloader.Configurable;
 import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
+import net.minecraft.client.Minecraft;
 import fi.dy.masa.itemscroller.config.ItemScrollerConfigPanel;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.malilib.event.dispatch.InitializationDispatcher;
-import net.minecraft.client.Minecraft;
 
 public class LiteModItemScroller implements LiteMod, Configurable, Tickable
 {
@@ -52,6 +52,6 @@ public class LiteModItemScroller implements LiteMod, Configurable, Tickable
     @Override
     public void onTick(Minecraft mc, float partialTicks, boolean inGame, boolean clock)
     {
-        KeybindCallbacks.getInstance().onTick(mc);
+        KeybindCallbacks.INSTANCE.onTick(mc);
     }
 }

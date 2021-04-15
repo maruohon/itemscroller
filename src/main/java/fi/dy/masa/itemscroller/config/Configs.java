@@ -12,6 +12,8 @@ import fi.dy.masa.malilib.input.KeyBindSettings;
 
 public class Configs
 {
+    public static final int CONFIG_VERSION = 1;
+
     public static class Generic
     {
         public static final BooleanConfig CARPET_CTRL_Q_CRAFTING                = new BooleanConfig("carpetCtrlQCraftingEnabledOnServer", false);

@@ -16,7 +16,7 @@ import fi.dy.masa.malilib.util.data.IntRange;
 
 public class CraftingHandler
 {
-    private static final Map<CraftingOutputSlot, IntRange> CRAFTING_GRID_SLOTS = new HashMap<CraftingOutputSlot, IntRange>();
+    private static final Map<CraftingOutputSlot, IntRange> CRAFTING_GRID_SLOTS = new HashMap<>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
 
     public static void updateGridDefinitions()
@@ -125,44 +125,25 @@ public class CraftingHandler
         }
 
         @Override
-        public int hashCode()
+        public boolean equals(Object o)
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((guiClass == null) ? 0 : guiClass.hashCode());
-            result = prime * result + outputSlot;
-            result = prime * result + ((slotClass == null) ? 0 : slotClass.hashCode());
-            return result;
+            if (this == o) { return true; }
+            if (o == null || this.getClass() != o.getClass()) { return false; }
+
+            CraftingOutputSlot that = (CraftingOutputSlot) o;
+
+            if (this.outputSlot != that.outputSlot) { return false; }
+            if (!this.guiClass.equals(that.guiClass)) { return false; }
+            return this.slotClass.equals(that.slotClass);
         }
 
         @Override
-        public boolean equals(Object obj)
+        public int hashCode()
         {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            CraftingOutputSlot other = (CraftingOutputSlot) obj;
-            if (guiClass == null)
-            {
-                if (other.guiClass != null)
-                    return false;
-            }
-            else if (guiClass != other.guiClass)
-                return false;
-            if (outputSlot != other.outputSlot)
-                return false;
-            if (slotClass == null)
-            {
-                if (other.slotClass != null)
-                    return false;
-            }
-            else if (slotClass != other.slotClass)
-                return false;
-            return true;
+            int result = this.guiClass.hashCode();
+            result = 31 * result + this.slotClass.hashCode();
+            result = 31 * result + this.outputSlot;
+            return result;
         }
-
     }
 }

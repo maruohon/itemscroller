@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiScreen;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
+import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.config.BaseConfigScreen;
 import fi.dy.masa.malilib.gui.config.BaseConfigTab;
 import fi.dy.masa.malilib.gui.config.ConfigTab;
@@ -27,8 +28,15 @@ public class ConfigScreen
             LISTS
     );
 
+    public static void open()
+    {
+        BaseScreen.openScreen(create(null));
+    }
+
     public static BaseConfigScreen create(@Nullable GuiScreen currentScreen)
     {
+        // The parent screen should not be set here, to prevent infinite recursion via
+        // the call to the parent's setWorldAndResolution -> initScreen -> switch tab -> etc.
         return new BaseConfigScreen(MOD_INFO, null, TABS, GENERIC, "itemscroller.gui.title.configs");
     }
 
