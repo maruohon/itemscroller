@@ -12,6 +12,7 @@ import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.widget.InteractableWidget;
+import fi.dy.masa.malilib.gui.widget.ScreenContext;
 import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.text.StyledTextLine;
@@ -131,7 +132,7 @@ public class WidgetTradeList extends InteractableWidget
     }
 
     @Override
-    public void renderAt(int x, int y, float z, int mouseX, int mouseY, boolean isActiveGui, boolean hovered)
+    public void renderAt(int x, int y, float z, ScreenContext ctx)
     {
         this.lazySetRecipeList();
 
@@ -149,24 +150,27 @@ public class WidgetTradeList extends InteractableWidget
             ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel());
 
             int w = this.titleText.renderWidth;
-            this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, this.titleText);
+            this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, ctx, this.titleText);
 
             int wx = this.scrollBar.getX();
             int wy = this.scrollBar.getY();
             float wz = this.scrollBar.getZLevel();
-            this.scrollBar.renderAt(wx, wy, wz, mouseX, mouseY, isActiveGui, this.scrollBar.isMouseOver(mouseX, mouseY));
+            int mouseX = ctx.mouseX;
+            int mouseY = ctx.mouseY;
+            this.scrollBar.renderAt(wx, wy, wz, ctx);
 
             // Render the trades
             for (WidgetTradeEntry widget : this.entryList)
             {
-                widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), mouseX, mouseY, isActiveGui, -1, currentPage == widget.getListIndex());
+                boolean selected = currentPage == widget.getListIndex();
+                widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), ctx, selected);
             }
 
             for (WidgetTradeEntry widget : this.entryList)
             {
                 if (widget.isMouseOver(mouseX, mouseY))
                 {
-                    widget.postRenderHovered(mouseX, mouseY, isActiveGui, -1);
+                    widget.postRenderHovered(ctx);
                 }
             }
         }

@@ -2,11 +2,12 @@ package fi.dy.masa.itemscroller.gui.widgets;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.village.MerchantRecipe;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.malilib.gui.BaseScreen;
+import fi.dy.masa.malilib.gui.icon.DefaultIcons;
 import fi.dy.masa.malilib.gui.icon.Icon;
+import fi.dy.masa.malilib.gui.widget.ScreenContext;
 import fi.dy.masa.malilib.gui.widget.list.entry.BaseDataListEntryWidget;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
@@ -16,8 +17,6 @@ import fi.dy.masa.malilib.util.StringUtils;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 {
-    public static final ResourceLocation BUTTON_TEXTURE = new ResourceLocation("textures/gui/widgets.png");
-
     private final VillagerData data;
 
     public WidgetTradeEntry(int x, int y, int width, int height, int listIndex, int originalListIndex,
@@ -28,25 +27,13 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         this.data = data;
     }
 
-    @Override
-    public void renderAt(int x, int y, float z, int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId, boolean selected)
+    public void renderAt(int x, int y, float z, ScreenContext ctx, boolean selected)
     {
-        RenderUtils.color(1f, 1f, 1f, 1f);
-
         int width = this.getWidth();
         int height = this.getHeight();
-        int v = 66;
+        boolean hovered = this.isMouseOver(ctx.mouseX, ctx.mouseY);
 
-        if (this.isMouseOver(mouseX, mouseY))
-        {
-            v += 20;
-        }
-
-        this.bindTexture(BUTTON_TEXTURE);
-
-        // Button background texture for the trades
-        ShapeRenderUtils.renderTexturedRectangle(x            , y, z,   0, v, width - 4, height);
-        ShapeRenderUtils.renderTexturedRectangle(x + width - 4, y, z, 196, v,         4, height);
+        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, true, hovered);
 
         if (selected)
         {
@@ -91,12 +78,14 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean isActiveGui, int hoveredWidgetId)
+    public void postRenderHovered(ScreenContext ctx)
     {
         int x = this.getX();
         int y = this.getY();
         float z = this.getZLevel() + 1;
         int height = this.getHeight();
+        int mouseX = ctx.mouseX;
+        int mouseY = ctx.mouseY;
 
         if (mouseY >= y + 2 && mouseY <= y + height - 2)
         {

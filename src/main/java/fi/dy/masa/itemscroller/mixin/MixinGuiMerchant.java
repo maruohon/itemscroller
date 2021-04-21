@@ -18,6 +18,7 @@ import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
+import fi.dy.masa.malilib.gui.widget.ScreenContext;
 
 @Mixin(GuiMerchant.class)
 public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerchant
@@ -94,7 +95,8 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
         if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue() && this.widgetTradeList != null)
         {
             WidgetTradeList widget = this.widgetTradeList;
-            widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), mouseX, mouseY, true, widget.isMouseOver(mouseX, mouseY));
+            ScreenContext ctx = new ScreenContext(mouseX, mouseY, -1, true);
+            widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), ctx);
         }
     }
 }
