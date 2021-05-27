@@ -12,7 +12,7 @@ import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.widget.InteractableWidget;
-import fi.dy.masa.malilib.gui.widget.ScreenContext;
+import fi.dy.masa.malilib.gui.util.ScreenContext;
 import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.text.StyledTextLine;
@@ -31,7 +31,9 @@ public class WidgetTradeList extends InteractableWidget
     {
         super(x, y, 106, 166);
 
-        this.scrollBar = (new ScrollBarWidget(x + 93, y + 17, 8, 142, ItemScrollerIcons.SCROLL_BAR_6)).setRenderBackgroundColor(false);
+        this.scrollBar = new ScrollBarWidget(8, 142, ItemScrollerIcons.SCROLL_BAR_6);
+        this.scrollBar.setPosition(x + 93, y + 17);
+        this.scrollBar.setRenderBackgroundColor(false);
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
