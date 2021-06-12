@@ -63,35 +63,6 @@ public class InventoryUtils
     private static WeakReference<Slot> sourceSlot = null;
     private static ItemStack stackInCursorLast = ItemStack.EMPTY;
 
-    public static void onSlotChangedCraftingGrid(PlayerEntity player,
-            CraftingInventory craftMatrix, CraftingResultInventory inventoryCraftResult)
-    {
-        World world = player.getEntityWorld();
-
-        if (Configs.Generic.CLIENT_CRAFTING_FIX.getBooleanValue() &&
-            world.isClient && (world instanceof ClientWorld) && player instanceof ClientPlayerEntity)
-        {
-            ItemStack stack = ItemStack.EMPTY;
-            Optional<CraftingRecipe> optional = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftMatrix, world);
-
-            if (optional.isPresent())
-            {
-                CraftingRecipe recipe = optional.get();
-
-                if ((recipe.isIgnoredInRecipeBook() ||
-                     world.getGameRules().getBoolean(GameRules.DO_LIMITED_CRAFTING) == false ||
-                     ((ClientPlayerEntity) player).getRecipeBook().contains(recipe))
-               )
-               {
-                   inventoryCraftResult.setLastRecipe(recipe);
-                   stack = recipe.craft(craftMatrix);
-               }
-
-               inventoryCraftResult.setStack(0, stack);
-            }
-        }
-    }
-
     public static String getStackString(ItemStack stack)
     {
         if (isStackEmpty(stack) == false)
@@ -1449,22 +1420,9 @@ public class InventoryUtils
             return;
         }
 
-        int sizeLast = 0;
-
-        while (true)
+        for (int i = 0; i < 64; i++)
         {
             rightClickSlot(gui, slot.id);
-            stackCursor = gui.getScreenHandler().getCursorStack();
-
-            // Failed to craft items, or the stack became full, or ran out of ingredients
-            if (isStackEmpty(stackCursor) || getStackSize(stackCursor) <= sizeLast ||
-                getStackSize(stackCursor) >= stackCursor.getMaxCount() ||
-                areStacksEqual(slot.getStack(), stackCursor) == false)
-            {
-                break;
-            }
-
-            sizeLast = getStackSize(stackCursor);
         }
     }
 
@@ -2186,9 +2144,8 @@ public class InventoryUtils
         if (slotNum >= 0 && slotNum < gui.getScreenHandler().slots.size())
         {
             Slot slot = gui.getScreenHandler().getSlot(slotNum);
-            int failsafe = 256;
 
-            while (failsafe-- > 0 && areStacksEqual(slot.getStack(), stackReference))
+            for (int i = 0; i < 64 && areStacksEqual(slot.getStack(), stackReference); i++)
             {
                 dropStack(gui, slotNum);
             }

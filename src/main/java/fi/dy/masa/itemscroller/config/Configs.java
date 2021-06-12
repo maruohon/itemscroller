@@ -29,7 +29,6 @@ public class Configs implements IConfigHandler
     {
         public static final ConfigBoolean MASS_CRAFT_HOLD                       = new ConfigBoolean("massCraftHold",                        false, "Mass craft continuously");
         public static final ConfigBoolean CARPET_CTRL_Q_CRAFTING                = new ConfigBoolean("carpetCtrlQCraftingEnabledOnServer",   false, "Set to true if the server is running the Carpet mod,\nand has the ctrlQCrafting option enabled.\nThis just changes which method Item Scroller uses\nfor the Drop key + Shift + Right click crafting.");
-        public static final ConfigBoolean CLIENT_CRAFTING_FIX                   = new ConfigBoolean("clientCraftingFixOn1.12",              true, "Enable updating the crafting recipe output directly on the client side.\nThis fixes the quick/mass crafting and right-click-to-craft-a-stack\nfeatures othrwise being broken in 1.12.");
         public static final ConfigBoolean CRAFTING_RENDER_RECIPE_ITEMS          = new ConfigBoolean("craftingRenderRecipeItems",            true, "If enabled, then the recipe items are also rendered\nin the crafting recipe view.");
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
         public static final ConfigBoolean DROP_NON_RECIPE_ITEMS                 = new ConfigBoolean("dropNonRecipeItems",                   false, "If enabled, non recipe items in crafting grid are dropped.");
@@ -46,7 +45,6 @@ public class Configs implements IConfigHandler
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 MASS_CRAFT_HOLD,        
                 CARPET_CTRL_Q_CRAFTING,
-                CLIENT_CRAFTING_FIX,
                 CRAFTING_RENDER_RECIPE_ITEMS,
                 DROP_RECIPE_REMAINDER,
                 DROP_NON_RECIPE_ITEMS,

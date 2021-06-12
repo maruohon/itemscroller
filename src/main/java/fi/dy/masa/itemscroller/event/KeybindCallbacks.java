@@ -227,41 +227,40 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
                 RecipePattern recipe = RecipeStorage.getInstance().getSelectedRecipe();
 
-                InventoryUtils.tryClearCursor(gui, mc);
-                InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+               // InventoryUtils.tryClearCursor(gui, mc);
+                //InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
 
                 CraftingRecipe bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
                 if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
+                   // System.out.println("recipe");
                     mc.interactionManager.clickRecipe(gui.getScreenHandler().syncId, bookRecipe, true);
                 } else {
+                    //System.out.println("move");
                     InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
                 }
-                int failsafe = 0;
 
-                while (++failsafe < 40 && InventoryUtils.areStacksEqual(outputSlot.getStack(), recipe.getResult()))
+                if (Configs.Generic.CARPET_CTRL_Q_CRAFTING.getBooleanValue())
                 {
-                    if (Configs.Generic.CARPET_CTRL_Q_CRAFTING.getBooleanValue())
+                    InventoryUtils.dropStack(gui, outputSlot.id);
+                }
+                else
+                {
+                    //System.out.println("output " + outputSlot.id);
+                    //InventoryUtils.dropStacksWhileHasItem(gui, outputSlot.id, recipe.getResult());
+                    
+                    for (int i = 0; i < recipe.getResult().getMaxCount(); i++)
                     {
                         InventoryUtils.dropStack(gui, outputSlot.id);
                     }
-                    else
-                    {
-                        InventoryUtils.dropStacksWhileHasItem(gui, outputSlot.id, recipe.getResult());
-                    }
+                }
 
-                    //InventoryUtils.tryClearCursor(gui, mc);
-                    InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+                InventoryUtils.tryClearCursor(gui, mc);
+                InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
                     
-                    if (Configs.Generic.DROP_NON_RECIPE_ITEMS.getBooleanValue()) InventoryUtils.throwAllNonRecipeItemsToGround(recipe, gui);
-                    bookRecipe = InventoryUtils.getBookRecipeFromPattern(recipe);
-                    if (bookRecipe != null && !bookRecipe.isIgnoredInRecipeBook()) { // Use recipe book if possible
-                        mc.interactionManager.clickRecipe(gui.getScreenHandler().syncId, bookRecipe, true);
-                    } else {
-                        InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
-                    }
+                  
                    
                     //InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
-                }
+                
 
                 ClickPacketBuffer.setShouldBufferClickPackets(false);
             }

@@ -23,7 +23,7 @@ public abstract class MixinCraftingScreenHandler
     @Inject(method = "onContentChanged", at = @At("RETURN"))
     private void onSlotChangedCraftingGrid(net.minecraft.inventory.Inventory inventory, CallbackInfo ci)
     {
-        InventoryUtils.onSlotChangedCraftingGrid(this.player, this.input, this.result);
+       // InventoryUtils.onSlotChangedCraftingGrid(this.player, this.input, this.result);
     }
 
     @Inject(method = "updateResult", at = @At("RETURN"))
@@ -35,6 +35,6 @@ public abstract class MixinCraftingScreenHandler
             CraftingResultInventory resultInv,
             CallbackInfo ci)
     {
-        InventoryUtils.onSlotChangedCraftingGrid(player, craftingInv, resultInv);
+        //InventoryUtils.onSlotChangedCraftingGrid(player, craftingInv, resultInv);
     }
 }
