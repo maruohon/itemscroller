@@ -149,14 +149,14 @@ public class WidgetTradeList extends InteractableWidget
             RenderUtils.disableItemLighting();
 
             // Background
-            ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZLevel());
+            ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZ());
 
             int w = this.titleText.renderWidth;
             this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, ctx, this.titleText);
 
             int wx = this.scrollBar.getX();
             int wy = this.scrollBar.getY();
-            float wz = this.scrollBar.getZLevel();
+            float wz = this.scrollBar.getZ();
             int mouseX = ctx.mouseX;
             int mouseY = ctx.mouseY;
             this.scrollBar.renderAt(wx, wy, wz, ctx);
@@ -165,7 +165,7 @@ public class WidgetTradeList extends InteractableWidget
             for (WidgetTradeEntry widget : this.entryList)
             {
                 boolean selected = currentPage == widget.getListIndex();
-                widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), ctx, selected);
+                widget.renderAt(widget.getX(), widget.getY(), widget.getZ(), ctx, selected);
             }
 
             for (WidgetTradeEntry widget : this.entryList)

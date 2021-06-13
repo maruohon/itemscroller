@@ -82,7 +82,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
     {
         int x = this.getX();
         int y = this.getY();
-        float z = this.getZLevel() + 1;
+        float z = this.getZ() + 1;
         int height = this.getHeight();
         int mouseX = ctx.mouseX;
         int mouseY = ctx.mouseY;

@@ -96,7 +96,7 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
         {
             WidgetTradeList widget = this.widgetTradeList;
             ScreenContext ctx = new ScreenContext(mouseX, mouseY, -1, true);
-            widget.renderAt(widget.getX(), widget.getY(), widget.getZLevel(), ctx);
+            widget.renderAt(widget.getX(), widget.getY(), widget.getZ(), ctx);
         }
     }
 }
