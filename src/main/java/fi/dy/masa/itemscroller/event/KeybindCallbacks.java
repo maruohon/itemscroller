@@ -189,7 +189,22 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
             }
 
             return true;
+        } else if (key == Hotkeys.KEY_DUPE.getKeybind()) {
+            
+        if (GuiUtils.getCurrentScreen() instanceof HandledScreen &&
+        (GuiUtils.getCurrentScreen() instanceof CreativeInventoryScreen) == false &&
+        Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
+    {
+
+       Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
+            
+            if (outputSlot != null)
+            {
+                InventoryUtils.dropStack(gui, outputSlot.id);
+            }
+        
         }
+    }
 
         return false;
     }
@@ -214,10 +229,13 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
             Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
             (Hotkeys.KEY_MASS_CRAFT.getKeybind().isKeybindHeld() || Configs.Generic.MASS_CRAFT_HOLD.getBooleanValue()))
         {
+
             Screen guiScreen = GuiUtils.getCurrentScreen();
             HandledScreen<?> gui = (HandledScreen<?>) guiScreen;
             Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
-
+          
+       
+               
             if (outputSlot != null)
             {
                 if (Configs.Generic.RATE_LIMIT_CLICK_PACKETS.getBooleanValue())
@@ -264,6 +282,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
                 ClickPacketBuffer.setShouldBufferClickPackets(false);
             }
+        
         }
     }
 }
