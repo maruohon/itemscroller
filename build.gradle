@@ -25,7 +25,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${config.fabric_loader_version}"
     implementation "com.google.code.findbugs:jsr305:3+"
 
-    modImplementation "fi.dy.masa.malilib:malilib-fabric-1.17-pre4:${config.malilib_version}"
+    modImplementation "fi.dy.masa.malilib:malilib-fabric-${config.minecraft_version_out}:${config.malilib_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     //modCompile "net.fabricmc.fabric-api:fabric-api:" + config.fabric_version
