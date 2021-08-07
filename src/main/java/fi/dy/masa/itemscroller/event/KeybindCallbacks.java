@@ -259,7 +259,10 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 
                 if (Configs.Generic.CARPET_CTRL_Q_CRAFTING.getBooleanValue())
                 {
-                    InventoryUtils.dropStack(gui, outputSlot.id);
+                    for (int i = 0; i < recipe.getResult().getMaxCount(); i++)
+                    {
+                        InventoryUtils.dropStack(gui, outputSlot.id);
+                    }
                 }
                 else
                 {
