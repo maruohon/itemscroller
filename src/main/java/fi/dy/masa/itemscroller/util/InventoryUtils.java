@@ -1084,14 +1084,7 @@ public class InventoryUtils
                     {
                         if (isShiftDown)
                         {
-                            if (Configs.Generic.CARPET_CTRL_Q_CRAFTING.getBooleanValue())
-                            {
-                                InventoryUtils.dropStack(gui, outputSlot.id);
-                            }
-                            else
-                            {
-                                InventoryUtils.dropStacksUntilEmpty(gui, outputSlot.id);
-                            }
+                            InventoryUtils.dropStacksUntilEmpty(gui, outputSlot.id);
                         }
                         else
                         {

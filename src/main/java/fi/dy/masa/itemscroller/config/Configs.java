@@ -28,7 +28,6 @@ public class Configs implements IConfigHandler
     public static class Generic
     {
         public static final ConfigBoolean MASS_CRAFT_HOLD                       = new ConfigBoolean("massCraftHold",                        false, "Mass craft continuously");
-        public static final ConfigBoolean CARPET_CTRL_Q_CRAFTING                = new ConfigBoolean("carpetCtrlQCraftingEnabledOnServer",   false, "Set to true if the server is running the Carpet mod,\nand has the ctrlQCrafting option enabled.\nThis just changes which method Item Scroller uses\nfor the Drop key + Shift + Right click crafting.");
         public static final ConfigBoolean CRAFTING_RENDER_RECIPE_ITEMS          = new ConfigBoolean("craftingRenderRecipeItems",            true, "If enabled, then the recipe items are also rendered\nin the crafting recipe view.");
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
         public static final ConfigBoolean DROP_NON_RECIPE_ITEMS                 = new ConfigBoolean("dropNonRecipeItems",                   false, "If enabled, non recipe items in crafting grid are dropped.");
@@ -43,8 +42,7 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean VILLAGER_TRADE_LIST_REMEMBER_SCROLL   = new ConfigBoolean("villagerTradeListRememberScrollPosition", true, "Remember and restore the last scroll position in the\ntrade list when re-opening the GUI");
 
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
-                MASS_CRAFT_HOLD,        
-                CARPET_CTRL_Q_CRAFTING,
+                MASS_CRAFT_HOLD,
                 CRAFTING_RENDER_RECIPE_ITEMS,
                 DROP_RECIPE_REMAINDER,
                 DROP_NON_RECIPE_ITEMS,
