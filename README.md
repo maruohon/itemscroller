@@ -6,6 +6,9 @@ Customizations:
 * Toggleable crafting (so you can keep crafting without holding down a key, eg for crafting millions of pistons)
 * Honey crafting
 
+- Removed carpetControlQ crafting option as it causes a "slow crafting issue"
+- Removed packetRateLimit as it may lead to problems.
+
 ## This is not Masa's original itemscroller. If you have issues with this mod, please contact Andrews54757 (or open a bug report here).
 
 ### What's different?
