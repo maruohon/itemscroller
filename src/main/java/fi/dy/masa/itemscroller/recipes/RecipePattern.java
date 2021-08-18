@@ -20,6 +20,7 @@ public class RecipePattern
     private ItemStack result = InventoryUtils.EMPTY_STACK;
     private ItemStack[] recipe = new ItemStack[9];
     public CraftingRecipe cachedRecipeFromBook = null;
+    private int maxCraftAmount = 64;
     private HashSet<Item> recipeRemainders = new HashSet<Item>();
 
     public RecipePattern()
@@ -40,6 +41,7 @@ public class RecipePattern
         Arrays.fill(this.recipe, InventoryUtils.EMPTY_STACK);
         this.result = InventoryUtils.EMPTY_STACK;
         this.cachedRecipeFromBook = null;
+        this.maxCraftAmount = 64;
         this.recipeRemainders.clear();
     }
 
@@ -54,7 +56,14 @@ public class RecipePattern
             if (this.recipe[i].getItem().hasRecipeRemainder()) {
                 this.recipeRemainders.add(recipe[i].getItem().getRecipeRemainder());
             }
+            if (this.recipe[i].getMaxCount() < maxCraftAmount) {
+                maxCraftAmount = this.recipe[i].getMaxCount();
+            }
         }
+    }
+
+    public int getMaxCraftAmount() {
+        return maxCraftAmount;
     }
 
     public void storeCraftingRecipe(Slot slot, HandledScreen<? extends ScreenHandler> gui, boolean clearIfEmpty)
