@@ -31,10 +31,9 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean CRAFTING_RENDER_RECIPE_ITEMS          = new ConfigBoolean("craftingRenderRecipeItems",            true, "If enabled, then the recipe items are also rendered\nin the crafting recipe view.");
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
         public static final ConfigBoolean DROP_NON_RECIPE_ITEMS                 = new ConfigBoolean("dropNonRecipeItems",                   false, "If enabled, non recipe items in crafting grid are dropped.");
-        public static final ConfigInteger PACKET_RATE_LIMIT                     = new ConfigInteger("packetRateLimit",                      4, 1, 1024, "The limit of sent emulated slot click packets per game tick,\nif 'rateLimitClickPackets' is enabled");
+        public static final ConfigInteger MASS_CRAFT_MULTIPLIER                 = new ConfigInteger("massCraftMultiplier",                  1, 1, 50, "Specifies Masscraft operations per tick");
         public static final ConfigBoolean SCROLL_CRAFT_STORE_RECIPES_TO_FILE    = new ConfigBoolean("craftingRecipesSaveToFile",            true, "If enabled, then the crafting features recipes are saved to a file\ninside minecraft/itemscroller/recipes_worldorservername.nbt.\nThis makes the recipes persistent across game restarts.");
         public static final ConfigBoolean SCROLL_CRAFT_RECIPE_FILE_GLOBAL       = new ConfigBoolean("craftingRecipesSaveFileIsGlobal",      false, "If true, then the recipe file is global, instead\n of being saved per-world or server");
-        public static final ConfigBoolean RATE_LIMIT_CLICK_PACKETS              = new ConfigBoolean("rateLimitClickPackets",                false, "This is meant for compatibility with Spigot servers and similar,\nwhich apply rate limits to packets from the client.\nThis queues up the emulated slot click packets and sends\nthem rate limited over time. The limit per game tick can be set in 'packetRateLimit´.");
         public static final ConfigBoolean REVERSE_SCROLL_DIRECTION_SINGLE       = new ConfigBoolean("reverseScrollDirectionSingle",         false, "Reverse the scrolling direction for single item mode.");
         public static final ConfigBoolean REVERSE_SCROLL_DIRECTION_STACKS       = new ConfigBoolean("reverseScrollDirectionStacks",         false, "Reverse the scrolling direction for full stacks mode.");
         public static final ConfigBoolean SLOT_POSITION_AWARE_SCROLL_DIRECTION  = new ConfigBoolean("useSlotPositionAwareScrollDirection",  false, "When enabled, the item movement direction depends\non the slots' y-position on screen. Might be derpy with more\ncomplex inventories, use with caution!");
@@ -46,8 +45,7 @@ public class Configs implements IConfigHandler
                 CRAFTING_RENDER_RECIPE_ITEMS,
                 DROP_RECIPE_REMAINDER,
                 DROP_NON_RECIPE_ITEMS,
-                PACKET_RATE_LIMIT,
-                RATE_LIMIT_CLICK_PACKETS,
+                MASS_CRAFT_MULTIPLIER,
                 SCROLL_CRAFT_STORE_RECIPES_TO_FILE,
                 SCROLL_CRAFT_RECIPE_FILE_GLOBAL,
                 REVERSE_SCROLL_DIRECTION_SINGLE,

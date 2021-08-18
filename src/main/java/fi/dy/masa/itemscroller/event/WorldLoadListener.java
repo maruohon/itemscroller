@@ -5,7 +5,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.ClickPacketBuffer;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.malilib.interfaces.IWorldLoadListener;
 
@@ -30,12 +29,6 @@ public class WorldLoadListener implements IWorldLoadListener
         {
             this.readStoredData();
             VillagerDataStorage.getInstance().readFromDisk();
-        }
-
-        // Logging out
-        if (worldAfter == null)
-        {
-            ClickPacketBuffer.reset();
         }
     }
 
