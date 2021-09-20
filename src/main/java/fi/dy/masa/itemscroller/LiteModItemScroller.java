@@ -10,7 +10,7 @@ import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import net.minecraft.client.Minecraft;
 import fi.dy.masa.itemscroller.config.ItemScrollerConfigPanel;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
-import fi.dy.masa.malilib.event.dispatch.InitializationDispatcher;
+import fi.dy.masa.malilib.registry.Registry;
 
 public class LiteModItemScroller implements LiteMod, Configurable, Tickable
 {
@@ -41,7 +41,7 @@ public class LiteModItemScroller implements LiteMod, Configurable, Tickable
     @Override
     public void init(File configPath)
     {
-        InitializationDispatcher.INSTANCE.registerInitializationHandler(new InitHandler());
+        Registry.INITIALIZATION_DISPATCHER.registerInitializationHandler(new InitHandler());
     }
 
     @Override

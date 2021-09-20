@@ -7,28 +7,24 @@ import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
 import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.malilib.config.BaseModConfig;
-import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.event.InitializationHandler;
-import fi.dy.masa.malilib.event.dispatch.ClientWorldChangeEventDispatcher;
-import fi.dy.masa.malilib.input.InputDispatcher;
-import fi.dy.masa.malilib.input.HotkeyManager;
-import fi.dy.masa.malilib.gui.config.ConfigTabRegistry;
+import fi.dy.masa.malilib.registry.Registry;
 
 public class InitHandler implements InitializationHandler
 {
     @Override
     public void registerModHandlers()
     {
-        ConfigManager.INSTANCE.registerConfigHandler(BaseModConfig.createDefaultModConfig(Reference.MOD_INFO, Configs.CONFIG_VERSION, Configs.CATEGORIES));
-        ConfigTabRegistry.INSTANCE.registerConfigTabProvider(Reference.MOD_INFO, ConfigScreen::getConfigTabs);
+        Registry.CONFIG_MANAGER.registerConfigHandler(BaseModConfig.createDefaultModConfig(Reference.MOD_INFO, Configs.CONFIG_VERSION, Configs.CATEGORIES));
+        Registry.CONFIG_TAB.registerConfigTabProvider(Reference.MOD_INFO, ConfigScreen::getConfigTabs);
 
         InputHandler handler = new InputHandler();
-        HotkeyManager.INSTANCE.registerHotkeyProvider(handler);
-        InputDispatcher.INSTANCE.registerKeyboardInputHandler(handler);
-        InputDispatcher.INSTANCE.registerMouseInputHandler(handler);
+        Registry.HOTKEY_MANAGER.registerHotkeyProvider(handler);
+        Registry.INPUT_DISPATCHER.registerKeyboardInputHandler(handler);
+        Registry.INPUT_DISPATCHER.registerMouseInputHandler(handler);
 
         ClientWorldChangeHandler listener = new ClientWorldChangeHandler();
-        ClientWorldChangeEventDispatcher.INSTANCE.registerClientWorldChangeHandler(listener);
+        Registry.CLIENT_WORLD_CHANGE_EVENT_DISPATCHER.registerClientWorldChangeHandler(listener);
 
         Actions.init();
         KeybindCallbacks.INSTANCE.setCallbacks();
