@@ -16,6 +16,7 @@ import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.ShapeRenderUtils;
+import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
@@ -25,7 +26,7 @@ public class RenderEventHandler
     private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
     private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
 
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = GameUtils.getClient();
     private int recipeListX;
     private int recipeListY;
     private int recipesPerColumn;

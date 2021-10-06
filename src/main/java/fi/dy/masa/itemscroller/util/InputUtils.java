@@ -8,6 +8,7 @@ import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.KeyBind;
+import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class InputUtils
@@ -142,16 +143,16 @@ public class InputUtils
 
     public static boolean isAttack(int keyCode)
     {
-        return keyCode == Minecraft.getMinecraft().gameSettings.keyBindAttack.getKeyCode();
+        return keyCode == GameUtils.getClient().gameSettings.keyBindAttack.getKeyCode();
     }
 
     public static boolean isUse(int keyCode)
     {
-        return keyCode == Minecraft.getMinecraft().gameSettings.keyBindUseItem.getKeyCode();
+        return keyCode == GameUtils.getClient().gameSettings.keyBindUseItem.getKeyCode();
     }
 
     public static boolean isPickBlock(int keyCode)
     {
-        return keyCode == Minecraft.getMinecraft().gameSettings.keyBindPickBlock.getKeyCode();
+        return keyCode == GameUtils.getClient().gameSettings.keyBindPickBlock.getKeyCode();
     }
 }

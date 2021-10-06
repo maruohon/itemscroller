@@ -7,9 +7,9 @@ import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -22,6 +22,7 @@ import fi.dy.masa.malilib.input.ActionResult;
 import fi.dy.masa.malilib.input.KeyAction;
 import fi.dy.masa.malilib.input.KeyBind;
 import fi.dy.masa.malilib.input.callback.HotkeyCallback;
+import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class KeybindCallbacks implements HotkeyCallback
@@ -45,7 +46,7 @@ public class KeybindCallbacks implements HotkeyCallback
     @Override
     public ActionResult onKeyAction(KeyAction action, KeyBind key)
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = GameUtils.getClient();
 
         if (mc.player == null)
         {

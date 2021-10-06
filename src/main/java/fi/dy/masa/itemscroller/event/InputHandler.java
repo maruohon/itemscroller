@@ -1,6 +1,7 @@
 package fi.dy.masa.itemscroller.event;
 
 import java.util.List;
+import io.netty.buffer.Unpooled;
 import org.lwjgl.input.Keyboard;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
@@ -32,8 +33,8 @@ import fi.dy.masa.malilib.input.HotkeyCategory;
 import fi.dy.masa.malilib.input.HotkeyProvider;
 import fi.dy.masa.malilib.input.KeyboardInputHandler;
 import fi.dy.masa.malilib.input.MouseInputHandler;
+import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
-import io.netty.buffer.Unpooled;
 
 public class InputHandler implements HotkeyProvider, KeyboardInputHandler, MouseInputHandler
 {
@@ -107,7 +108,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
             InventoryUtils.stopDragging();
         }
 
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = GameUtils.getClient();
         boolean cancel = false;
 
         if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() && mc.player != null)
@@ -238,7 +239,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
     @Override
     public void onMouseMoved()
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = GameUtils.getClient();
 
         if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() &&
             mc.player != null &&
@@ -267,7 +268,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
 
     public static void changeTradePage(GuiMerchant gui, int page)
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = GameUtils.getClient();
         MerchantRecipeList trades = gui.getMerchant().getRecipes(mc.player);
 
         // The trade list is unfortunately synced after the GUI
