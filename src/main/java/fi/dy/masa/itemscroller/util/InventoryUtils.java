@@ -9,19 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import javax.annotation.Nullable;
-
-import fi.dy.masa.itemscroller.ItemScroller;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
-import fi.dy.masa.itemscroller.recipes.RecipePattern;
-import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.itemscroller.villager.VillagerUtils;
-import fi.dy.masa.malilib.util.GuiUtils;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -48,6 +36,16 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+import fi.dy.masa.itemscroller.ItemScroller;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.config.Hotkeys;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
+import fi.dy.masa.itemscroller.recipes.RecipePattern;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
+import fi.dy.masa.itemscroller.villager.VillagerUtils;
+import fi.dy.masa.malilib.util.GuiUtils;
 
 public class InventoryUtils {
     private static MoveAction activeMoveAction = MoveAction.NONE;
@@ -64,7 +62,7 @@ public class InventoryUtils {
             Identifier rl = Registry.ITEM.getId(stack.getItem());
 
             return String.format("[%s - display: %s - NBT: %s] (%s)", rl != null ? rl.toString() : "null",
-                    stack.getName().getString(), stack.getTag() != null ? stack.getTag().toString() : "<no NBT>",
+                    stack.getName().getString(), stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>",
                     stack.toString());
         }
 
@@ -627,14 +625,17 @@ public class InventoryUtils {
     public static void villagerTradeEverythingPossibleWithTrade(int visibleIndex) {
         if (GuiUtils.getCurrentScreen() instanceof MerchantScreen) {
             MerchantScreen merchantGui = (MerchantScreen) GuiUtils.getCurrentScreen();
+            MerchantScreenHandler handler = merchantGui.getScreenHandler();
             Slot slot = merchantGui.getScreenHandler().getSlot(2);
+            ItemStack sellItem = handler.getRecipes().get(visibleIndex).getSellItem().copy();
 
             while (true) {
                 VillagerUtils.switchToTradeByVisibleIndex(visibleIndex);
                 // tryMoveItemsToMerchantBuySlots(merchantGui, true);
 
                 // Not a valid recipe
-                if (slot.hasStack() == false) {
+                //if (slot.hasStack() == false) {
+                if (areStacksEqual(sellItem, slot.getStack()) == false) {
                     break;
                 }
 
@@ -897,7 +898,9 @@ public class InventoryUtils {
         }
 
         // If moving to the other inventory, then move the hovered slot's stack last
-        if (toOtherInventory && shiftClickSlotWithCheck(gui, slot.id) == false) {
+        if (toOtherInventory &&
+            shiftClickSlotWithCheck(gui, slot.id) == false &&
+            Configs.Toggles.SCROLL_STACKS_FALLBACK.getBooleanValue()) {
             clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory);
         }
     }
@@ -1661,7 +1664,7 @@ public class InventoryUtils {
     }
 
     public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2) {
-        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areTagsEqual(stack1, stack2);
+        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areNbtEqual(stack1, stack2);
     }
 
     private static boolean areSlotsInSameInventory(Slot slot1, Slot slot2) {

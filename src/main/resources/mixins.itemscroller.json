@@ -1,20 +1,20 @@
 {
-    "required": true,
-    "package": "fi.dy.masa.itemscroller.mixin",
-    "compatibilityLevel": "JAVA_16",
-    "minVersion": "0.7",
-    "client": [
-        "IMixinMerchantScreen",
-        "IMixinScreenWithHandler",
-        "IMixinSlot",
-        "MixinAbstractInventoryScreen",
-        "MixinCraftingScreenHandler",
-        "MixinGameRenderer",
-        "MixinMerchantScreen",
-        "MixinMerchantScreenHandler",
-        "MixinScreen"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+	"required": true,
+	"package": "fi.dy.masa.itemscroller.mixin",
+	"compatibilityLevel": "JAVA_16",
+	"minVersion": "0.8",
+	"client": [
+		"IMixinMerchantScreen",
+		"IMixinScreenWithHandler",
+		"IMixinSlot",
+		"MixinAbstractInventoryScreen",
+		"MixinCraftingScreenHandler",
+		"MixinGameRenderer",
+		"MixinMerchantScreen",
+		"MixinMerchantScreenHandler",
+		"MixinScreen"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
 }
