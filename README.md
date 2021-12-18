@@ -1,5 +1,5 @@
 ## Note
-This is a customized version of Masa's itemscroller mod that fixes crafting features for 1.17.1. Masa's original mod can be found [here](https://github.com/maruohon/itemscroller)
+This is a customized version of Masa's itemscroller mod that fixes crafting features for 1.18. Masa's original mod can be found [here](https://github.com/maruohon/itemscroller)
 
 Customizations:
 * More accurate/faster crafting through recipe book protocol
