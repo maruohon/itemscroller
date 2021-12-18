@@ -59,12 +59,15 @@ public class InventoryUtils {
     private static WeakReference<Slot> sourceSlot = null;
     private static ItemStack stackInCursorLast = ItemStack.EMPTY;
 
-    public static String getStackString(ItemStack stack) {
-        if (isStackEmpty(stack) == false) {
+    public static String getStackString(ItemStack stack)
+    {
+        if (isStackEmpty(stack) == false)
+        {
             Identifier rl = Registry.ITEM.getId(stack.getItem());
 
-            return String.format("[%s - display: %s - NBT: %s] (%s)", rl != null ? rl.toString() : "null",
-                    stack.getName().getString(), stack.getTag() != null ? stack.getTag().toString() : "<no NBT>",
+            return String.format("[%s - display: %s - NBT: %s] (%s)",
+                    rl != null ? rl.toString() : "null", stack.getName().getString(),
+                    stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>",
                     stack.toString());
         }
 
@@ -607,9 +610,10 @@ public class InventoryUtils {
         return false;
     }
 
-    public static void villagerClearTradeInputSlots() {
-        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen) {
-            MerchantScreen merchantGui = (MerchantScreen) GuiUtils.getCurrentScreen();
+    public static void villagerClearTradeInputSlots()
+    {
+        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui)
+        {
             Slot slot = merchantGui.getScreenHandler().getSlot(0);
 
             if (slot.hasStack()) {
@@ -624,17 +628,22 @@ public class InventoryUtils {
         }
     }
 
-    public static void villagerTradeEverythingPossibleWithTrade(int visibleIndex) {
-        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen) {
-            MerchantScreen merchantGui = (MerchantScreen) GuiUtils.getCurrentScreen();
-            Slot slot = merchantGui.getScreenHandler().getSlot(2);
+    public static void villagerTradeEverythingPossibleWithTrade(int visibleIndex)
+    {
+        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui)
+        {
+            MerchantScreenHandler handler = merchantGui.getScreenHandler();
+            Slot slot = handler.getSlot(2);
+            ItemStack sellItem = handler.getRecipes().get(visibleIndex).getSellItem().copy();
 
             while (true) {
                 VillagerUtils.switchToTradeByVisibleIndex(visibleIndex);
                 // tryMoveItemsToMerchantBuySlots(merchantGui, true);
 
                 // Not a valid recipe
-                if (slot.hasStack() == false) {
+                //if (slot.hasStack() == false)
+                if (areStacksEqual(sellItem, slot.getStack()) == false)
+                {
                     break;
                 }
 
@@ -897,7 +906,10 @@ public class InventoryUtils {
         }
 
         // If moving to the other inventory, then move the hovered slot's stack last
-        if (toOtherInventory && shiftClickSlotWithCheck(gui, slot.id) == false) {
+        if (toOtherInventory &&
+            shiftClickSlotWithCheck(gui, slot.id) == false &&
+            Configs.Toggles.SCROLL_STACKS_FALLBACK.getBooleanValue())
+        {
             clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory);
         }
     }
@@ -1660,8 +1672,9 @@ public class InventoryUtils {
         return slots;
     }
 
-    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2) {
-        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areTagsEqual(stack1, stack2);
+    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
+    {
+        return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areNbtEqual(stack1, stack2);
     }
 
     private static boolean areSlotsInSameInventory(Slot slot1, Slot slot2) {
