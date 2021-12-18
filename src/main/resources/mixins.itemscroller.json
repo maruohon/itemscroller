@@ -8,7 +8,6 @@
 		"IMixinScreenWithHandler",
 		"IMixinSlot",
 		"MixinAbstractInventoryScreen",
-		"MixinClientPlayerInteractionManager",
 		"MixinCraftingScreenHandler",
 		"MixinGameRenderer",
 		"MixinMerchantScreen",
