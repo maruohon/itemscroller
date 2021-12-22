@@ -2,6 +2,7 @@ package fi.dy.masa.itemscroller.config;
 
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
+import fi.dy.masa.malilib.action.ActionUtils;
 import fi.dy.masa.malilib.action.NamedAction;
 import fi.dy.masa.malilib.config.option.HotkeyedBooleanConfig;
 import fi.dy.masa.malilib.listener.EventListener;
@@ -17,11 +18,11 @@ public class Actions
 
     private static NamedAction register(String name, EventListener action)
     {
-        return NamedAction.register(Reference.MOD_INFO, name, action);
+        return ActionUtils.register(Reference.MOD_INFO, name, action);
     }
 
     private static NamedAction register(String name, HotkeyedBooleanConfig config)
     {
-        return NamedAction.registerToggleKey(Reference.MOD_INFO, name, config);
+        return ActionUtils.registerToggleKey(Reference.MOD_INFO, name, config);
     }
 }
