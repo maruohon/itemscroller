@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -15,7 +15,7 @@ public class ItemType
 {
     private final ItemStack stack;
 
-    public ItemType(@Nonnull ItemStack stack)
+    public ItemType(@NotNull ItemStack stack)
     {
         this.stack = stack.copy();
     }
