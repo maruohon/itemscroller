@@ -3,7 +3,7 @@ package fi.dy.masa.itemscroller.recipes;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
@@ -86,7 +86,7 @@ public class RecipeStorage
      * Returns the recipe for the given index.
      * If the index is invalid, then the first recipe is returned, instead of null.
      */
-    @Nonnull
+    @NotNull
     public RecipePattern getRecipe(int index)
     {
         if (index >= 0 && index < this.recipes.length)
@@ -97,7 +97,7 @@ public class RecipeStorage
         return this.recipes[0];
     }
 
-    @Nonnull
+    @NotNull
     public RecipePattern getSelectedRecipe()
     {
         return this.getRecipe(this.getSelection());
@@ -150,7 +150,7 @@ public class RecipeStorage
         this.changeSelectedRecipe(nbt.getByte("Selected"));
     }
 
-    private NbtCompound writeToNBT(@Nonnull NbtCompound nbt)
+    private NbtCompound writeToNBT(@NotNull NbtCompound nbt)
     {
         NbtList tagRecipes = new NbtList();
 

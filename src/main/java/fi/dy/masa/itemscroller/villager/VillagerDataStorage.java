@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
@@ -161,7 +161,7 @@ public class VillagerDataStorage
         }
     }
 
-    private NbtCompound writeToNBT(@Nonnull NbtCompound nbt)
+    private NbtCompound writeToNBT(@NotNull NbtCompound nbt)
     {
         NbtList favoriteListData = new NbtList();
         NbtList globalFavoriteData = new NbtList();

@@ -1,7 +1,7 @@
 package fi.dy.masa.itemscroller.recipes;
 
 import java.util.Arrays;
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -85,7 +85,7 @@ public class RecipePattern
         this.result = InventoryUtils.isStackEmpty(other.getResult()) == false ? other.getResult().copy() : InventoryUtils.EMPTY_STACK;
     }
 
-    public void readFromNBT(@Nonnull NbtCompound nbt)
+    public void readFromNBT(@NotNull NbtCompound nbt)
     {
         if (nbt.contains("Result", Constants.NBT.TAG_COMPOUND) && nbt.contains("Ingredients", Constants.NBT.TAG_LIST))
         {
@@ -113,8 +113,8 @@ public class RecipePattern
         }
     }
 
-    @Nonnull
-    public NbtCompound writeToNBT(@Nonnull NbtCompound nbt)
+    @NotNull
+    public NbtCompound writeToNBT(@NotNull NbtCompound nbt)
     {
         if (this.isValid())
         {
