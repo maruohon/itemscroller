@@ -138,19 +138,6 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
             }
 
             return true;
-        } else if (key == Hotkeys.KEY_DUPE.getKeybind()) {
-
-            if (GuiUtils.getCurrentScreen() instanceof HandledScreen
-                    && (GuiUtils.getCurrentScreen() instanceof CreativeInventoryScreen) == false
-                    && Configs.GUI_BLACKLIST.contains(GuiUtils.getCurrentScreen().getClass().getName()) == false) {
-
-                Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
-
-                if (outputSlot != null) {
-                    InventoryUtils.dropStack(gui, outputSlot.id);
-                }
-
-            }
         }
 
         return false;
