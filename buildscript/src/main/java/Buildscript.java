@@ -18,6 +18,11 @@ public class Buildscript extends FabricProject {
     }
 
     @Override
+    public String getMavenGroup() {
+        return "fi.dy.masa.itemscroller";
+    }
+
+    @Override
     public String getVersion() {
         return "0.15.0";
     }
