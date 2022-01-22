@@ -29,6 +29,7 @@ public class Configs implements IConfigHandler
     {
         public static final ConfigBoolean MASS_CRAFT_HOLD                       = new ConfigBoolean("massCraftHold",                        false, "Mass craft continuously");
         public static final ConfigBoolean CRAFTING_RENDER_RECIPE_ITEMS          = new ConfigBoolean("craftingRenderRecipeItems",            true, "If enabled, then the recipe items are also rendered\nin the crafting recipe view.");
+        public static final ConfigBoolean MOD_MAIN_TOGGLE                       = new ConfigBoolean("modMainToggle",                        true, "Can disable all the functionality of the entire mod");
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
         public static final ConfigBoolean DROP_NON_RECIPE_ITEMS                 = new ConfigBoolean("dropNonRecipeItems",                   false, "If enabled, non recipe items in crafting grid are dropped.");
         public static final ConfigInteger MASS_CRAFT_MULTIPLIER                 = new ConfigInteger("massCraftMultiplier",                  1, 1, 50, "Specifies Masscraft operations per tick.\nKEEP IT AT 1 UNLESS YOU WANT TO CRASH CLIENT");
@@ -43,6 +44,7 @@ public class Configs implements IConfigHandler
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 MASS_CRAFT_HOLD,
                 CRAFTING_RENDER_RECIPE_ITEMS,
+                MOD_MAIN_TOGGLE,
                 DROP_RECIPE_REMAINDER,
                 DROP_NON_RECIPE_ITEMS,
                 MASS_CRAFT_MULTIPLIER,
