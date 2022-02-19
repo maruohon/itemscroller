@@ -58,7 +58,7 @@ public class RenderEventHandler
             GlStateManager.translate(this.recipeListX, this.recipeListY, 0);
             GlStateManager.scale(this.scale, this.scale, 1);
 
-            String str = StringUtils.translate("itemscroller.gui.label.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
+            String str = StringUtils.translate("itemscroller.label.misc.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
             this.mc.fontRenderer.drawString(str, 16, -12, 0xC0C0C0C0);
 
             for (int i = 0, recipeId = first; recipeId <= lastOnPage; ++i, ++recipeId)

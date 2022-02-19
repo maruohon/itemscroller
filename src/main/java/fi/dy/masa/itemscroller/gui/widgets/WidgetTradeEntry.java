@@ -123,7 +123,8 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 int uses = recipe.getToolUses();
                 int max = recipe.getMaxTradeUses();
-                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, StringUtils.translate("itemscroller.gui.label.trade_uses", uses, max));
+                String text = StringUtils.translate("itemscroller.label.misc.trade_uses", uses, max);
+                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, text);
             }
         }
     }

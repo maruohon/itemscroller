@@ -37,7 +37,7 @@ public class WidgetTradeList extends InteractableWidget
         this.parentGui = parentGui;
         this.storage = VillagerDataStorage.getInstance();
         this.data = data;
-        this.titleText = StyledTextLine.translate("itemscroller.gui.label.trades");
+        this.titleText = StyledTextLine.translate("itemscroller.label.misc.trades");
     }
 
     private void lazySetRecipeList()
@@ -152,7 +152,7 @@ public class WidgetTradeList extends InteractableWidget
             ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZ());
 
             int w = this.titleText.renderWidth;
-            this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, ctx, this.titleText);
+            this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, this.titleText, ctx);
 
             int wx = this.scrollBar.getX();
             int wy = this.scrollBar.getY();

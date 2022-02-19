@@ -8,7 +8,7 @@ import com.mumfrey.liteloader.LiteMod;
 import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import net.minecraft.client.Minecraft;
-import fi.dy.masa.itemscroller.config.ItemScrollerConfigPanel;
+import fi.dy.masa.itemscroller.gui.ItemScrollerConfigPanel;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.malilib.registry.Registry;
 
