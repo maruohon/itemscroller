@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.gui.icon.DefaultIcons;
 import fi.dy.masa.malilib.gui.icon.Icon;
 import fi.dy.masa.malilib.gui.util.ScreenContext;
 import fi.dy.masa.malilib.gui.widget.list.entry.BaseDataListEntryWidget;
+import fi.dy.masa.malilib.gui.widget.list.entry.DataListEntryWidgetData;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.ShapeRenderUtils;
@@ -22,7 +23,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
     public WidgetTradeEntry(int x, int y, int width, int height, int listIndex, int originalListIndex,
                             MerchantRecipe entry, VillagerData data)
     {
-        super(x, y, width, height, listIndex, originalListIndex, entry, null);
+        super(entry, new DataListEntryWidgetData(x, y, width, height, listIndex, originalListIndex, null));
 
         this.data = data;
     }

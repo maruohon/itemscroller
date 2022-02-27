@@ -32,7 +32,7 @@ public class KeybindCallbacks implements HotkeyCallback
     public void setCallbacks()
     {
         CraftingHandler.updateGridDefinitions(); // TODO move to grid config load/change handler
-        Hotkeys.KEY_OPEN_CONFIG_GUI.getKeyBind().setCallback(HotkeyCallback.of(Actions.OPEN_CONFIG_SCREEN));
+        Hotkeys.KEY_OPEN_CONFIG_GUI.createCallbackForAction(Actions.OPEN_CONFIG_SCREEN);
 
         for (HotkeyConfig hotkey : Hotkeys.HOTKEY_LIST)
         {

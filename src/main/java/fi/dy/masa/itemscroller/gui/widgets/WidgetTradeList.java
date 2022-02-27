@@ -154,12 +154,7 @@ public class WidgetTradeList extends InteractableWidget
             int w = this.titleText.renderWidth;
             this.renderTextLine(x + width / 2 - w / 2, y + 6, z, 0xFF404040, false, this.titleText, ctx);
 
-            int wx = this.scrollBar.getX();
-            int wy = this.scrollBar.getY();
-            float wz = this.scrollBar.getZ();
-            int mouseX = ctx.mouseX;
-            int mouseY = ctx.mouseY;
-            this.scrollBar.renderAt(wx, wy, wz, ctx);
+            this.scrollBar.render(ctx);
 
             // Render the trades
             for (WidgetTradeEntry widget : this.entryList)
@@ -167,6 +162,9 @@ public class WidgetTradeList extends InteractableWidget
                 boolean selected = currentPage == widget.getListIndex();
                 widget.renderAt(widget.getX(), widget.getY(), widget.getZ(), ctx, selected);
             }
+
+            int mouseX = ctx.mouseX;
+            int mouseY = ctx.mouseY;
 
             for (WidgetTradeEntry widget : this.entryList)
             {
