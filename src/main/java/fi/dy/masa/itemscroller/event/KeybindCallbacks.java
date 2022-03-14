@@ -31,6 +31,8 @@ import fi.dy.masa.malilib.util.InfoUtils;
 public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
     private static final KeybindCallbacks INSTANCE = new KeybindCallbacks();
 
+    protected int massCraftTicker;
+
     public static KeybindCallbacks getInstance()
     {
         return INSTANCE;
@@ -95,8 +97,10 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
             if (moveAction != MoveAction.NONE) {
                 final int mouseX = fi.dy.masa.malilib.util.InputUtils.getMouseX();
                 final int mouseY = fi.dy.masa.malilib.util.InputUtils.getMouseY();
-                return InventoryUtils.dragMoveItems(gui, mc, moveAction, mouseX, mouseY, true);
-            } else if (key == Hotkeys.KEY_MOVE_EVERYTHING.getKeybind()) {
+                return InventoryUtils.dragMoveItems(gui, moveAction, mouseX, mouseY, true);
+            }
+            else if (key == Hotkeys.KEY_MOVE_EVERYTHING.getKeybind())
+            {
                 InventoryUtils.tryMoveStacks(slot, gui, false, true, false);
                 return true;
             }
@@ -168,6 +172,12 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
                 && (Hotkeys.MASS_CRAFT.getKeybind().isKeybindHeld()
                         || Configs.Generic.MASS_CRAFT_HOLD.getBooleanValue())) {
 
+            if (++this.massCraftTicker < Configs.Generic.MASS_CRAFT_INTERVAL.getIntegerValue())
+            {
+                return;
+            }
+
+
             Screen guiScreen = GuiUtils.getCurrentScreen();
             HandledScreen<?> gui = (HandledScreen<?>) guiScreen;
             Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
@@ -189,10 +199,12 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler {
                         InventoryUtils.dropStack(gui, outputSlot.id);
                     }
 
-                    InventoryUtils.tryClearCursor(gui, mc);
+                    InventoryUtils.tryClearCursor(gui);
                     InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
                 }
             }
+
+            this.massCraftTicker = 0;
         }
     }
 }

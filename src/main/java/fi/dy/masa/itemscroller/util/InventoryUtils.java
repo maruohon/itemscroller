@@ -1,12 +1,10 @@
 package fi.dy.masa.itemscroller.util;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,6 +39,7 @@ import net.minecraft.recipe.RecipeType;
 import net.minecraft.screen.Generic3x3ContainerScreenHandler;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.slot.CraftingResultSlot;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.screen.slot.TradeOutputSlot;
@@ -48,27 +47,38 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import fi.dy.masa.itemscroller.mixin.IMixinCraftingResultSlot;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 
 public class InventoryUtils {
+    private static final Set<Integer> DRAGGED_SLOTS = new HashSet<>();
+
+    private static WeakReference<Slot> sourceSlotCandidate = null;
+    private static WeakReference<Slot> sourceSlot = null;
+    private static ItemStack stackInCursorLast = ItemStack.EMPTY;
+    @Nullable
+    protected static CraftingRecipe lastRecipe;
     private static MoveAction activeMoveAction = MoveAction.NONE;
     private static int lastPosX;
     private static int lastPosY;
     private static int slotNumberLast;
-    private static final Set<Integer> DRAGGED_SLOTS = new HashSet<Integer>();
-    private static WeakReference<Slot> sourceSlotCandidate = null;
-    private static WeakReference<Slot> sourceSlot = null;
-    private static ItemStack stackInCursorLast = ItemStack.EMPTY;
+    private static boolean inhibitCraftResultUpdate;
 
-    public static String getStackString(ItemStack stack)
-    {
-        if (isStackEmpty(stack) == false)
-        {
+    public static void setInhibitCraftingOutputUpdate(boolean inhibitUpdate) {
+        inhibitCraftResultUpdate = inhibitUpdate;
+    }
+
+    public static String getStackString(ItemStack stack) {
+        if (isStackEmpty(stack) == false) {
             Identifier rl = Registry.ITEM.getId(stack.getItem());
+            String idStr = rl != null ? rl.toString() : "null";
+            String displayName = stack.getName().getString();
+            String nbtStr = stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>";
 
-            return String.format("[%s - display: %s - NBT: %s] (%s)",
-                    rl != null ? rl.toString() : "null", stack.getName().getString(),
-                    stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>",
-                    stack.toString());
+            return String.format("[%s - display: %s - NBT: %s] (%s)", idStr, displayName, nbtStr, stack);
         }
 
         return "<empty>";
@@ -128,7 +138,8 @@ public class InventoryUtils {
                 && slot.hasStack() == false && slot.canInsert(stackCursor);
     }
 
-    public static boolean tryMoveItems(HandledScreen<? extends ScreenHandler> gui, RecipeStorage recipes,
+    public static boolean tryMoveItems(HandledScreen<? extends ScreenHandler> gui,
+            RecipeStorage recipes,
             boolean scrollingUp) {
         Slot slot = AccessorUtils.getSlotUnderMouse(gui);
 
@@ -161,7 +172,7 @@ public class InventoryUtils {
 
         // Check that the slot is valid, (don't require items in case of the villager
         // output slot or a crafting slot)
-        if (isValidSlot(slot, gui, villagerHandling || craftingHandling ? false : true) == false) {
+        if (isValidSlot(slot, gui, villagerHandling == false && craftingHandling == false) == false) {
             return false;
         }
 
@@ -209,8 +220,9 @@ public class InventoryUtils {
         return false;
     }
 
-    public static boolean dragMoveItems(HandledScreen<? extends ScreenHandler> gui, MinecraftClient mc,
-            MoveAction action, int mouseX, int mouseY, boolean isClick) {
+    public static boolean dragMoveItems(HandledScreen<? extends ScreenHandler> gui,
+            MoveAction action,
+            int mouseX, int mouseY, boolean isClick) {
         if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
             // Updating these here is part of the fix to preventing a drag after shift +
             // place
@@ -297,8 +309,8 @@ public class InventoryUtils {
         DRAGGED_SLOTS.clear();
     }
 
-    private static boolean dragMoveFromSlotAtPosition(HandledScreen<? extends ScreenHandler> gui, int x, int y,
-            MoveAction action) {
+    private static boolean dragMoveFromSlotAtPosition(HandledScreen<? extends ScreenHandler> gui,
+            int x, int y, MoveAction action) {
         if (gui instanceof CreativeInventoryScreen) {
             return dragMoveFromSlotAtPositionCreative(gui, x, y, action);
         }
@@ -366,8 +378,8 @@ public class InventoryUtils {
         return true;
     }
 
-    private static boolean dragMoveFromSlotAtPositionCreative(HandledScreen<? extends ScreenHandler> gui, int x, int y,
-            MoveAction action) {
+    private static boolean dragMoveFromSlotAtPositionCreative(HandledScreen<? extends ScreenHandler> gui,
+            int x, int y, MoveAction action) {
         CreativeInventoryScreen guiCreative = (CreativeInventoryScreen) gui;
         Slot slot = AccessorUtils.getSlotAtPosition(gui, x, y);
         boolean isPlayerInv = guiCreative.getSelectedTab() == ItemGroup.INVENTORY.getIndex();
@@ -458,8 +470,10 @@ public class InventoryUtils {
         return cancel;
     }
 
-    public static void dropStacks(HandledScreen<? extends ScreenHandler> gui, ItemStack stackReference,
-            Slot slotReference, boolean sameInventory) {
+    public static void dropStacks(HandledScreen<? extends ScreenHandler> gui,
+            ItemStack stackReference,
+            Slot slotReference,
+            boolean sameInventory) {
         if (slotReference != null && isStackEmpty(stackReference) == false) {
             ScreenHandler container = gui.getScreenHandler();
             stackReference = stackReference.copy();
@@ -469,8 +483,8 @@ public class InventoryUtils {
                 // cursor from
                 // and the stack is identical to the one in the cursor, then this stack will get
                 // dropped.
-                if (areSlotsInSameInventory(slot, slotReference) == sameInventory
-                        && areStacksEqual(slot.getStack(), stackReference)) {
+                if (areSlotsInSameInventory(slot, slotReference) == sameInventory &&
+                        areStacksEqual(slot.getStack(), stackReference)) {
                     // Drop the stack
                     dropStack(gui, slot.id);
                 }
@@ -496,7 +510,8 @@ public class InventoryUtils {
         }
     }
 
-    public static void dropAllMatchingStacks(HandledScreen<? extends ScreenHandler> gui, ItemStack stackReference) {
+    public static void dropAllMatchingStacks(HandledScreen<? extends ScreenHandler> gui,
+            ItemStack stackReference) {
         if (isStackEmpty(stackReference) == false) {
             ScreenHandler container = gui.getScreenHandler();
             stackReference = stackReference.copy();
@@ -581,7 +596,9 @@ public class InventoryUtils {
         }
     }
 
-    private static boolean tryMoveItemsVillager(MerchantScreen gui, Slot slot, boolean moveToOtherInventory,
+    private static boolean tryMoveItemsVillager(MerchantScreen gui,
+            Slot slot,
+            boolean moveToOtherInventory,
             boolean fullStacks) {
         if (fullStacks) {
             // Try to fill the merchant's buy slots from the player inventory
@@ -610,10 +627,8 @@ public class InventoryUtils {
         return false;
     }
 
-    public static void villagerClearTradeInputSlots()
-    {
-        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui)
-        {
+    public static void villagerClearTradeInputSlots() {
+        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui) {
             Slot slot = merchantGui.getScreenHandler().getSlot(0);
 
             if (slot.hasStack()) {
@@ -628,10 +643,8 @@ public class InventoryUtils {
         }
     }
 
-    public static void villagerTradeEverythingPossibleWithTrade(int visibleIndex)
-    {
-        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui)
-        {
+    public static void villagerTradeEverythingPossibleWithTrade(int visibleIndex) {
+        if (GuiUtils.getCurrentScreen() instanceof MerchantScreen merchantGui) {
             MerchantScreenHandler handler = merchantGui.getScreenHandler();
             Slot slot = handler.getSlot(2);
             ItemStack sellItem = handler.getRecipes().get(visibleIndex).getSellItem().copy();
@@ -641,9 +654,8 @@ public class InventoryUtils {
                 // tryMoveItemsToMerchantBuySlots(merchantGui, true);
 
                 // Not a valid recipe
-                //if (slot.hasStack() == false)
-                if (areStacksEqual(sellItem, slot.getStack()) == false)
-                {
+                // if (slot.hasStack() == false)
+                if (areStacksEqual(sellItem, slot.getStack()) == false) {
                     break;
                 }
 
@@ -664,7 +676,7 @@ public class InventoryUtils {
 
         if (screen instanceof MerchantScreen) {
             MerchantScreenHandler handler = ((MerchantScreen) screen).getScreenHandler();
-            List<Integer> favorites = VillagerDataStorage.getInstance()
+            IntArrayList favorites = VillagerDataStorage.getInstance()
                     .getFavoritesForCurrentVillager(handler).favorites;
 
             for (int index = 0; index < favorites.size(); ++index) {
@@ -680,7 +692,8 @@ public class InventoryUtils {
         return false;
     }
 
-    private static boolean tryMoveSingleItemToOtherInventory(Slot slot, HandledScreen<? extends ScreenHandler> gui) {
+    private static boolean tryMoveSingleItemToOtherInventory(Slot slot,
+            HandledScreen<? extends ScreenHandler> gui) {
         ItemStack stackOrig = slot.getStack();
         ScreenHandler container = gui.getScreenHandler();
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -729,7 +742,8 @@ public class InventoryUtils {
         return false;
     }
 
-    private static boolean tryMoveAllButOneItemToOtherInventory(Slot slot, HandledScreen<? extends ScreenHandler> gui) {
+    private static boolean tryMoveAllButOneItemToOtherInventory(Slot slot,
+            HandledScreen<? extends ScreenHandler> gui) {
         MinecraftClient mc = MinecraftClient.getInstance();
         PlayerEntity player = mc.player;
         ItemStack stackOrig = slot.getStack().copy();
@@ -797,8 +811,8 @@ public class InventoryUtils {
         // No temporary slot found, try to move the stack manually
         else {
             boolean treatHotbarAsDifferent = gui.getClass() == InventoryScreen.class;
-            List<Integer> slots = getSlotNumbersOfEmptySlots(gui.getScreenHandler(), slot, false,
-                    treatHotbarAsDifferent, false);
+            IntArrayList slots = getSlotNumbersOfEmptySlots(gui.getScreenHandler(), slot, false, treatHotbarAsDifferent,
+                    false);
 
             if (slots.isEmpty()) {
                 slots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, false, slot.getStack(), true,
@@ -837,7 +851,8 @@ public class InventoryUtils {
         return false;
     }
 
-    private static boolean tryMoveSingleItemToThisInventory(Slot slot, HandledScreen<? extends ScreenHandler> gui) {
+    private static boolean tryMoveSingleItemToThisInventory(Slot slot,
+            HandledScreen<? extends ScreenHandler> gui) {
         ScreenHandler container = gui.getScreenHandler();
         ItemStack stackOrig = slot.getStack();
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -876,13 +891,20 @@ public class InventoryUtils {
         return false;
     }
 
-    public static void tryMoveStacks(Slot slot, HandledScreen<? extends ScreenHandler> gui, boolean matchingOnly,
-            boolean toOtherInventory, boolean firstOnly) {
+    public static void tryMoveStacks(Slot slot,
+            HandledScreen<? extends ScreenHandler> gui,
+            boolean matchingOnly,
+            boolean toOtherInventory,
+            boolean firstOnly) {
         tryMoveStacks(slot.getStack(), slot, gui, matchingOnly, toOtherInventory, firstOnly);
     }
 
-    private static void tryMoveStacks(ItemStack stackReference, Slot slot, HandledScreen<? extends ScreenHandler> gui,
-            boolean matchingOnly, boolean toOtherInventory, boolean firstOnly) {
+    private static void tryMoveStacks(ItemStack stackReference,
+            Slot slot,
+            HandledScreen<? extends ScreenHandler> gui,
+            boolean matchingOnly,
+            boolean toOtherInventory,
+            boolean firstOnly) {
         ScreenHandler container = gui.getScreenHandler();
         final int maxSlot = container.slots.size() - 1;
 
@@ -907,14 +929,14 @@ public class InventoryUtils {
 
         // If moving to the other inventory, then move the hovered slot's stack last
         if (toOtherInventory &&
-            shiftClickSlotWithCheck(gui, slot.id) == false &&
-            Configs.Toggles.SCROLL_STACKS_FALLBACK.getBooleanValue())
-        {
+                shiftClickSlotWithCheck(gui, slot.id) == false &&
+                Configs.Toggles.SCROLL_STACKS_FALLBACK.getBooleanValue()) {
             clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory);
         }
     }
 
-    private static void tryMoveItemsToMerchantBuySlots(MerchantScreen gui, boolean fillStacks) {
+    private static void tryMoveItemsToMerchantBuySlots(MerchantScreen gui,
+            boolean fillStacks) {
         TradeOfferList list = gui.getScreenHandler().getRecipes();
         int index = AccessorUtils.getSelectedMerchantRecipe(gui);
 
@@ -940,7 +962,9 @@ public class InventoryUtils {
         }
     }
 
-    private static void fillBuySlot(HandledScreen<? extends ScreenHandler> gui, int slotNum, ItemStack buyStack,
+    private static void fillBuySlot(HandledScreen<? extends ScreenHandler> gui,
+            int slotNum,
+            ItemStack buyStack,
             boolean fillStacks) {
         Slot slot = gui.getScreenHandler().getSlot(slotNum);
         ItemStack existingStack = slot.getStack();
@@ -958,8 +982,13 @@ public class InventoryUtils {
         }
     }
 
-    public static void handleRecipeClick(HandledScreen<? extends ScreenHandler> gui, MinecraftClient mc,
-            RecipeStorage recipes, int hoveredRecipeId, boolean isLeftClick, boolean isRightClick, boolean isPickBlock,
+    public static void handleRecipeClick(HandledScreen<? extends ScreenHandler> gui,
+            MinecraftClient mc,
+            RecipeStorage recipes,
+            int hoveredRecipeId,
+            boolean isLeftClick,
+            boolean isRightClick,
+            boolean isPickBlock,
             boolean isShiftDown) {
         if (isLeftClick || isRightClick) {
             boolean changed = recipes.getSelection() != hoveredRecipeId;
@@ -974,7 +1003,7 @@ public class InventoryUtils {
             // Right click: Also craft the items
             if (isRightClick) {
                 Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
-                boolean dropKeyDown = mc.options.keyDrop.isPressed(); // FIXME 1.14
+                boolean dropKeyDown = mc.options.dropKey.isPressed(); // FIXME 1.14
 
                 if (outputSlot != null) {
                     if (dropKeyDown) {
@@ -997,7 +1026,8 @@ public class InventoryUtils {
         }
     }
 
-    public static void tryMoveItemsToFirstCraftingGrid(RecipePattern recipe, HandledScreen<? extends ScreenHandler> gui,
+    public static void tryMoveItemsToFirstCraftingGrid(RecipePattern recipe,
+            HandledScreen<? extends ScreenHandler> gui,
             boolean fillStacks) {
         Slot craftingOutputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
@@ -1013,14 +1043,18 @@ public class InventoryUtils {
     }
 
     private static void loadRecipeItemsToGridForOutputSlot(RecipePattern recipe,
-            HandledScreen<? extends ScreenHandler> gui, Slot outputSlot) {
-        if (outputSlot != null && isCraftingSlot(gui, outputSlot) && isStackEmpty(recipe.getResult()) == false) {
+            HandledScreen<? extends ScreenHandler> gui,
+            Slot outputSlot) {
+        if (isCraftingSlot(gui, outputSlot) && isStackEmpty(recipe.getResult()) == false) {
             tryMoveItemsToCraftingGridSlots(recipe, outputSlot, gui, false);
         }
     }
 
-    private static boolean tryMoveItemsCrafting(RecipeStorage recipes, Slot slot,
-            HandledScreen<? extends ScreenHandler> gui, boolean moveToOtherInventory, boolean moveStacks,
+    private static boolean tryMoveItemsCrafting(RecipeStorage recipes,
+            Slot slot,
+            HandledScreen<? extends ScreenHandler> gui,
+            boolean moveToOtherInventory,
+            boolean moveStacks,
             boolean moveEverything) {
         RecipePattern recipe = recipes.getSelectedRecipe();
         ItemStack stackRecipeOutput = recipe.getResult();
@@ -1053,7 +1087,8 @@ public class InventoryUtils {
         return false;
     }
 
-    private static void craftAsManyItemsAsPossible(RecipePattern recipe, Slot slot,
+    private static void craftAsManyItemsAsPossible(RecipePattern recipe,
+            Slot slot,
             HandledScreen<? extends ScreenHandler> gui) {
         ItemStack result = recipe.getResult();
         int failSafe = 1024;
@@ -1075,7 +1110,8 @@ public class InventoryUtils {
         }
     }
 
-    public static void clearFirstCraftingGridOfItems(RecipePattern recipe, HandledScreen<? extends ScreenHandler> gui,
+    public static void clearFirstCraftingGridOfItems(RecipePattern recipe,
+            HandledScreen<? extends ScreenHandler> gui,
             boolean clearNonMatchingOnly) {
         Slot craftingOutputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
@@ -1094,8 +1130,10 @@ public class InventoryUtils {
         }
     }
 
-    private static boolean clearCraftingGridOfItems(RecipePattern recipe, HandledScreen<? extends ScreenHandler> gui,
-            SlotRange range, boolean clearNonMatchingOnly) {
+    private static boolean clearCraftingGridOfItems(RecipePattern recipe,
+            HandledScreen<? extends ScreenHandler> gui,
+            SlotRange range,
+            boolean clearNonMatchingOnly) {
         final int invSlots = gui.getScreenHandler().slots.size();
         final int rangeSlots = range.getSlotCount();
         final int recipeSize = recipe.getRecipeLength();
@@ -1139,8 +1177,10 @@ public class InventoryUtils {
         return clearedAll;
     }
 
-    private static boolean tryMoveItemsToCraftingGridSlots(RecipePattern recipe, Slot slot,
-            HandledScreen<? extends ScreenHandler> gui, boolean fillStacks) {
+    private static boolean tryMoveItemsToCraftingGridSlots(RecipePattern recipe,
+            Slot slot,
+            HandledScreen<? extends ScreenHandler> gui,
+            boolean fillStacks) {
         ScreenHandler container = gui.getScreenHandler();
         int numSlots = container.slots.size();
         SlotRange range = CraftingHandler.getCraftingGridSlots(gui, slot);
@@ -1156,12 +1196,12 @@ public class InventoryUtils {
             // This slot is used to check that we get items from a DIFFERENT inventory than
             // where this slot is in
             Slot slotGridFirst = container.getSlot(range.getFirst());
-            Map<ItemType, List<Integer>> ingredientSlots = ItemType.getSlotsPerItem(recipe.getRecipeItems());
+            Map<ItemType, IntArrayList> ingredientSlots = ItemType.getSlotsPerItem(recipe.getRecipeItems());
 
-            for (Map.Entry<ItemType, List<Integer>> entry : ingredientSlots.entrySet()) {
+            for (Map.Entry<ItemType, IntArrayList> entry : ingredientSlots.entrySet()) {
                 ItemStack ingredientReference = entry.getKey().getStack();
-                List<Integer> recipeSlots = entry.getValue();
-                List<Integer> targetSlots = new ArrayList<Integer>();
+                IntArrayList recipeSlots = entry.getValue();
+                IntArrayList targetSlots = new IntArrayList();
 
                 // Get the actual target slot numbers based on the grid's start and the relative
                 // positions inside the grid
@@ -1180,8 +1220,10 @@ public class InventoryUtils {
         return false;
     }
 
-    private static void fillCraftingGrid(HandledScreen<? extends ScreenHandler> gui, Slot slotGridFirst,
-            ItemStack ingredientReference, List<Integer> targetSlots) {
+    private static void fillCraftingGrid(HandledScreen<? extends ScreenHandler> gui,
+            Slot slotGridFirst,
+            ItemStack ingredientReference,
+            IntArrayList targetSlots) {
         ScreenHandler container = gui.getScreenHandler();
         int slotNum;
         int slotReturn = -1;
@@ -1348,7 +1390,7 @@ public class InventoryUtils {
             if (slot != null) {
                 // Get a list of slots with matching items, which are in the same inventory
                 // as the slot that is assumed to be in the player inventory.
-                List<Integer> slots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, true, stackResult,
+                IntArrayList slots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, true, stackResult,
                         false, false, false);
 
                 for (int slotNum : slots) {
@@ -1393,7 +1435,61 @@ public class InventoryUtils {
         }
     }
 
-    private static int putSingleItemIntoSlots(HandledScreen<? extends ScreenHandler> gui, List<Integer> targetSlots,
+    public static void setCraftingGridContentsUsingSwaps(HandledScreen<? extends ScreenHandler> gui,
+            PlayerInventory inv,
+            RecipePattern recipe,
+            Slot outputSlot) {
+        SlotRange range = CraftingHandler.getCraftingGridSlots(gui, outputSlot);
+
+        if (range != null && isStackEmpty(recipe.getResult()) == false) {
+            ItemStack[] recipeItems = recipe.getRecipeItems();
+            final int invSlots = gui.getScreenHandler().slots.size();
+            final int rangeSlots = Math.min(range.getSlotCount(), recipeItems.length);
+            IntArrayList toRemove = new IntArrayList();
+            boolean movedSomething = false;
+
+            setInhibitCraftingOutputUpdate(true);
+
+            for (int i = 0, slotNum = range.getFirst(); i < rangeSlots && slotNum < invSlots; i++, slotNum++) {
+                Slot slotTmp = gui.getScreenHandler().getSlot(slotNum);
+                ItemStack recipeStack = recipeItems[i];
+                ItemStack slotStack = slotTmp.getStack();
+                boolean recipeHasItem = isStackEmpty(recipeStack) == false;
+
+                if (areStacksEqual(recipeStack, slotStack) == false) {
+                    if (recipeHasItem == false) {
+                        toRemove.add(slotNum);
+                    } else {
+                        int index = getPlayerInventoryIndexWithItem(recipeStack, inv);
+
+                        if (index >= 0) {
+                            clickSlot(gui, slotNum, index, SlotActionType.SWAP);
+                            movedSomething = true;
+                        }
+                    }
+                }
+            }
+
+            movedSomething |= (toRemove.isEmpty() == false);
+
+            for (int slotNum : toRemove) {
+                shiftClickSlot(gui, slotNum);
+
+                if (isStackEmpty(gui.getScreenHandler().getSlot(slotNum).getStack()) == false) {
+                    dropStack(gui, slotNum);
+                }
+            }
+
+            setInhibitCraftingOutputUpdate(false);
+
+            if (movedSomething) {
+                // updateCraftingOutputSlot(outputSlot);
+            }
+        }
+    }
+
+    private static int putSingleItemIntoSlots(HandledScreen<? extends ScreenHandler> gui,
+            IntArrayList targetSlots,
             int startIndex) {
         ItemStack stackInCursor = gui.getScreenHandler().getCursorStack();
 
@@ -1407,7 +1503,7 @@ public class InventoryUtils {
         int count = 0;
 
         for (int i = 0; i < loops; i++) {
-            int slotNum = targetSlots.get(startIndex + i);
+            int slotNum = targetSlots.getInt(startIndex + i);
 
             if (slotNum >= numSlots) {
                 break;
@@ -1427,7 +1523,7 @@ public class InventoryUtils {
         ItemStack stackCursor = gui.getScreenHandler().getCursorStack();
 
         if (isStackEmpty(stackCursor) == false) {
-            List<Integer> slots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, false, stackCursor, true,
+            IntArrayList slots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, false, stackCursor, true,
                     true, false);
 
             if (moveItemFromCursorToSlots(gui, slots) == false) {
@@ -1438,7 +1534,9 @@ public class InventoryUtils {
     }
 
     private static void moveOneRecipeItemIntoCraftingGrid(HandledScreen<? extends ScreenHandler> gui,
-            Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots) {
+            Slot slotGridFirst,
+            ItemStack ingredientReference,
+            IntArrayList targetSlots) {
         ScreenHandler container = gui.getScreenHandler();
         int index = 0;
         int slotNum = -1;
@@ -1479,7 +1577,7 @@ public class InventoryUtils {
     }
 
     private static boolean moveItemFromCursorToSlots(HandledScreen<? extends ScreenHandler> gui,
-            List<Integer> slotNumbers) {
+            IntArrayList slotNumbers) {
         for (int slotNum : slotNumbers) {
             leftClickSlot(gui, slotNum);
 
@@ -1491,8 +1589,11 @@ public class InventoryUtils {
         return false;
     }
 
-    private static void moveItemsFromInventory(HandledScreen<? extends ScreenHandler> gui, int slotTo, Inventory invSrc,
-            ItemStack stackTemplate, boolean fillStacks) {
+    private static void moveItemsFromInventory(HandledScreen<? extends ScreenHandler> gui,
+            int slotTo,
+            Inventory invSrc,
+            ItemStack stackTemplate,
+            boolean fillStacks) {
         ScreenHandler container = gui.getScreenHandler();
 
         for (Slot slot : container.slots) {
@@ -1514,7 +1615,8 @@ public class InventoryUtils {
     }
 
     private static int getSlotNumberOfLargestMatchingStackFromDifferentInventory(ScreenHandler container,
-            Slot slotReference, ItemStack stackReference) {
+            Slot slotReference,
+            ItemStack stackReference) {
         int slotNum = -1;
         int largest = 0;
 
@@ -1539,10 +1641,14 @@ public class InventoryUtils {
      * same inventory as slotReference. If an adequately large stack is not found,
      * then the largest one is selected.
      */
-    private static int getSlotNumberOfSmallestStackFromDifferentInventory(ScreenHandler container, Slot slotReference,
-            ItemStack stackReference, int idealSize) {
-        int slotNum = -1;
+    private static int getSlotNumberOfSmallestStackFromDifferentInventory(ScreenHandler container,
+            Slot slotReference,
+            ItemStack stackReference,
+            int idealSize) {
+        int slotNumSmallest = -1;
+        int slotNumLargest = -1;
         int smallest = Integer.MAX_VALUE;
+        int largest = 0;
 
         for (Slot slot : container.slots) {
             if (areSlotsInSameInventory(slot, slotReference) == false && slot.hasStack()
@@ -1550,30 +1656,18 @@ public class InventoryUtils {
                 int stackSize = getStackSize(slot.getStack());
 
                 if (stackSize < smallest && stackSize >= idealSize) {
-                    slotNum = slot.id;
+                    slotNumSmallest = slot.id;
                     smallest = stackSize;
                 }
-            }
-        }
 
-        // Didn't find an adequately sized stack, now try to find at least some items...
-        if (slotNum == -1) {
-            int largest = 0;
-
-            for (Slot slot : container.slots) {
-                if (areSlotsInSameInventory(slot, slotReference) == false && slot.hasStack()
-                        && areStacksEqual(stackReference, slot.getStack())) {
-                    int stackSize = getStackSize(slot.getStack());
-
-                    if (stackSize > largest) {
-                        slotNum = slot.id;
-                        largest = stackSize;
-                    }
+                if (stackSize > largest) {
+                    slotNumLargest = slot.id;
+                    largest = stackSize;
                 }
             }
         }
 
-        return slotNum;
+        return slotNumSmallest != -1 ? slotNumSmallest : slotNumLargest;
     }
 
     /**
@@ -1594,10 +1688,15 @@ public class InventoryUtils {
      *                               end of the inventory
      * @return
      */
-    private static List<Integer> getSlotNumbersOfMatchingStacks(ScreenHandler container, Slot slotReference,
-            boolean sameInventory, ItemStack stackReference, boolean preferPartial, boolean treatHotbarAsDifferent,
+    @SuppressWarnings("SameParameterValue")
+    private static IntArrayList getSlotNumbersOfMatchingStacks(ScreenHandler container,
+            Slot slotReference,
+            boolean sameInventory,
+            ItemStack stackReference,
+            boolean preferPartial,
+            boolean treatHotbarAsDifferent,
             boolean reverse) {
-        List<Integer> slots = new ArrayList<>(64);
+        IntArrayList slots = new IntArrayList(64);
         final int maxSlot = container.slots.size() - 1;
         final int increment = reverse ? -1 : 1;
 
@@ -1618,9 +1717,11 @@ public class InventoryUtils {
         return slots;
     }
 
-    private static List<Integer> getSlotNumbersOfMatchingStacks(ScreenHandler container, ItemStack stackReference,
+    @SuppressWarnings("SameParameterValue")
+    private static IntArrayList getSlotNumbersOfMatchingStacks(ScreenHandler container,
+            ItemStack stackReference,
             boolean preferPartial) {
-        List<Integer> slots = new ArrayList<>(64);
+        IntArrayList slots = new IntArrayList(64);
         final int maxSlot = container.slots.size() - 1;
 
         for (int i = 0; i <= maxSlot; ++i) {
@@ -1638,9 +1739,27 @@ public class InventoryUtils {
         return slots;
     }
 
-    private static List<Integer> getSlotNumbersOfEmptySlots(ScreenHandler container, Slot slotReference,
-            boolean sameInventory, boolean treatHotbarAsDifferent, boolean reverse) {
-        List<Integer> slots = new ArrayList<>(64);
+    public static int getPlayerInventoryIndexWithItem(ItemStack stackReference, PlayerInventory inv) {
+        final int size = inv.main.size();
+
+        for (int index = 0; index < size; ++index) {
+            ItemStack stack = inv.main.get(index);
+
+            if (areStacksEqual(stack, stackReference)) {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static IntArrayList getSlotNumbersOfEmptySlots(ScreenHandler container,
+            Slot slotReference,
+            boolean sameInventory,
+            boolean treatHotbarAsDifferent,
+            boolean reverse) {
+        IntArrayList slots = new IntArrayList(64);
         final int maxSlot = container.slots.size() - 1;
         final int increment = reverse ? -1 : 1;
 
@@ -1656,8 +1775,10 @@ public class InventoryUtils {
         return slots;
     }
 
-    private static List<Integer> getSlotNumbersOfEmptySlotsInPlayerInventory(ScreenHandler container, boolean reverse) {
-        List<Integer> slots = new ArrayList<>(64);
+    @SuppressWarnings("SameParameterValue")
+    private static IntArrayList getSlotNumbersOfEmptySlotsInPlayerInventory(ScreenHandler container,
+            boolean reverse) {
+        IntArrayList slots = new IntArrayList(64);
         final int maxSlot = container.slots.size() - 1;
         final int increment = reverse ? -1 : 1;
 
@@ -1672,8 +1793,7 @@ public class InventoryUtils {
         return slots;
     }
 
-    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2)
-    {
+    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2) {
         return stack1.isEmpty() == false && stack1.isItemEqual(stack2) && ItemStack.areNbtEqual(stack1, stack2);
     }
 
@@ -1747,7 +1867,8 @@ public class InventoryUtils {
      * this.clickSlotsToMoveItemsFromSlot(slot, gui, toOtherInventory); } }
      */
 
-    private static void clickSlotsToMoveItemsFromSlot(Slot slotFrom, HandledScreen<? extends ScreenHandler> gui,
+    private static void clickSlotsToMoveItemsFromSlot(Slot slotFrom,
+            HandledScreen<? extends ScreenHandler> gui,
             boolean toOtherInventory) {
         // Left click to pick up the found source stack
         leftClickSlot(gui, slotFrom.id);
@@ -1777,7 +1898,8 @@ public class InventoryUtils {
         }
     }
 
-    private static boolean clickSlotsToMoveSingleItem(HandledScreen<? extends ScreenHandler> gui, int slotFrom,
+    private static boolean clickSlotsToMoveSingleItem(HandledScreen<? extends ScreenHandler> gui,
+            int slotFrom,
             int slotTo) {
         // System.out.println("clickSlotsToMoveSingleItem(from: " + slotFrom + ", to: "
         // + slotTo + ")");
@@ -1848,7 +1970,9 @@ public class InventoryUtils {
      * 
      * @return true if at least some items were moved
      */
-    private static boolean clickSlotsToMoveItems(HandledScreen<? extends ScreenHandler> gui, int slotFrom, int slotTo) {
+    private static boolean clickSlotsToMoveItems(HandledScreen<? extends ScreenHandler> gui,
+            int slotFrom,
+            int slotTo) {
         // System.out.println("clickSlotsToMoveItems(from: " + slotFrom + ", to: " +
         // slotTo + ")");
 
@@ -1878,7 +2002,8 @@ public class InventoryUtils {
         return ret;
     }
 
-    public static void dropStacksUntilEmpty(HandledScreen<? extends ScreenHandler> gui, int slotNum) {
+    public static void dropStacksUntilEmpty(HandledScreen<? extends ScreenHandler> gui,
+            int slotNum) {
         if (slotNum >= 0 && slotNum < gui.getScreenHandler().slots.size()) {
             Slot slot = gui.getScreenHandler().getSlot(slotNum);
             int failsafe = 64;
@@ -1889,7 +2014,8 @@ public class InventoryUtils {
         }
     }
 
-    public static void dropStacksWhileHasItem(HandledScreen<? extends ScreenHandler> gui, int slotNum,
+    public static void dropStacksWhileHasItem(HandledScreen<? extends ScreenHandler> gui,
+            int slotNum,
             ItemStack stackReference) {
         if (slotNum >= 0 && slotNum < gui.getScreenHandler().slots.size()) {
             Slot slot = gui.getScreenHandler().getSlot(slotNum);
@@ -1900,7 +2026,8 @@ public class InventoryUtils {
         }
     }
 
-    private static boolean shiftClickSlotWithCheck(HandledScreen<? extends ScreenHandler> gui, int slotNum) {
+    private static boolean shiftClickSlotWithCheck(HandledScreen<? extends ScreenHandler> gui,
+            int slotNum) {
         Slot slot = gui.getScreenHandler().getSlot(slotNum);
 
         if (slot == null || slot.hasStack() == false) {
@@ -1913,14 +2040,16 @@ public class InventoryUtils {
         return slot.hasStack() == false || getStackSize(slot.getStack()) != sizeOrig;
     }
 
-    public static boolean tryMoveItemsVertically(HandledScreen<? extends ScreenHandler> gui, Slot slot, boolean moveUp,
+    public static boolean tryMoveItemsVertically(HandledScreen<? extends ScreenHandler> gui,
+            Slot slot,
+            boolean moveUp,
             MoveAmount amount) {
         // We require an empty cursor
         if (slot == null || isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
             return false;
         }
 
-        List<Integer> slots = getVerticallyFurthestSuitableSlotsForStackInSlot(gui.getScreenHandler(), slot, moveUp);
+        IntArrayList slots = getVerticallyFurthestSuitableSlotsForStackInSlot(gui.getScreenHandler(), slot, moveUp);
 
         if (slots.isEmpty()) {
             return false;
@@ -1939,19 +2068,20 @@ public class InventoryUtils {
         return true;
     }
 
-    private static void moveMatchingStacksToSlots(HandledScreen<? extends ScreenHandler> gui, Slot slot,
+    private static void moveMatchingStacksToSlots(HandledScreen<? extends ScreenHandler> gui,
+            Slot slot,
             boolean moveUp) {
-        List<Integer> matchingSlots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, true,
-                slot.getStack(), true, true, false);
-        List<Integer> targetSlots = getSlotNumbersOfEmptySlots(gui.getScreenHandler(), slot, false, true, false);
+        IntArrayList matchingSlots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), slot, true, slot.getStack(),
+                true, true, false);
+        IntArrayList targetSlots = getSlotNumbersOfEmptySlots(gui.getScreenHandler(), slot, false, true, false);
         targetSlots.addAll(getSlotNumbersOfEmptySlots(gui.getScreenHandler(), slot, true, true, false));
         targetSlots.addAll(matchingSlots);
 
-        Collections.sort(matchingSlots, new SlotVerticalSorterSlotNumbers(gui.getScreenHandler(), !moveUp));
-        Collections.sort(targetSlots, new SlotVerticalSorterSlotNumbers(gui.getScreenHandler(), moveUp));
+        matchingSlots.sort(new SlotVerticalSorterSlotNumbers(gui.getScreenHandler(), !moveUp));
+        targetSlots.sort(new SlotVerticalSorterSlotNumbers(gui.getScreenHandler(), moveUp));
 
-        for (int i = 0; i < matchingSlots.size(); ++i) {
-            int srcSlotNum = matchingSlots.get(i).intValue();
+        for (int matchingSlot : matchingSlots) {
+            int srcSlotNum = matchingSlot;
             Slot srcSlot = gui.getScreenHandler().getSlot(srcSlotNum);
             Slot lastSlot = moveStackToSlots(gui, srcSlot, targetSlots, false);
 
@@ -1961,8 +2091,10 @@ public class InventoryUtils {
         }
     }
 
-    private static Slot moveStackToSlots(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom,
-            List<Integer> slotsTo, boolean leaveOne) {
+    private static Slot moveStackToSlots(HandledScreen<? extends ScreenHandler> gui,
+            Slot slotFrom,
+            IntArrayList slotsTo,
+            boolean leaveOne) {
         Slot lastSlot = null;
 
         // Empty slot, nothing to do
@@ -2000,8 +2132,9 @@ public class InventoryUtils {
         return lastSlot;
     }
 
-    private static void moveOneItemToFirstValidSlot(HandledScreen<? extends ScreenHandler> gui, Slot slotFrom,
-            List<Integer> slotsTo) {
+    private static void moveOneItemToFirstValidSlot(HandledScreen<? extends ScreenHandler> gui,
+            Slot slotFrom,
+            IntArrayList slotsTo) {
         // Pick up half of the the stack
         rightClickSlot(gui, slotFrom.id);
 
@@ -2026,13 +2159,14 @@ public class InventoryUtils {
         }
     }
 
-    private static List<Integer> getVerticallyFurthestSuitableSlotsForStackInSlot(ScreenHandler container,
-            final Slot slotIn, boolean above) {
+    private static IntArrayList getVerticallyFurthestSuitableSlotsForStackInSlot(ScreenHandler container,
+            Slot slotIn,
+            boolean above) {
         if (slotIn == null || slotIn.hasStack() == false) {
-            return Collections.emptyList();
+            return IntArrayList.of();
         }
 
-        List<Integer> slotNumbers = new ArrayList<>();
+        IntArrayList slotNumbers = new IntArrayList();
         ItemStack stackSlot = slotIn.getStack();
 
         for (Slot slotTmp : container.slots) {
@@ -2049,21 +2183,21 @@ public class InventoryUtils {
             }
         }
 
-        Collections.sort(slotNumbers, new SlotVerticalSorterSlotNumbers(container, above));
+        slotNumbers.sort(new SlotVerticalSorterSlotNumbers(container, above));
 
         return slotNumbers;
     }
 
-    public static void tryClearCursor(HandledScreen<? extends ScreenHandler> gui, MinecraftClient mc) {
+    public static void tryClearCursor(HandledScreen<? extends ScreenHandler> gui) {
         ItemStack stackCursor = gui.getScreenHandler().getCursorStack();
 
         if (isStackEmpty(stackCursor) == false) {
-            List<Integer> emptySlots = getSlotNumbersOfEmptySlotsInPlayerInventory(gui.getScreenHandler(), false);
+            IntArrayList emptySlots = getSlotNumbersOfEmptySlotsInPlayerInventory(gui.getScreenHandler(), false);
 
             if (emptySlots.isEmpty() == false) {
-                leftClickSlot(gui, emptySlots.get(0));
+                leftClickSlot(gui, emptySlots.getInt(0));
             } else {
-                List<Integer> matchingSlots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), stackCursor, true);
+                IntArrayList matchingSlots = getSlotNumbersOfMatchingStacks(gui.getScreenHandler(), stackCursor, true);
 
                 if (matchingSlots.isEmpty() == false) {
                     for (int slotNum : matchingSlots) {
@@ -2080,10 +2214,10 @@ public class InventoryUtils {
                     }
                 }
             }
-        }
 
-        if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
-            dropItemsFromCursor(gui);
+            if (isStackEmpty(gui.getScreenHandler().getCursorStack()) == false) {
+                dropItemsFromCursor(gui);
+            }
         }
     }
 
@@ -2108,7 +2242,7 @@ public class InventoryUtils {
      * return (slot1.yPos < slot2.yPos) == this.topToBottom ? -1 : 1; } }
      */
 
-    private static class SlotVerticalSorterSlotNumbers implements Comparator<Integer> {
+    private static class SlotVerticalSorterSlotNumbers implements IntComparator {
         private final ScreenHandler container;
         private final boolean topToBottom;
 
@@ -2118,9 +2252,13 @@ public class InventoryUtils {
         }
 
         @Override
-        public int compare(Integer slotNum1, Integer slotNum2) {
-            Slot slot1 = this.container.getSlot(slotNum1.intValue());
-            Slot slot2 = this.container.getSlot(slotNum2.intValue());
+        public int compare(int slotNum1, int slotNum2) {
+            if (Objects.equals(slotNum1, slotNum2)) {
+                return 0;
+            }
+
+            Slot slot1 = this.container.getSlot(slotNum1);
+            Slot slot2 = this.container.getSlot(slotNum2);
 
             if (slot1.y == slot2.y) {
                 return (slot1.id < slot2.id) == this.topToBottom ? -1 : 1;
@@ -2130,7 +2268,9 @@ public class InventoryUtils {
         }
     }
 
-    public static void clickSlot(HandledScreen<? extends ScreenHandler> gui, int slotNum, int mouseButton,
+    public static void clickSlot(HandledScreen<? extends ScreenHandler> gui,
+            int slotNum,
+            int mouseButton,
             SlotActionType type) {
         if (slotNum >= 0 && slotNum < gui.getScreenHandler().slots.size()) {
             Slot slot = gui.getScreenHandler().getSlot(slotNum);
@@ -2147,7 +2287,10 @@ public class InventoryUtils {
         }
     }
 
-    public static void clickSlot(HandledScreen<? extends ScreenHandler> gui, Slot slot, int slotNum, int mouseButton,
+    public static void clickSlot(HandledScreen<? extends ScreenHandler> gui,
+            Slot slot,
+            int slotNum,
+            int mouseButton,
             SlotActionType type) {
         try {
             AccessorUtils.handleMouseClick(gui, slot, slotNum, mouseButton, type);
@@ -2200,7 +2343,8 @@ public class InventoryUtils {
         clickSlot(gui, slotNum, 0, SlotActionType.SWAP);
     }
 
-    private static void dragSplitItemsIntoSlots(HandledScreen<? extends ScreenHandler> gui, List<Integer> targetSlots) {
+    private static void dragSplitItemsIntoSlots(HandledScreen<? extends ScreenHandler> gui,
+            IntArrayList targetSlots) {
         ItemStack stackInCursor = gui.getScreenHandler().getCursorStack();
 
         if (isStackEmpty(stackInCursor)) {
@@ -2208,24 +2352,21 @@ public class InventoryUtils {
         }
 
         if (targetSlots.size() == 1) {
-            leftClickSlot(gui, targetSlots.get(0));
+            leftClickSlot(gui, targetSlots.getInt(0));
             return;
         }
 
         int numSlots = gui.getScreenHandler().slots.size();
-        int loops = targetSlots.size();
 
         // Start the drag
         clickSlot(gui, -999, 0, SlotActionType.QUICK_CRAFT);
 
-        for (int i = 0; i < loops; i++) {
-            int slotNum = targetSlots.get(i);
-
+        for (int slotNum : targetSlots) {
             if (slotNum >= numSlots) {
                 break;
             }
 
-            clickSlot(gui, targetSlots.get(i), 1, SlotActionType.QUICK_CRAFT);
+            clickSlot(gui, slotNum, 1, SlotActionType.QUICK_CRAFT);
         }
 
         // End the drag
