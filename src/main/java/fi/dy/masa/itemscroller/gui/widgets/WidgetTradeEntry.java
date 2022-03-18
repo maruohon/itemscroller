@@ -51,7 +51,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         icon.renderAt(x + 44, y + 5, z);
 
         // This entry has been favorited
-        if (this.data.getFavorites().contains(this.getListIndex()))
+        if (this.data.getFavorites().contains(this.getDataListIndex()))
         {
             ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z);
         }

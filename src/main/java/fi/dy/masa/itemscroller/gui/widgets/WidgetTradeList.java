@@ -85,7 +85,7 @@ public class WidgetTradeList extends InteractableWidget
             int relY = mouseY - (y + 18);
             int listIndex = relY / 20;
             WidgetTradeEntry entry = listIndex >= 0 && listIndex < this.entryList.size() ? this.entryList.get(listIndex) : null;
-            int recipeIndex = entry != null ? entry.getListIndex() : -1;
+            int recipeIndex = entry != null ? entry.getDataListIndex() : -1;
 
             if (recipeIndex >= 0)
             {
@@ -159,7 +159,7 @@ public class WidgetTradeList extends InteractableWidget
             // Render the trades
             for (WidgetTradeEntry widget : this.entryList)
             {
-                boolean selected = currentPage == widget.getListIndex();
+                boolean selected = currentPage == widget.getDataListIndex();
                 widget.renderAt(widget.getX(), widget.getY(), widget.getZ(), ctx, selected);
             }
 
