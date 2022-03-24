@@ -3,14 +3,14 @@ package fi.dy.masa.itemscroller.gui;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.GuiScreen;
-import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.config.BaseConfigScreen;
 import fi.dy.masa.malilib.gui.config.BaseConfigTab;
 import fi.dy.masa.malilib.gui.config.ConfigTab;
 import fi.dy.masa.malilib.util.data.ModInfo;
+import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.config.Hotkeys;
 
 public class ConfigScreen
 {

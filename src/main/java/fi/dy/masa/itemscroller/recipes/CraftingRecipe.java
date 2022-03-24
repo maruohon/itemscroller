@@ -6,9 +6,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
-import fi.dy.masa.malilib.util.data.IntRange;
 
 public class CraftingRecipe
 {

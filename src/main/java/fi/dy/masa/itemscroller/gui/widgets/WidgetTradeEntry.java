@@ -3,7 +3,6 @@ package fi.dy.masa.itemscroller.gui.widgets;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
-import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.icon.DefaultIcons;
 import fi.dy.masa.malilib.gui.icon.Icon;
@@ -15,6 +14,7 @@ import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.ShapeRenderUtils;
 import fi.dy.masa.malilib.render.TextRenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.itemscroller.villager.VillagerData;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 {

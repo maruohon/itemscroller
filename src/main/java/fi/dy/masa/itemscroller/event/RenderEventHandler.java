@@ -7,11 +7,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
-import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
-import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.util.InputUtils;
-import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
@@ -19,6 +14,11 @@ import fi.dy.masa.malilib.render.ShapeRenderUtils;
 import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.util.InputUtils;
+import fi.dy.masa.itemscroller.util.InventoryUtils;
 
 public class RenderEventHandler
 {

@@ -1,10 +1,10 @@
 package fi.dy.masa.itemscroller.event;
 
 import javax.annotation.Nullable;
-import fi.dy.masa.itemscroller.recipes.RecipeStorage;
-import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 
 public class ClientWorldChangeHandler implements fi.dy.masa.malilib.event.ClientWorldChangeHandler
 {

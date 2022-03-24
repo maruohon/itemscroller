@@ -1,9 +1,9 @@
 package fi.dy.masa.itemscroller.event;
 
 import java.util.List;
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.Unpooled;
 import org.lwjgl.input.Keyboard;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -16,6 +16,15 @@ import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.village.MerchantRecipeList;
+import fi.dy.masa.malilib.gui.BaseScreen;
+import fi.dy.masa.malilib.gui.util.GuiUtils;
+import fi.dy.masa.malilib.input.Hotkey;
+import fi.dy.masa.malilib.input.HotkeyCategory;
+import fi.dy.masa.malilib.input.HotkeyProvider;
+import fi.dy.masa.malilib.input.KeyboardInputHandler;
+import fi.dy.masa.malilib.input.MouseInputHandler;
+import fi.dy.masa.malilib.util.GameUtils;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -26,15 +35,6 @@ import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.Hotkey;
-import fi.dy.masa.malilib.input.HotkeyCategory;
-import fi.dy.masa.malilib.input.HotkeyProvider;
-import fi.dy.masa.malilib.input.KeyboardInputHandler;
-import fi.dy.masa.malilib.input.MouseInputHandler;
-import fi.dy.masa.malilib.util.GameUtils;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class InputHandler implements HotkeyProvider, KeyboardInputHandler, MouseInputHandler
 {

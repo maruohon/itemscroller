@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import fi.dy.masa.itemscroller.event.RenderEventHandler;
 import net.minecraft.client.renderer.EntityRenderer;
+import fi.dy.masa.itemscroller.event.RenderEventHandler;
 
 @Mixin(EntityRenderer.class)
 public abstract class MixinEntityRenderer

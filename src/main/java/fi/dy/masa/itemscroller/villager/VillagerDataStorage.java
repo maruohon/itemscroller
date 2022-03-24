@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
-import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.util.Constants;
-import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import fi.dy.masa.malilib.util.FileUtils;
+import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.util.Constants;
 
 public class VillagerDataStorage
 {

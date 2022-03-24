@@ -6,6 +6,14 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
+import fi.dy.masa.malilib.config.option.HotkeyConfig;
+import fi.dy.masa.malilib.gui.util.GuiUtils;
+import fi.dy.masa.malilib.input.ActionResult;
+import fi.dy.masa.malilib.input.KeyAction;
+import fi.dy.masa.malilib.input.KeyBind;
+import fi.dy.masa.malilib.input.callback.HotkeyCallback;
+import fi.dy.masa.malilib.util.GameUtils;
+import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -16,14 +24,6 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
-import fi.dy.masa.malilib.config.option.HotkeyConfig;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.ActionResult;
-import fi.dy.masa.malilib.input.KeyAction;
-import fi.dy.masa.malilib.input.KeyBind;
-import fi.dy.masa.malilib.input.callback.HotkeyCallback;
-import fi.dy.masa.malilib.util.GameUtils;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 
 public class KeybindCallbacks implements HotkeyCallback
 {

@@ -11,8 +11,8 @@ import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.malilib.util.data.IntRange;
+import fi.dy.masa.itemscroller.LiteModItemScroller;
 
 public class CraftingHandler
 {

@@ -12,13 +12,13 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.IMerchant;
 import net.minecraft.inventory.Container;
 import net.minecraft.village.MerchantRecipeList;
+import fi.dy.masa.malilib.gui.util.ScreenContext;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.gui.util.ScreenContext;
 
 @Mixin(GuiMerchant.class)
 public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerchant

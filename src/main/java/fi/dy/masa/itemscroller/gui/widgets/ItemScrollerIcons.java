@@ -1,9 +1,9 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
 import net.minecraft.util.ResourceLocation;
-import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.malilib.gui.icon.BaseIcon;
 import fi.dy.masa.malilib.gui.icon.Icon;
+import fi.dy.masa.itemscroller.Reference;
 
 public class ItemScrollerIcons
 {

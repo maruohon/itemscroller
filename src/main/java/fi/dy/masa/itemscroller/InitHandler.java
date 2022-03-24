@@ -1,14 +1,14 @@
 package fi.dy.masa.itemscroller;
 
+import fi.dy.masa.malilib.config.BaseModConfig;
+import fi.dy.masa.malilib.event.InitializationHandler;
+import fi.dy.masa.malilib.registry.Registry;
+import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.ClientWorldChangeHandler;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.event.KeybindCallbacks;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
-import fi.dy.masa.itemscroller.config.Actions;
-import fi.dy.masa.malilib.config.BaseModConfig;
-import fi.dy.masa.malilib.event.InitializationHandler;
-import fi.dy.masa.malilib.registry.Registry;
 
 public class InitHandler implements InitializationHandler
 {

@@ -5,17 +5,17 @@ import java.util.List;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
+import fi.dy.masa.malilib.gui.BaseScreen;
+import fi.dy.masa.malilib.gui.util.ScreenContext;
+import fi.dy.masa.malilib.gui.widget.InteractableWidget;
+import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.render.text.StyledTextLine;
 import fi.dy.masa.itemscroller.event.InputHandler;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.widget.InteractableWidget;
-import fi.dy.masa.malilib.gui.util.ScreenContext;
-import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.render.text.StyledTextLine;
 
 public class WidgetTradeList extends InteractableWidget
 {
