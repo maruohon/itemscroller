@@ -1,16 +1,16 @@
 [
-{
-  "modid": "itemscroller",
-  "name": "Item Scroller",
-  "description": "Move items in inventory GUIs by scrolling the mouse wheel over slots with items in them",
-  "version": "${mod_version}",
-  "mcversion": "${minecraft_version}",
-  "url": "http://minecraft.curseforge.com/projects/item-scroller",
-  "updateUrl": "",
-  "authorList": ["masa"],
-  "credits": "ChickenBones (original idea, in NEI)",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
-}
+	{
+		"modid": "itemscroller",
+		"name": "Item Scroller",
+		"description": "Move items in inventory GUIs by scrolling the mouse wheel or dragging over slots",
+		"version": "${mod_version}",
+		"mcversion": "${minecraft_version}",
+		"url": "https://www.curseforge.com/minecraft/mc-mods/item-scroller",
+		"updateUrl": "",
+		"authorList": [ "masa" ],
+		"credits": "ChickenBones (original idea, in NEI)",
+		"logoFile": "",
+		"screenshots": [],
+		"dependencies": []
+	}
 ]
