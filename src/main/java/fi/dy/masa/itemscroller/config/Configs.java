@@ -84,10 +84,12 @@ public class Configs
 
     public static class Lists
     {
-        public static final StringListConfig GUI_BLACKLIST   = new StringListConfig("guiBlackList", ImmutableList.of());
-        public static final StringListConfig SLOT_BLACKLIST  = new StringListConfig("slotBlackList", ImmutableList.of());
+        public static final StringListConfig CRAFTING_SCREENS   = new StringListConfig("craftingScreens", ImmutableList.of("bml,agm,0,1-9", "bmv,agm,0,1-4"));
+        public static final StringListConfig GUI_BLACKLIST      = new StringListConfig("guiBlackList", ImmutableList.of());
+        public static final StringListConfig SLOT_BLACKLIST     = new StringListConfig("slotBlackList", ImmutableList.of());
 
         public static final ImmutableList<StringListConfig> OPTIONS = ImmutableList.of(
+                CRAFTING_SCREENS,
                 GUI_BLACKLIST,
                 SLOT_BLACKLIST
         );

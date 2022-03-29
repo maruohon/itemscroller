@@ -2,36 +2,71 @@ package fi.dy.masa.itemscroller.recipes;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiCrafting;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.inventory.SlotCrafting;
 import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 
 public class CraftingHandler
 {
+    private static final Pattern CRAFTING_SCREEN_PATTERN = Pattern.compile("(?<screenclass>[a-zA-Z0-9.$_]+),(?<slotclass>[a-zA-Z0-9.$_]+),(?<outputslot>[0-9]+),(?<rangestart>[0-9]+)-(?<rangeend>[0-9]+)");
+
     private static final Map<CraftingOutputSlot, IntRange> CRAFTING_GRID_SLOTS = new HashMap<>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
 
-    public static void updateGridDefinitions()
+    public static void updateGridDefinitions(List<String> definitions)
     {
         CRAFTING_GRID_SLOTS.clear();
         CRAFTING_GUIS.clear();
 
+        for (String str : definitions)
+        {
+            addCraftingGridDefinition(str);
+        }
+
         // "net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", // vanilla Crafting Table
-        addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 9));
-        //"net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
-        addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 4));
+        // "net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4", // vanilla player inventory crafting grid
+
+        //addCraftingGridDefinition(GuiCrafting.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 9));
+        //addCraftingGridDefinition(GuiInventory.class.getName(), SlotCrafting.class.getName(), 0, new IntRange(1, 4));
+    }
+
+    protected static void addCraftingGridDefinition(String str)
+    {
+        try
+        {
+            Matcher matcher = CRAFTING_SCREEN_PATTERN.matcher(str);
+
+            if (matcher.matches())
+            {
+                String guiClassName = matcher.group("screenclass");
+                String slotClassName = matcher.group("slotclass");
+                int outputSlot = Integer.parseInt(matcher.group("outputslot"));
+                IntRange range = new IntRange(Integer.parseInt(matcher.group("rangestart")),
+                                              Integer.parseInt(matcher.group("rangeend")));
+
+                addCraftingGridDefinition(guiClassName, slotClassName, outputSlot, range);
+            }
+            else
+            {
+                LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
+            }
+        }
+        catch (Exception e)
+        {
+            LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, IntRange range)
+    private static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, IntRange range)
     {
         try
         {
@@ -45,8 +80,8 @@ public class CraftingHandler
         }
         catch (Exception e)
         {
-            LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: gui: '{}', slot: '{}', outputSlot: {}",
-                    guiClassName, slotClassName, outputSlot);
+            LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: screen: '{}', slot: '{}', outputSlot: {}, grid slot range: {}",
+                                            guiClassName, slotClassName, outputSlot, range);
         }
 
         return false;
@@ -54,13 +89,11 @@ public class CraftingHandler
 
     public static boolean isCraftingGui(GuiScreen gui)
     {
-        return (gui instanceof GuiContainer) && CRAFTING_GUIS.contains(((GuiContainer) gui).getClass());
+        return (gui instanceof GuiContainer) && CRAFTING_GUIS.contains(gui.getClass());
     }
 
     /**
      * Gets the crafting grid SlotRange associated with the given slot in the given gui, if any.
-     * @param gui
-     * @param slot
      * @return the SlotRange of the crafting grid, or null, if the given slot is not a crafting output slot
      */
     @Nullable

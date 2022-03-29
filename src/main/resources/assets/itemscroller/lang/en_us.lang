@@ -31,6 +31,7 @@ itemscroller.config.comment.shiftdropitems=Allows dropping all matching items at
 itemscroller.config.comment.shiftplaceitems=Allows moving all matching stacks (only from the inventory from which you picked up the stack from) at once to the inventory where you are placing the stack from the cursor to, by holding §eshift§r while you place the stack from the cursor to an empty slot
 itemscroller.config.comment.villagertradelist=Show a 1.14+ style trade list in the villager trade screens
 
+itemscroller.config.comment.craftingscreens=A list of crafting screen definitions.\n\nThis defines which screens the crafting features can work in, and which slot is used as the output slot and which slots are used as the crafting grid slots.\n\nThe format is:\n  §ascreen_class,slot_class,output_slot,start_slot-end_slot§r\n\nSo for example:\n  §asome.mod.CraftingScreen,some.mod.CraftingSlot,0,1-9§r\n\nYou can find out the screen and slot class names and the slot numbers using the §eSlot Debug§r hotkey.
 itemscroller.config.comment.guiblacklist=A list of inventory screens where Item Scroller shouldn't be active
 itemscroller.config.comment.slotblacklist=A list of slots that Item Scroller should not operate on
 
@@ -58,6 +59,7 @@ itemscroller.config.name.shiftdropitems=Shift Drop Matching
 itemscroller.config.name.shiftplaceitems=Shift Place Matching
 itemscroller.config.name.villagertradelist=Villager Trade List
 
+itemscroller.config.name.craftingscreens=Crafting Screens
 itemscroller.config.name.guiblacklist=Inventory Screen BlackList
 itemscroller.config.name.slotblacklist=Slot BlackList
 
