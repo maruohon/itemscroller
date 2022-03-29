@@ -152,8 +152,8 @@ public class InventoryUtils
         boolean villagerHandling = Configs.Toggles.SCROLL_VILLAGER.getBooleanValue() && gui instanceof GuiMerchant && slot instanceof SlotMerchantResult;
         boolean craftingHandling = Configs.Toggles.CRAFTING_FEATURES.getBooleanValue() && isCraftingSlot(gui, slot);
         boolean keyActiveMoveEverything = Hotkeys.MODIFIER_MOVE_EVERYTHING.getKeyBind().isKeyBindHeld();
-        boolean keyActiveMoveMatching = Hotkeys.MODIFIER_MOVE_MATCHING.getKeyBind().isKeyBindHeld();
-        boolean keyActiveMoveStacks = Hotkeys.MODIFIER_MOVE_STACK.getKeyBind().isKeyBindHeld();
+        boolean keyActiveMoveMatching = Hotkeys.MODIFIER_MOVE_ALL_MATCHING.getKeyBind().isKeyBindHeld();
+        boolean keyActiveMoveStacks = Hotkeys.MODIFIER_MOVE_ENTIRE_STACK.getKeyBind().isKeyBindHeld();
         boolean nonSingleMove = keyActiveMoveEverything || keyActiveMoveMatching || keyActiveMoveStacks;
         boolean moveToOtherInventory = scrollingUp;
 
@@ -186,10 +186,10 @@ public class InventoryUtils
             return tryMoveItemsVillager((GuiMerchant) gui, slot, moveToOtherInventory, keyActiveMoveStacks);
         }
 
-        if ((Configs.Toggles.SCROLL_SINGLE.getBooleanValue() == false && nonSingleMove == false) ||
-            (Configs.Toggles.SCROLL_STACKS.getBooleanValue() == false && keyActiveMoveStacks) ||
-            (Configs.Toggles.SCROLL_MATCHING.getBooleanValue() == false && keyActiveMoveMatching) ||
-            (Configs.Toggles.SCROLL_EVERYTHING.getBooleanValue() == false && keyActiveMoveEverything))
+        if ((Configs.Toggles.SCROLL_MOVE_ONE.getBooleanValue() == false && nonSingleMove == false) ||
+            (Configs.Toggles.SCROLL_MOVE_ENTIRE_STACKS.getBooleanValue() == false && keyActiveMoveStacks) ||
+            (Configs.Toggles.SCROLL_MOVE_ALL_MATCHING.getBooleanValue() == false && keyActiveMoveMatching) ||
+            (Configs.Toggles.SCROLL_MOVE_EVERYTHING.getBooleanValue() == false && keyActiveMoveEverything))
         {
             return false;
         }

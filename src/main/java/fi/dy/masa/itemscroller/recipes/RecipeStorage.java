@@ -181,7 +181,7 @@ public class RecipeStorage
 
     private String getFileName()
     {
-        if (Configs.Generic.SCROLL_CRAFT_RECIPE_FILE_GLOBAL.getBooleanValue() == false)
+        if (Configs.Generic.CRAFTING_RECIPES_SAVE_FILE_GLOBAL.getBooleanValue() == false)
         {
             String worldName = StringUtils.getWorldOrServerName();
 
@@ -201,7 +201,7 @@ public class RecipeStorage
 
     public void readFromDisk()
     {
-        if (Configs.Generic.SCROLL_CRAFT_STORE_RECIPES_TO_FILE.getBooleanValue())
+        if (Configs.Generic.CRAFTING_RECIPES_SAVE_TO_FILE.getBooleanValue())
         {
             try
             {
@@ -229,7 +229,7 @@ public class RecipeStorage
 
     public void writeToDisk()
     {
-        if (this.dirty && Configs.Generic.SCROLL_CRAFT_STORE_RECIPES_TO_FILE.getBooleanValue())
+        if (this.dirty && Configs.Generic.CRAFTING_RECIPES_SAVE_TO_FILE.getBooleanValue())
         {
             try
             {

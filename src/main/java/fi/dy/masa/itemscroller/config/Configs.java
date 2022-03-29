@@ -9,6 +9,7 @@ import fi.dy.masa.malilib.config.option.HotkeyedBooleanConfig;
 import fi.dy.masa.malilib.config.option.list.StringListConfig;
 import fi.dy.masa.malilib.input.Hotkey;
 import fi.dy.masa.malilib.input.KeyBindSettings;
+import fi.dy.masa.malilib.overlay.message.MessageOutput;
 
 public class Configs
 {
@@ -17,21 +18,21 @@ public class Configs
     public static class Generic
     {
         public static final BooleanConfig CARPET_CTRL_Q_CRAFTING                = new BooleanConfig("carpetCtrlQCraftingEnabledOnServer", false);
-        public static final BooleanConfig CLIENT_CRAFTING_FIX                   = new BooleanConfig("clientCraftingFixOn1.12", true);
+        public static final BooleanConfig CLIENT_CRAFTING_FIX                   = new BooleanConfig("clientCraftingFix1.12", true);
+        public static final BooleanConfig CRAFTING_RECIPES_SAVE_FILE_GLOBAL     = new BooleanConfig("craftingRecipesSaveFileGlobal", false);
+        public static final BooleanConfig CRAFTING_RECIPES_SAVE_TO_FILE         = new BooleanConfig("craftingRecipesSaveToFile", true);
         public static final BooleanConfig CRAFTING_RENDER_RECIPE_ITEMS          = new BooleanConfig("craftingRenderRecipeItems", true);
-        public static final BooleanConfig SCROLL_CRAFT_STORE_RECIPES_TO_FILE    = new BooleanConfig("craftingRecipesSaveToFile", true);
-        public static final BooleanConfig SCROLL_CRAFT_RECIPE_FILE_GLOBAL       = new BooleanConfig("craftingRecipesSaveFileIsGlobal", false);
         public static final BooleanConfig REVERSE_SCROLL_DIRECTION_SINGLE       = new BooleanConfig("reverseScrollDirectionSingle", false);
         public static final BooleanConfig REVERSE_SCROLL_DIRECTION_STACKS       = new BooleanConfig("reverseScrollDirectionStacks", false);
-        public static final BooleanConfig SLOT_POSITION_AWARE_SCROLL_DIRECTION  = new BooleanConfig("useSlotPositionAwareScrollDirection", false);
+        public static final BooleanConfig SLOT_POSITION_AWARE_SCROLL_DIRECTION  = new BooleanConfig("slotPositionAwareScrollDirection", false);
         public static final BooleanConfig VILLAGER_TRADE_LIST_REMEMBER_PAGE     = new BooleanConfig("villagerTradeListRememberPage", true);
 
         public static final ImmutableList<ConfigOption<?>> OPTIONS = ImmutableList.of(
                 CARPET_CTRL_Q_CRAFTING,
                 CLIENT_CRAFTING_FIX,
                 CRAFTING_RENDER_RECIPE_ITEMS,
-                SCROLL_CRAFT_STORE_RECIPES_TO_FILE,
-                SCROLL_CRAFT_RECIPE_FILE_GLOBAL,
+                CRAFTING_RECIPES_SAVE_TO_FILE,
+                CRAFTING_RECIPES_SAVE_FILE_GLOBAL,
                 REVERSE_SCROLL_DIRECTION_SINGLE,
                 REVERSE_SCROLL_DIRECTION_STACKS,
                 SLOT_POSITION_AWARE_SCROLL_DIRECTION,
@@ -41,29 +42,33 @@ public class Configs
 
     public static class Toggles
     {
-        public static final BooleanConfig CRAFTING_FEATURES         = new BooleanConfig("enableCraftingFeatures", true);
-        public static final BooleanConfig DROP_MATCHING             = new BooleanConfig("enableDropkeyDropMatching", true);
-        public static final HotkeyedBooleanConfig MAIN_TOGGLE       = new HotkeyedBooleanConfig("modFeaturesMainToggle", true, "", KeyBindSettings.GUI_DEFAULT);
-        public static final BooleanConfig RIGHT_CLICK_CRAFT_STACK   = new BooleanConfig("enableRightClickCraftingOneStack", true);
-        public static final BooleanConfig SCROLL_EVERYTHING         = new BooleanConfig("enableScrollingEverything", true);
-        public static final BooleanConfig SCROLL_MATCHING           = new BooleanConfig("enableScrollingMatchingStacks", true);
-        public static final BooleanConfig SCROLL_SINGLE             = new BooleanConfig("enableScrollingSingle", true);
-        public static final BooleanConfig SCROLL_STACKS             = new BooleanConfig("enableScrollingStacks", true);
-        public static final BooleanConfig SCROLL_STACKS_FALLBACK    = new BooleanConfig("enableScrollingStacksFallback", true);
-        public static final BooleanConfig SCROLL_VILLAGER           = new BooleanConfig("enableScrollingVillager", true);
-        public static final BooleanConfig SHIFT_DROP_ITEMS          = new BooleanConfig("enableShiftDropItems", true);
-        public static final BooleanConfig SHIFT_PLACE_ITEMS         = new BooleanConfig("enableShiftPlaceItems", true);
-        public static final BooleanConfig VILLAGER_TRADE_LIST       = new BooleanConfig("enableVillagerTradeList", true);
+        private static final KeyBindSettings GUI_TOGGLE = KeyBindSettings.GUI_DEFAULT.asBuilder().messageOutput(MessageOutput.MESSAGE_OVERLAY).build();
+
+        public static final HotkeyedBooleanConfig CRAFTING_FEATURES     = new HotkeyedBooleanConfig("craftingFeatures",     true, "", GUI_TOGGLE);
+        public static final HotkeyedBooleanConfig MOD_FEATURES_ENABLED  = new HotkeyedBooleanConfig("modFeaturesEnabled",   true, "", GUI_TOGGLE);
+
+        public static final BooleanConfig DROP_MATCHING             = new BooleanConfig("dropMatchingWithKey", true);
+        public static final BooleanConfig RIGHT_CLICK_CRAFT_STACK   = new BooleanConfig("rightClickCraftOneStack", true);
+        public static final BooleanConfig SCROLL_MOVE_ALL_MATCHING  = new BooleanConfig("scrollMoveAllMatching", true);
+        public static final BooleanConfig SCROLL_MOVE_EVERYTHING    = new BooleanConfig("scrollMoveEverything", true);
+        public static final BooleanConfig SCROLL_MOVE_ENTIRE_STACKS = new BooleanConfig("scrollMoveEntireStacks", true);
+        public static final BooleanConfig SCROLL_MOVE_ONE           = new BooleanConfig("scrollMoveOne", true);
+        public static final BooleanConfig SCROLL_STACKS_FALLBACK    = new BooleanConfig("scrollStacksFallback", true);
+        public static final BooleanConfig SCROLL_VILLAGER           = new BooleanConfig("scrollVillager", true);
+        public static final BooleanConfig SHIFT_DROP_ITEMS          = new BooleanConfig("shiftDropItems", true);
+        public static final BooleanConfig SHIFT_PLACE_ITEMS         = new BooleanConfig("shiftPlaceItems", true);
+        public static final BooleanConfig VILLAGER_TRADE_LIST       = new BooleanConfig("villagerTradeList", true);
 
         public static final ImmutableList<ConfigOption<?>> OPTIONS = ImmutableList.of(
+                MOD_FEATURES_ENABLED,
                 CRAFTING_FEATURES,
+
                 DROP_MATCHING,
-                MAIN_TOGGLE,
                 RIGHT_CLICK_CRAFT_STACK,
-                SCROLL_EVERYTHING,
-                SCROLL_MATCHING,
-                SCROLL_SINGLE,
-                SCROLL_STACKS,
+                SCROLL_MOVE_EVERYTHING,
+                SCROLL_MOVE_ALL_MATCHING,
+                SCROLL_MOVE_ONE,
+                SCROLL_MOVE_ENTIRE_STACKS,
                 SCROLL_STACKS_FALLBACK,
                 SCROLL_VILLAGER,
                 SHIFT_DROP_ITEMS,
@@ -72,14 +77,15 @@ public class Configs
         );
 
         public static final ImmutableList<? extends Hotkey> HOTKEYS = ImmutableList.of(
-                MAIN_TOGGLE
+                CRAFTING_FEATURES,
+                MOD_FEATURES_ENABLED
         );
     }
 
     public static class Lists
     {
-        public static final StringListConfig GUI_BLACKLIST   = new StringListConfig("guiBlacklist", ImmutableList.of());
-        public static final StringListConfig SLOT_BLACKLIST  = new StringListConfig("slotBlacklist", ImmutableList.of());
+        public static final StringListConfig GUI_BLACKLIST   = new StringListConfig("guiBlackList", ImmutableList.of());
+        public static final StringListConfig SLOT_BLACKLIST  = new StringListConfig("slotBlackList", ImmutableList.of());
 
         public static final ImmutableList<StringListConfig> OPTIONS = ImmutableList.of(
                 GUI_BLACKLIST,

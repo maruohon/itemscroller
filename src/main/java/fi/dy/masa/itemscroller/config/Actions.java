@@ -2,7 +2,6 @@ package fi.dy.masa.itemscroller.config;
 
 import fi.dy.masa.malilib.action.ActionUtils;
 import fi.dy.masa.malilib.action.NamedAction;
-import fi.dy.masa.malilib.config.option.HotkeyedBooleanConfig;
 import fi.dy.masa.malilib.listener.EventListener;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
@@ -13,16 +12,12 @@ public class Actions
 
     public static void init()
     {
-        register("toggleModFeaturesEnabled", Configs.Toggles.MAIN_TOGGLE);
+        ActionUtils.registerBooleanConfigActions(Configs.Generic.OPTIONS);
+        ActionUtils.registerBooleanConfigActions(Configs.Toggles.OPTIONS);
     }
 
     private static NamedAction register(String name, EventListener action)
     {
         return ActionUtils.register(Reference.MOD_INFO, name, action);
-    }
-
-    private static NamedAction register(String name, HotkeyedBooleanConfig config)
-    {
-        return ActionUtils.registerToggleKey(Reference.MOD_INFO, name, config);
     }
 }

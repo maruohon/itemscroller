@@ -111,7 +111,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
         Minecraft mc = GameUtils.getClient();
         boolean cancel = false;
 
-        if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() && mc.player != null)
+        if (Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() && mc.player != null)
         {
             final boolean isAttack = InputUtils.isAttack(keyCode);
             final boolean isUse = InputUtils.isUse(keyCode);
@@ -241,7 +241,7 @@ public class InputHandler implements HotkeyProvider, KeyboardInputHandler, Mouse
     {
         Minecraft mc = GameUtils.getClient();
 
-        if (Configs.Toggles.MAIN_TOGGLE.getBooleanValue() &&
+        if (Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() &&
             mc.player != null &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&
             Configs.Lists.GUI_BLACKLIST.getValue().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false)
