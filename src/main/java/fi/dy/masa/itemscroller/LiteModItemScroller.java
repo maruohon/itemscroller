@@ -9,7 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.client.Minecraft;
 import fi.dy.masa.malilib.registry.Registry;
-import fi.dy.masa.itemscroller.event.KeybindCallbacks;
+import fi.dy.masa.itemscroller.input.KeybindCallbacks;
 import fi.dy.masa.itemscroller.gui.ItemScrollerConfigPanel;
 
 public class LiteModItemScroller implements LiteMod, Configurable, Tickable

@@ -10,10 +10,11 @@ import fi.dy.masa.malilib.config.option.list.StringListConfig;
 import fi.dy.masa.malilib.input.Hotkey;
 import fi.dy.masa.malilib.input.KeyBindSettings;
 import fi.dy.masa.malilib.overlay.message.MessageOutput;
+import fi.dy.masa.itemscroller.Reference;
 
 public class Configs
 {
-    public static final int CONFIG_VERSION = 1;
+    public static final int CURRENT_VERSION = 1;
 
     public static class Generic
     {
@@ -96,9 +97,9 @@ public class Configs
     }
 
     public static final ImmutableList<ConfigOptionCategory> CATEGORIES = ImmutableList.of(
-            BaseConfigOptionCategory.normal("Generic", Generic.OPTIONS),
-            BaseConfigOptionCategory.normal("Toggles", Toggles.OPTIONS),
-            BaseConfigOptionCategory.normal("Hotkeys", Hotkeys.HOTKEY_LIST),
-            BaseConfigOptionCategory.normal("Lists",   Lists.OPTIONS)
+            BaseConfigOptionCategory.normal(Reference.MOD_INFO, "Generic", Generic.OPTIONS),
+            BaseConfigOptionCategory.normal(Reference.MOD_INFO, "Toggles", Toggles.OPTIONS),
+            BaseConfigOptionCategory.normal(Reference.MOD_INFO, "Hotkeys", Hotkeys.HOTKEY_LIST),
+            BaseConfigOptionCategory.normal(Reference.MOD_INFO, "Lists",   Lists.OPTIONS)
     );
 }

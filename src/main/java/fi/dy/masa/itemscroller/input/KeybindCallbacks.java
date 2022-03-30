@@ -1,4 +1,4 @@
-package fi.dy.masa.itemscroller.event;
+package fi.dy.masa.itemscroller.input;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

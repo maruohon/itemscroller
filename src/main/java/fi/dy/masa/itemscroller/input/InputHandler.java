@@ -1,7 +1,5 @@
-package fi.dy.masa.itemscroller.event;
+package fi.dy.masa.itemscroller.input;
 
-import java.util.List;
-import com.google.common.collect.ImmutableList;
 import io.netty.buffer.Unpooled;
 import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
@@ -18,16 +16,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.Hotkey;
-import fi.dy.masa.malilib.input.HotkeyCategory;
-import fi.dy.masa.malilib.input.HotkeyProvider;
 import fi.dy.masa.malilib.input.KeyboardInputHandler;
 import fi.dy.masa.malilib.input.MouseInputHandler;
 import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
-import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
-import fi.dy.masa.itemscroller.config.Hotkeys;
+import fi.dy.masa.itemscroller.event.RenderEventHandler;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
@@ -36,20 +30,9 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 
-public class InputHandler implements HotkeyProvider, KeyboardInputHandler, MouseInputHandler
+public class InputHandler implements KeyboardInputHandler, MouseInputHandler
 {
-    @Override
-    public List<? extends Hotkey> getAllHotkeys()
-    {
-        return Hotkeys.ALL_HOTKEYS;
-    }
-
-    @Override
-    public List<HotkeyCategory> getHotkeysByCategories()
-    {
-        return ImmutableList.of(new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.hotkeys", Hotkeys.HOTKEY_LIST),
-                                new HotkeyCategory(Reference.MOD_INFO, "itemscroller.hotkeys.category.toggles", Configs.Toggles.HOTKEYS));
-    }
+    public static final InputHandler INSTANCE = new InputHandler();
 
     @Override
     public boolean onKeyInput(int keyCode, int scanCode, int modifiers, boolean eventKeyState)
