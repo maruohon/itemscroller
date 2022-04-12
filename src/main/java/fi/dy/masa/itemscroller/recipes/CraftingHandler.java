@@ -8,9 +8,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiCrafting;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.SlotCrafting;
 import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 
@@ -20,6 +24,9 @@ public class CraftingHandler
 
     private static final Map<CraftingOutputSlot, IntRange> CRAFTING_GRID_SLOTS = new HashMap<>();
     private static final Set<Class<? extends GuiContainer>> CRAFTING_GUIS = new HashSet<>();
+
+    private static final ImmutableMap<String, Class<? extends GuiContainer>> INVENTORY_SCREEN_CLASS_OVERRIDES = ImmutableMap.of("net.minecraft.client.gui.inventory.GuiCrafting", GuiCrafting.class, "net.minecraft.client.gui.inventory.GuiInventory", GuiInventory.class);
+    private static final ImmutableMap<String, Class<? extends Slot>> SLOT_CLASS_OVERRIDES = ImmutableMap.of("net.minecraft.inventory.SlotCrafting", SlotCrafting.class);
 
     public static void updateGridDefinitions(List<String> definitions)
     {
@@ -66,12 +73,12 @@ public class CraftingHandler
     }
 
     @SuppressWarnings("unchecked")
-    private static boolean addCraftingGridDefinition(String guiClassName, String slotClassName, int outputSlot, IntRange range)
+    private static boolean addCraftingGridDefinition(String screenClassName, String slotClassName, int outputSlot, IntRange range)
     {
         try
         {
-            Class<? extends GuiContainer> guiClass = (Class<? extends GuiContainer>) Class.forName(guiClassName);
-            Class<? extends Slot> slotClass = (Class<? extends Slot>) Class.forName(slotClassName);
+            Class<? extends GuiContainer> guiClass = INVENTORY_SCREEN_CLASS_OVERRIDES.getOrDefault(screenClassName, (Class<? extends GuiContainer>) Class.forName(screenClassName));
+            Class<? extends Slot> slotClass = SLOT_CLASS_OVERRIDES.getOrDefault(slotClassName, (Class<? extends Slot>) Class.forName(slotClassName));
 
             CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(guiClass, slotClass, outputSlot), range);
             CRAFTING_GUIS.add(guiClass);
@@ -81,7 +88,7 @@ public class CraftingHandler
         catch (Exception e)
         {
             LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: screen: '{}', slot: '{}', outputSlot: {}, grid slot range: {}",
-                                            guiClassName, slotClassName, outputSlot, range);
+                                            screenClassName, slotClassName, outputSlot, range);
         }
 
         return false;

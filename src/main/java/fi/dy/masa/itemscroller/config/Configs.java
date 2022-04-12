@@ -85,7 +85,7 @@ public class Configs
 
     public static class Lists
     {
-        public static final StringListConfig CRAFTING_SCREENS   = new StringListConfig("craftingScreens", ImmutableList.of("bml,agm,0,1-9", "bmv,agm,0,1-4"));
+        public static final StringListConfig CRAFTING_SCREENS   = new StringListConfig("craftingScreens", ImmutableList.of("net.minecraft.client.gui.inventory.GuiCrafting,net.minecraft.inventory.SlotCrafting,0,1-9", "net.minecraft.client.gui.inventory.GuiInventory,net.minecraft.inventory.SlotCrafting,0,1-4"));
         public static final StringListConfig GUI_BLACKLIST      = new StringListConfig("guiBlackList", ImmutableList.of());
         public static final StringListConfig SLOT_BLACKLIST     = new StringListConfig("slotBlackList", ImmutableList.of());
 
