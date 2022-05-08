@@ -1,7 +1,6 @@
 package fi.dy.masa.itemscroller.input;
 
 import io.netty.buffer.Unpooled;
-import org.lwjgl.input.Keyboard;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -17,6 +16,7 @@ import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.malilib.gui.BaseScreen;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.KeyboardInputHandler;
+import fi.dy.masa.malilib.input.Keys;
 import fi.dy.masa.malilib.input.MouseInputHandler;
 import fi.dy.masa.malilib.util.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
@@ -45,23 +45,23 @@ public class InputHandler implements KeyboardInputHandler, MouseInputHandler
             int recipesPerPage = recipes.getRecipeCountPerPage();
             int recipeIndexChange = BaseScreen.isShiftDown() ? recipesPerPage : recipesPerPage / 2;
 
-            if (keyCode >= Keyboard.KEY_1 && keyCode <= Keyboard.KEY_9)
+            if (keyCode >= Keys.KEY_1 && keyCode <= Keys.KEY_9)
             {
-                index = MathHelper.clamp(keyCode - Keyboard.KEY_1, 0, 8);
+                index = MathHelper.clamp(keyCode - Keys.KEY_1, 0, 8);
             }
-            else if (keyCode == Keyboard.KEY_UP && oldIndex > 0)
+            else if (keyCode == Keys.KEY_UP && oldIndex > 0)
             {
                 index = oldIndex - 1;
             }
-            else if (keyCode == Keyboard.KEY_DOWN && oldIndex < (recipes.getTotalRecipeCount() - 1))
+            else if (keyCode == Keys.KEY_DOWN && oldIndex < (recipes.getTotalRecipeCount() - 1))
             {
                 index = oldIndex + 1;
             }
-            else if (keyCode == Keyboard.KEY_LEFT && oldIndex >= recipeIndexChange)
+            else if (keyCode == Keys.KEY_LEFT && oldIndex >= recipeIndexChange)
             {
                 index = oldIndex - recipeIndexChange;
             }
-            else if (keyCode == Keyboard.KEY_RIGHT && oldIndex < (recipes.getTotalRecipeCount() - recipeIndexChange))
+            else if (keyCode == Keys.KEY_RIGHT && oldIndex < (recipes.getTotalRecipeCount() - recipeIndexChange))
             {
                 index = oldIndex + recipeIndexChange;
             }
