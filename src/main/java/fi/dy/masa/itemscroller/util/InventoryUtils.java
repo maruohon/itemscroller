@@ -34,6 +34,7 @@ import net.minecraft.world.World;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.Keys;
 import fi.dy.masa.malilib.util.GameUtils;
+import fi.dy.masa.malilib.util.ItemUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.IntRange;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
@@ -2247,7 +2248,7 @@ public class InventoryUtils
 
     public static void tryClearCursor(GuiContainer gui, Minecraft mc)
     {
-        if (mc.player.inventory.getCurrentItem().isEmpty() == false)
+        if (ItemUtils.notEmpty(mc.player.inventory.getCurrentItem()))
         {
             List<Integer> emptySlots = getSlotNumbersOfEmptySlotsInPlayerInventory(gui.inventorySlots, false);
 
@@ -2279,7 +2280,7 @@ public class InventoryUtils
             }
         }
 
-        if (mc.player.inventory.getCurrentItem().isEmpty() == false)
+        if (ItemUtils.notEmpty(mc.player.inventory.getCurrentItem()))
         {
             dropItemsFromCursor(gui);
         }
@@ -2479,7 +2480,7 @@ public class InventoryUtils
 
     public static boolean isStackEmpty(ItemStack stack)
     {
-        return stack.isEmpty();
+        return ItemUtils.isEmpty(stack);
     }
 
     public static int getStackSize(ItemStack stack)

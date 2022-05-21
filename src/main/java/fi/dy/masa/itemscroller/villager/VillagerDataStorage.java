@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.util.Constants;
@@ -96,17 +97,17 @@ public class VillagerDataStorage
 
     private void readFromNBT(NBTTagCompound nbt)
     {
-        if (nbt == null || nbt.hasKey("VillagerData", Constants.NBT.TAG_LIST) == false)
+        if (nbt == null || NbtUtils.containsList(nbt, "VillagerData") == false)
         {
             return;
         }
 
-        NBTTagList tagList = nbt.getTagList("VillagerData", Constants.NBT.TAG_COMPOUND);
-        final int count = tagList.tagCount();
+        NBTTagList tagList = NbtUtils.getList(nbt, "VillagerData", Constants.NBT.TAG_COMPOUND);
+        final int count = NbtUtils.getListSize(tagList);
 
         for (int i = 0; i < count; i++)
         {
-            NBTTagCompound tag = tagList.getCompoundTagAt(i);
+            NBTTagCompound tag = NbtUtils.getCompoundAt(tagList, i);
             VillagerData data = VillagerData.fromNBT(tag);
 
             if (data != null)
@@ -122,10 +123,10 @@ public class VillagerDataStorage
 
         for (VillagerData data : this.data.values())
         {
-            tagList.appendTag(data.toNBT());
+            NbtUtils.addTag(tagList, data.toNBT());
         }
 
-        nbt.setTag("VillagerData", tagList);
+        NbtUtils.putTag(nbt, "VillagerData", tagList);
 
         this.dirty = false;
 

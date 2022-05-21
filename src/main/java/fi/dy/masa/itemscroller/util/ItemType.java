@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import fi.dy.masa.malilib.util.ItemUtils;
 
 /**
  * Wrapper class for ItemStack, which implements equals()
@@ -33,7 +35,8 @@ public class ItemType
         //result = prime * result + ((stack == null) ? 0 : stack.hashCode());
         result = prime * result + this.stack.getMetadata();
         result = prime * result + this.stack.getItem().hashCode();
-        result = prime * result + (this.stack.getTagCompound() != null ? this.stack.getTagCompound().hashCode() : 0);
+        NBTTagCompound tag = ItemUtils.getTag(this.stack);
+        result = prime * result + (tag != null ? tag.hashCode() : 0);
         return result;
     }
 
@@ -44,15 +47,14 @@ public class ItemType
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (this.getClass() != obj.getClass())
             return false;
 
         ItemType other = (ItemType) obj;
 
         if (InventoryUtils.isStackEmpty(this.stack) || InventoryUtils.isStackEmpty(other.stack))
         {
-            if (InventoryUtils.isStackEmpty(this.stack) != InventoryUtils.isStackEmpty(other.stack))
-                return false;
+            return InventoryUtils.isStackEmpty(this.stack) == InventoryUtils.isStackEmpty(other.stack);
         }
         else
         {
@@ -68,8 +70,6 @@ public class ItemType
 
             return ItemStack.areItemStackTagsEqual(this.stack, other.stack);
         }
-
-        return true;
     }
 
     /**
@@ -79,7 +79,7 @@ public class ItemType
      */
     public static Map<ItemType, List<Integer>> getSlotsPerItem(ItemStack[] stacks)
     {
-        Map<ItemType, List<Integer>> mapSlots = new HashMap<ItemType, List<Integer>>();
+        Map<ItemType, List<Integer>> mapSlots = new HashMap<>();
 
         for (int i = 0; i < stacks.length; i++)
         {
@@ -88,13 +88,7 @@ public class ItemType
             if (InventoryUtils.isStackEmpty(stack) == false)
             {
                 ItemType item = new ItemType(stack);
-                List<Integer> slots = mapSlots.get(item);
-
-                if (slots == null)
-                {
-                    slots = new ArrayList<Integer>();
-                    mapSlots.put(item, slots);
-                }
+                List<Integer> slots = mapSlots.computeIfAbsent(item, k -> new ArrayList<>());
 
                 slots.add(i);
             }

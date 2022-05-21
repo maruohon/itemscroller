@@ -13,6 +13,7 @@ import fi.dy.masa.malilib.render.ItemRenderUtils;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.ShapeRenderUtils;
 import fi.dy.masa.malilib.render.TextRenderUtils;
+import fi.dy.masa.malilib.util.ItemUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 
@@ -62,17 +63,17 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         ItemStack buy2 = recipe.getSecondItemToBuy();
         ItemStack sell = recipe.getItemToSell();
 
-        if (buy1.isEmpty() == false)
+        if (ItemUtils.notEmpty(buy1))
         {
             ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f, this.mc);
         }
 
-        if (buy2.isEmpty() == false)
+        if (ItemUtils.notEmpty(buy2))
         {
             ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f, this.mc);
         }
 
-        if (sell.isEmpty() == false)
+        if (ItemUtils.notEmpty(sell))
         {
             ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f, this.mc);
         }
@@ -96,7 +97,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 ItemStack buy1 = recipe.getItemToBuy();
 
-                if (buy1.isEmpty() == false)
+                if (ItemUtils.notEmpty(buy1))
                 {
                     ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1, this.mc);
                 }
@@ -105,7 +106,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 ItemStack buy2 = recipe.getSecondItemToBuy();
 
-                if (buy2.isEmpty() == false)
+                if (ItemUtils.notEmpty(buy2))
                 {
                     ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2, this.mc);
                 }
@@ -114,7 +115,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 ItemStack sell = recipe.getItemToSell();
 
-                if (sell.isEmpty() == false)
+                if (ItemUtils.notEmpty(sell))
                 {
                     ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell, this.mc);
                 }

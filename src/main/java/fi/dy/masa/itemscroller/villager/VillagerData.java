@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import fi.dy.masa.malilib.util.nbt.NbtUtils;
 import fi.dy.masa.itemscroller.util.Constants;
 
 public class VillagerData
@@ -67,19 +67,18 @@ public class VillagerData
     {
         NBTTagCompound tag = new NBTTagCompound();
 
-        tag.setLong("UUIDM", this.uuid.getMostSignificantBits());
-        tag.setLong("UUIDL", this.uuid.getLeastSignificantBits());
-        tag.setInteger("ListPosition", this.tradeListPosition);
-        tag.setInteger("CurrentPage", this.lastPage);
+        NbtUtils.writeUUID(tag, this.uuid);
+        NbtUtils.putInt(tag, "ListPosition", this.tradeListPosition);
+        NbtUtils.putInt(tag, "CurrentPage", this.lastPage);
 
         NBTTagList tagList = new NBTTagList();
 
         for (Integer val : this.favorites)
         {
-            tagList.appendTag(new NBTTagInt(val.intValue()));
+            NbtUtils.addTag(tagList, NbtUtils.asIntTag(val.intValue()));
         }
 
-        tag.setTag("Favorites", tagList);
+        NbtUtils.putTag(tag, "Favorites", tagList);
 
         return tag;
     }
@@ -87,20 +86,20 @@ public class VillagerData
     @Nullable
     public static VillagerData fromNBT(NBTTagCompound tag)
     {
-        if (tag.hasKey("UUIDM", Constants.NBT.TAG_LONG) && tag.hasKey("UUIDL", Constants.NBT.TAG_LONG))
+        if (NbtUtils.hasUUID(tag))
         {
-            VillagerData data = new VillagerData(new UUID(tag.getLong("UUIDM"), tag.getLong("UUIDL")));
+            VillagerData data = new VillagerData(NbtUtils.readUUID(tag));
 
-            data.tradeListPosition = tag.getInteger("ListPosition");
-            data.lastPage = tag.getInteger("CurrentPage");
-            NBTTagList tagList = tag.getTagList("Favorites", Constants.NBT.TAG_INT);
+            data.tradeListPosition = NbtUtils.getInt(tag, "ListPosition");
+            data.lastPage = NbtUtils.getInt(tag, "CurrentPage");
+            NBTTagList tagList = NbtUtils.getList(tag, "Favorites", Constants.NBT.TAG_INT);
 
-            final int count = tagList.tagCount();
+            final int count = NbtUtils.getListSize(tagList);
             data.favorites.clear();
 
             for (int i = 0; i < count; ++i)
             {
-                data.favorites.add(tagList.getIntAt(i));
+                data.favorites.add(NbtUtils.getIntAt(tagList, i));
             }
 
             return data;
