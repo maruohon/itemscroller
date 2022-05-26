@@ -8,7 +8,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import fi.dy.masa.malilib.util.ItemUtils;
 import fi.dy.masa.malilib.util.data.IntRange;
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 
@@ -91,12 +91,12 @@ public class CraftingRecipe
 
     public void readFromNBT(@Nonnull NBTTagCompound nbt)
     {
-        if (NbtUtils.containsCompound(nbt, "Result") &&
-            NbtUtils.containsList(nbt, "Ingredients"))
+        if (NbtWrap.containsCompound(nbt, "Result") &&
+            NbtWrap.containsList(nbt, "Ingredients"))
         {
-            NBTTagList tagIngredients = NbtUtils.getList(nbt, "Ingredients", Constants.NBT.TAG_COMPOUND);
-            int count = NbtUtils.getListSize(tagIngredients);
-            int length = NbtUtils.getInt(nbt, "Length");
+            NBTTagList tagIngredients = NbtWrap.getList(nbt, "Ingredients", Constants.NBT.TAG_COMPOUND);
+            int count = NbtWrap.getListSize(tagIngredients);
+            int length = NbtWrap.getInt(nbt, "Length");
 
             if (length > 0)
             {
@@ -105,8 +105,8 @@ public class CraftingRecipe
 
             for (int i = 0; i < count; i++)
             {
-                NBTTagCompound tag = NbtUtils.getCompoundAt(tagIngredients, i);
-                int slot = NbtUtils.getInt(tag, "Slot");
+                NBTTagCompound tag = NbtWrap.getCompoundAt(tagIngredients, i);
+                int slot = NbtWrap.getInt(tag, "Slot");
 
                 if (slot >= 0 && slot < this.recipe.length)
                 {
@@ -114,7 +114,7 @@ public class CraftingRecipe
                 }
             }
 
-            this.result = ItemUtils.fromTag(NbtUtils.getCompound(nbt, "Result"));
+            this.result = ItemUtils.fromTag(NbtWrap.getCompound(nbt, "Result"));
         }
     }
 
@@ -126,8 +126,8 @@ public class CraftingRecipe
             NBTTagCompound tag = new NBTTagCompound();
             this.result.writeToNBT(tag);
 
-            NbtUtils.putInt(nbt, "Length", this.recipe.length);
-            NbtUtils.putTag(nbt, "Result", tag);
+            NbtWrap.putInt(nbt, "Length", this.recipe.length);
+            NbtWrap.putTag(nbt, "Result", tag);
 
             NBTTagList tagIngredients = new NBTTagList();
 
@@ -136,13 +136,13 @@ public class CraftingRecipe
                 if (InventoryUtils.isStackEmpty(this.recipe[i]) == false)
                 {
                     tag = new NBTTagCompound();
-                    NbtUtils.putInt(tag, "Slot", i);
+                    NbtWrap.putInt(tag, "Slot", i);
                     this.recipe[i].writeToNBT(tag);
-                    NbtUtils.addTag(tagIngredients, tag);
+                    NbtWrap.addTag(tagIngredients, tag);
                 }
             }
 
-            NbtUtils.putTag(nbt, "Ingredients", tagIngredients);
+            NbtWrap.putTag(nbt, "Ingredients", tagIngredients);
         }
 
         return nbt;

@@ -1,7 +1,6 @@
 package fi.dy.masa.itemscroller.input;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -146,8 +145,7 @@ public class KeybindCallbacks implements HotkeyCallback
             Configs.Lists.GUI_BLACKLIST.getValue().contains(GuiUtils.getCurrentScreen().getClass().getName()) == false &&
             Hotkeys.MASS_CRAFT.getKeyBind().isKeyBindHeld())
         {
-            GuiScreen guiScreen = GuiUtils.getCurrentScreen();
-            GuiContainer gui = (GuiContainer) guiScreen;
+            GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
             Slot outputSlot = CraftingHandler.getFirstCraftingOutputSlotForGui(gui);
 
             if (outputSlot != null)

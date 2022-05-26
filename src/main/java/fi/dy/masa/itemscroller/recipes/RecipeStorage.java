@@ -11,7 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+import fi.dy.masa.malilib.util.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -131,7 +131,7 @@ public class RecipeStorage
 
     private void readFromNBT(NBTTagCompound nbt)
     {
-        if (nbt == null || NbtUtils.containsList(nbt, "Recipes") == false)
+        if (nbt == null || NbtWrap.containsList(nbt, "Recipes") == false)
         {
             return;
         }
@@ -141,14 +141,14 @@ public class RecipeStorage
             this.recipes[i].clearRecipe();
         }
 
-        NBTTagList tagList = NbtUtils.getList(nbt, "Recipes", Constants.NBT.TAG_COMPOUND);
-        int count = NbtUtils.getListSize(tagList);
+        NBTTagList tagList = NbtWrap.getList(nbt, "Recipes", Constants.NBT.TAG_COMPOUND);
+        int count = NbtWrap.getListSize(tagList);
 
         for (int i = 0; i < count; i++)
         {
-            NBTTagCompound tag = NbtUtils.getCompoundAt(tagList, i);
+            NBTTagCompound tag = NbtWrap.getCompoundAt(tagList, i);
 
-            int index = NbtUtils.getByte(tag, "RecipeIndex");
+            int index = NbtWrap.getByte(tag, "RecipeIndex");
 
             if (index >= 0 && index < this.recipes.length)
             {
@@ -156,7 +156,7 @@ public class RecipeStorage
             }
         }
 
-        this.changeSelectedRecipe(NbtUtils.getByte(nbt, "Selected"));
+        this.changeSelectedRecipe(NbtWrap.getByte(nbt, "Selected"));
     }
 
     private NBTTagCompound writeToNBT(@Nonnull NBTTagCompound nbt)
@@ -168,14 +168,14 @@ public class RecipeStorage
             if (this.recipes[i].isValid())
             {
                 NBTTagCompound tag = new NBTTagCompound();
-                NbtUtils.putByte(tag, "RecipeIndex", (byte) i);
+                NbtWrap.putByte(tag, "RecipeIndex", (byte) i);
                 this.recipes[i].writeToNBT(tag);
-                NbtUtils.addTag(tagRecipes, tag);
+                NbtWrap.addTag(tagRecipes, tag);
             }
         }
 
-        NbtUtils.putTag(nbt, "Recipes", tagRecipes);
-        NbtUtils.putByte(nbt, "Selected", (byte) this.selected);
+        NbtWrap.putTag(nbt, "Recipes", tagRecipes);
+        NbtWrap.putByte(nbt, "Selected", (byte) this.selected);
 
         return nbt;
     }

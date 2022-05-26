@@ -8,10 +8,10 @@ import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.ClientWorldChangeHandler;
-import fi.dy.masa.itemscroller.input.InputHandler;
-import fi.dy.masa.itemscroller.input.KeybindCallbacks;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
+import fi.dy.masa.itemscroller.input.InputHandler;
 import fi.dy.masa.itemscroller.input.ItemScrollerHotkeyProvider;
+import fi.dy.masa.itemscroller.input.KeybindCallbacks;
 
 public class InitHandler implements InitializationHandler
 {
