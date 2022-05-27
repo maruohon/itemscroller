@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import fi.dy.masa.malilib.util.ItemUtils;
+import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
 
 /**
  * Wrapper class for ItemStack, which implements equals()
@@ -35,7 +35,7 @@ public class ItemType
         //result = prime * result + ((stack == null) ? 0 : stack.hashCode());
         result = prime * result + this.stack.getMetadata();
         result = prime * result + this.stack.getItem().hashCode();
-        NBTTagCompound tag = ItemUtils.getTag(this.stack);
+        NBTTagCompound tag = ItemWrap.getTag(this.stack);
         result = prime * result + (tag != null ? tag.hashCode() : 0);
         return result;
     }

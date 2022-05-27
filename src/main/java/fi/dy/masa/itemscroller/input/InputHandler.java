@@ -18,7 +18,7 @@ import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.KeyboardInputHandler;
 import fi.dy.masa.malilib.input.Keys;
 import fi.dy.masa.malilib.input.MouseInputHandler;
-import fi.dy.masa.malilib.util.GameUtils;
+import fi.dy.masa.malilib.util.game.wrap.GameUtils;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.RenderEventHandler;
@@ -104,12 +104,13 @@ public class InputHandler implements KeyboardInputHandler, MouseInputHandler
             if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
             {
                 VillagerDataStorage storage = VillagerDataStorage.getInstance();
+                RayTraceResult hitResult = GameUtils.getHitResult();
 
-                if (GuiUtils.getCurrentScreen() == null && mc.objectMouseOver != null &&
-                    mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY &&
-                    mc.objectMouseOver.entityHit instanceof EntityVillager)
+                if (GuiUtils.getCurrentScreen() == null && hitResult != null &&
+                    hitResult.typeOfHit == RayTraceResult.Type.ENTITY &&
+                    hitResult.entityHit instanceof EntityVillager)
                 {
-                    storage.setLastInteractedUUID(mc.objectMouseOver.entityHit.getUniqueID());
+                    storage.setLastInteractedUUID(hitResult.entityHit.getUniqueID());
                 }
                 else if (GuiUtils.getCurrentScreen() instanceof GuiMerchant && storage.hasInteractionTarget())
                 {

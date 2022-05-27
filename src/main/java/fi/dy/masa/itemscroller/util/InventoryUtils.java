@@ -33,10 +33,10 @@ import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
 import fi.dy.masa.malilib.gui.util.GuiUtils;
 import fi.dy.masa.malilib.input.Keys;
-import fi.dy.masa.malilib.util.GameUtils;
-import fi.dy.masa.malilib.util.ItemUtils;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.IntRange;
+import fi.dy.masa.malilib.util.game.wrap.GameUtils;
+import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
 import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -2248,7 +2248,7 @@ public class InventoryUtils
 
     public static void tryClearCursor(GuiContainer gui, Minecraft mc)
     {
-        if (ItemUtils.notEmpty(mc.player.inventory.getCurrentItem()))
+        if (ItemWrap.notEmpty(mc.player.inventory.getCurrentItem()))
         {
             List<Integer> emptySlots = getSlotNumbersOfEmptySlotsInPlayerInventory(gui.inventorySlots, false);
 
@@ -2280,7 +2280,7 @@ public class InventoryUtils
             }
         }
 
-        if (ItemUtils.notEmpty(mc.player.inventory.getCurrentItem()))
+        if (ItemWrap.notEmpty(mc.player.inventory.getCurrentItem()))
         {
             dropItemsFromCursor(gui);
         }
@@ -2480,7 +2480,7 @@ public class InventoryUtils
 
     public static boolean isStackEmpty(ItemStack stack)
     {
-        return ItemUtils.isEmpty(stack);
+        return ItemWrap.isEmpty(stack);
     }
 
     public static int getStackSize(ItemStack stack)

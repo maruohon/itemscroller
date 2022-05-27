@@ -6,8 +6,8 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import fi.dy.masa.malilib.util.game.wrap.NbtWrap;
 import fi.dy.masa.malilib.util.nbt.NbtUtils;
-import fi.dy.masa.malilib.util.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.util.Constants;
 
 public class VillagerData

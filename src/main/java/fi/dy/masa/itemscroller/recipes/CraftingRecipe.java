@@ -6,9 +6,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import fi.dy.masa.malilib.util.ItemUtils;
 import fi.dy.masa.malilib.util.data.IntRange;
-import fi.dy.masa.malilib.util.wrap.NbtWrap;
+import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
+import fi.dy.masa.malilib.util.game.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 
@@ -110,11 +110,11 @@ public class CraftingRecipe
 
                 if (slot >= 0 && slot < this.recipe.length)
                 {
-                    this.recipe[slot] = ItemUtils.fromTag(tag);
+                    this.recipe[slot] = ItemWrap.fromTag(tag);
                 }
             }
 
-            this.result = ItemUtils.fromTag(NbtWrap.getCompound(nbt, "Result"));
+            this.result = ItemWrap.fromTag(NbtWrap.getCompound(nbt, "Result"));
         }
     }
 
