@@ -41,7 +41,6 @@ import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
-import fi.dy.masa.itemscroller.input.InputHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -230,12 +229,11 @@ public class InventoryUtils
         return false;
     }
 
-    public static boolean dragMoveItems(GuiContainer gui, Minecraft mc, MoveAction action, boolean isClick)
+    public static boolean dragMoveItems(GuiContainer gui, MoveAction action, boolean isClick, int mouseX, int mouseY)
     {
-        int mouseX = InputUtils.getMouseX();
-        int mouseY = InputUtils.getMouseY();
+        InventoryPlayer inventory = fi.dy.masa.malilib.util.inventory.InventoryUtils.getPlayerInventory();
 
-        if (isStackEmpty(mc.player.inventory.getItemStack()) == false)
+        if (isStackEmpty(inventory.getItemStack()) == false)
         {
             // Updating these here is part of the fix to preventing a drag after shift + place
             lastPosX = mouseX;
@@ -685,7 +683,7 @@ public class InventoryUtils
         if (GuiUtils.getCurrentScreen() instanceof GuiMerchant)
         {
             GuiMerchant merchantGui = (GuiMerchant) GuiUtils.getCurrentScreen();
-            VillagerData data = VillagerDataStorage.getInstance().getDataForLastInteractionTarget();
+            VillagerData data = VillagerDataStorage.INSTANCE.getDataForLastInteractionTarget();
 
             villagerClearTradeInputSlots();
 
@@ -695,11 +693,11 @@ public class InventoryUtils
 
                 for (int index : data.getFavorites())
                 {
-                    InputHandler.changeTradePage(merchantGui, index);
+                    MerchantUtils.changeTradePage(merchantGui, index);
                     villagerTradeEverythingPossibleWithCurrentRecipe();
                 }
 
-                InputHandler.changeTradePage(merchantGui, initialPage);
+                MerchantUtils.changeTradePage(merchantGui, initialPage);
             }
 
             return true;

@@ -20,16 +20,11 @@ import fi.dy.masa.itemscroller.util.Constants;
 
 public class VillagerDataStorage
 {
-    private static final VillagerDataStorage INSTANCE = new VillagerDataStorage();
+    public static final VillagerDataStorage INSTANCE = new VillagerDataStorage();
 
     private final Map<UUID, VillagerData> data = new HashMap<>();
     private UUID lastInteractedUUID;
     private boolean dirty;
-
-    public static VillagerDataStorage getInstance()
-    {
-        return INSTANCE;
-    }
 
     public void setLastInteractedUUID(UUID uuid)
     {

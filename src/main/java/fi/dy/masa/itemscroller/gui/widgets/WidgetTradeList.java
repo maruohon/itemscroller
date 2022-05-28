@@ -11,9 +11,9 @@ import fi.dy.masa.malilib.gui.widget.InteractableWidget;
 import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.render.text.StyledTextLine;
-import fi.dy.masa.itemscroller.input.InputHandler;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
+import fi.dy.masa.itemscroller.util.MerchantUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 
@@ -35,7 +35,7 @@ public class WidgetTradeList extends InteractableWidget
         this.scrollBar.setPosition(x + 93, y + 17);
         this.scrollBar.setRenderBackgroundColor(false);
         this.parentGui = parentGui;
-        this.storage = VillagerDataStorage.getInstance();
+        this.storage = VillagerDataStorage.INSTANCE;
         this.data = data;
         this.titleText = StyledTextLine.translate("itemscroller.label.misc.trades");
     }
@@ -98,7 +98,7 @@ public class WidgetTradeList extends InteractableWidget
                 else
                 {
                     boolean samePage = AccessorUtils.getSelectedMerchantRecipe(this.parentGui) == recipeIndex;
-                    InputHandler.changeTradePage(this.parentGui, recipeIndex);
+                    MerchantUtils.changeTradePage(this.parentGui, recipeIndex);
 
                     if (BaseScreen.isShiftDown() || samePage || mouseButton == 1)
                     {

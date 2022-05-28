@@ -21,16 +21,11 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 
 public class RecipeStorage
 {
-    private static final RecipeStorage INSTANCE = new RecipeStorage(8 * 18);
+    public static final RecipeStorage INSTANCE = new RecipeStorage(8 * 18);
 
     private final CraftingRecipe[] recipes;
     private int selected;
     private boolean dirty;
-
-    public static RecipeStorage getInstance()
-    {
-        return INSTANCE;
-    }
 
     public RecipeStorage(int recipeCount)
     {

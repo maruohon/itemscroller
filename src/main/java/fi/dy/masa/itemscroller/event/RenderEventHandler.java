@@ -47,7 +47,7 @@ public class RenderEventHandler
         if (GuiUtils.getCurrentScreen() instanceof GuiContainer && InputUtils.isRecipeViewOpen())
         {
             GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
-            RecipeStorage recipes = RecipeStorage.getInstance();
+            RecipeStorage recipes = RecipeStorage.INSTANCE;
             final int first = recipes.getFirstVisibleRecipeId();
             final int countPerPage = recipes.getRecipeCountPerPage();
             final int lastOnPage = first + countPerPage - 1;
@@ -91,7 +91,7 @@ public class RenderEventHandler
         if (GuiUtils.getCurrentScreen() instanceof GuiContainer && InputUtils.isRecipeViewOpen())
         {
             GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
-            RecipeStorage recipes = RecipeStorage.getInstance();
+            RecipeStorage recipes = RecipeStorage.INSTANCE;
 
             final int mouseX = InputUtils.getMouseX();
             final int mouseY = InputUtils.getMouseY();
@@ -117,7 +117,7 @@ public class RenderEventHandler
 
     private void calculateRecipePositions(GuiContainer gui)
     {
-        RecipeStorage recipes = RecipeStorage.getInstance();
+        RecipeStorage recipes = RecipeStorage.INSTANCE;
         final int gapHorizontal = 2;
         final int gapVertical = 2;
         final int stackBaseHeight = 16;

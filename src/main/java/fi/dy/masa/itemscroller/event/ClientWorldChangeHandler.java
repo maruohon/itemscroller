@@ -13,8 +13,8 @@ public class ClientWorldChangeHandler implements fi.dy.masa.malilib.event.Client
         // Quitting to main menu, save the settings before the integrated server gets shut down
         if (worldBefore != null && worldAfter == null)
         {
-            RecipeStorage.getInstance().writeToDisk();
-            VillagerDataStorage.getInstance().writeToDisk();
+            RecipeStorage.INSTANCE.writeToDisk();
+            VillagerDataStorage.INSTANCE.writeToDisk();
         }
     }
 
@@ -24,8 +24,8 @@ public class ClientWorldChangeHandler implements fi.dy.masa.malilib.event.Client
         // Logging in to a world, load the data
         if (worldBefore == null && worldAfter != null)
         {
-            RecipeStorage.getInstance().readFromDisk();
-            VillagerDataStorage.getInstance().readFromDisk();
+            RecipeStorage.INSTANCE.readFromDisk();
+            VillagerDataStorage.INSTANCE.readFromDisk();
         }
     }
 }

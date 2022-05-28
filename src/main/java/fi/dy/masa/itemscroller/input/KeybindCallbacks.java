@@ -62,14 +62,16 @@ public class KeybindCallbacks implements HotkeyCallback
 
         GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
         Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
-        RecipeStorage recipes = RecipeStorage.getInstance();
+        RecipeStorage recipes = RecipeStorage.INSTANCE;
         MoveAction moveAction = InputUtils.getDragMoveAction(key);
 
         if (slot != null)
         {
             if (moveAction != MoveAction.NONE)
             {
-                return InventoryUtils.dragMoveItems(gui, mc, moveAction, true) ? ActionResult.SUCCESS : ActionResult.FAIL;
+                int mx = InputUtils.getMouseX();
+                int my = InputUtils.getMouseY();
+                return InventoryUtils.dragMoveItems(gui, moveAction, true, mx, my) ? ActionResult.SUCCESS : ActionResult.FAIL;
             }
             else if (key == Hotkeys.MOVE_EVERYTHING.getKeyBind())
             {
@@ -150,7 +152,7 @@ public class KeybindCallbacks implements HotkeyCallback
 
             if (outputSlot != null)
             {
-                CraftingRecipe recipe = RecipeStorage.getInstance().getSelectedRecipe();
+                CraftingRecipe recipe = RecipeStorage.INSTANCE.getSelectedRecipe();
 
                 InventoryUtils.tryClearCursor(gui, mc);
                 InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);

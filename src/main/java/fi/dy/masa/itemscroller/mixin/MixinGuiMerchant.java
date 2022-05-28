@@ -15,8 +15,8 @@ import net.minecraft.village.MerchantRecipeList;
 import fi.dy.masa.malilib.gui.util.ScreenContext;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
-import fi.dy.masa.itemscroller.input.InputHandler;
 import fi.dy.masa.itemscroller.util.IGuiMerchant;
+import fi.dy.masa.itemscroller.util.MerchantUtils;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 
@@ -56,7 +56,7 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
     {
         if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
         {
-            VillagerData data = VillagerDataStorage.getInstance().getDataForLastInteractionTarget();
+            VillagerData data = VillagerDataStorage.INSTANCE.getDataForLastInteractionTarget();
 
             if (data != null)
             {
@@ -64,7 +64,7 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
 
                 if (Configs.Generic.VILLAGER_TRADE_LIST_REMEMBER_PAGE.getBooleanValue())
                 {
-                    InputHandler.changeTradePage(gui, data.getLastPage());
+                    MerchantUtils.changeTradePage(gui, data.getLastPage());
                 }
 
                 int x = this.guiLeft - 106 + 4;
@@ -84,7 +84,7 @@ public abstract class MixinGuiMerchant extends GuiContainer implements IGuiMerch
 
         if (trades != null && this.selectedMerchantRecipe >= trades.size())
         {
-            InputHandler.changeTradePage((GuiMerchant) (Object) this, 0);
+            MerchantUtils.changeTradePage((GuiMerchant) (Object) this, 0);
             ci.cancel();
         }
     }

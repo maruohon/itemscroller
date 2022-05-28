@@ -9,9 +9,12 @@ import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.ClientWorldChangeHandler;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
-import fi.dy.masa.itemscroller.input.InputHandler;
 import fi.dy.masa.itemscroller.input.ItemScrollerHotkeyProvider;
 import fi.dy.masa.itemscroller.input.KeybindCallbacks;
+import fi.dy.masa.itemscroller.input.KeyboardInputHandlerImpl;
+import fi.dy.masa.itemscroller.input.MouseClickHandlerImpl;
+import fi.dy.masa.itemscroller.input.MouseMoveHandlerImpl;
+import fi.dy.masa.itemscroller.input.MouseScrollHandlerImpl;
 
 public class InitHandler implements InitializationHandler
 {
@@ -26,8 +29,10 @@ public class InitHandler implements InitializationHandler
         Registry.CONFIG_TAB.registerConfigTabProvider(Reference.MOD_INFO, ConfigScreen::getConfigTabs);
 
         Registry.HOTKEY_MANAGER.registerHotkeyProvider(ItemScrollerHotkeyProvider.INSTANCE);
-        Registry.INPUT_DISPATCHER.registerKeyboardInputHandler(InputHandler.INSTANCE);
-        Registry.INPUT_DISPATCHER.registerMouseInputHandler(InputHandler.INSTANCE);
+        Registry.INPUT_DISPATCHER.registerKeyboardInputHandler(new KeyboardInputHandlerImpl());
+        Registry.INPUT_DISPATCHER.registerMouseClickHandler(new MouseClickHandlerImpl());
+        Registry.INPUT_DISPATCHER.registerMouseScrollHandler(new MouseScrollHandlerImpl());
+        Registry.INPUT_DISPATCHER.registerMouseMoveHandler(new MouseMoveHandlerImpl());
 
         ClientWorldChangeHandler listener = new ClientWorldChangeHandler();
         Registry.CLIENT_WORLD_CHANGE_EVENT_DISPATCHER.registerClientWorldChangeHandler(listener);
