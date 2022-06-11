@@ -13,7 +13,7 @@ import fi.dy.masa.itemscroller.util.Constants;
 public class VillagerData
 {
     private final UUID uuid;
-    private List<Integer> favorites = new ArrayList<>();
+    private final List<Integer> favorites = new ArrayList<>();
     private int tradeListPosition;
     private int lastPage;
 

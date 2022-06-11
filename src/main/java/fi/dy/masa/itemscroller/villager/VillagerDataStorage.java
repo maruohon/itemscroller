@@ -1,8 +1,9 @@
 package fi.dy.masa.itemscroller.villager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -140,9 +141,9 @@ public class VillagerDataStorage
         return "villager_data.nbt";
     }
 
-    private File getSaveDir()
+    private Path getSaveDir()
     {
-        return new File(FileUtils.getMinecraftDirectory(), Reference.MOD_ID);
+        return FileUtils.getMinecraftDirectory().resolve(Reference.MOD_ID);
     }
 
     public void readFromDisk()
@@ -151,18 +152,14 @@ public class VillagerDataStorage
 
         try
         {
-            File saveDir = this.getSaveDir();
+            Path saveDir = this.getSaveDir();
+            Path file = saveDir.resolve(this.getFileName());
 
-            if (saveDir != null)
+            if (Files.isRegularFile(file) && Files.isReadable(file))
             {
-                File file = new File(saveDir, this.getFileName());
-
-                if (file.exists() && file.isFile() && file.canRead())
-                {
-                    FileInputStream is = new FileInputStream(file);
-                    this.readFromNBT(CompressedStreamTools.readCompressed(is));
-                    is.close();
-                }
+                InputStream is = Files.newInputStream(file);
+                this.readFromNBT(CompressedStreamTools.readCompressed(is));
+                is.close();
             }
         }
         catch (Exception e)
@@ -177,34 +174,27 @@ public class VillagerDataStorage
         {
             try
             {
-                File saveDir = this.getSaveDir();
+                Path saveDir = this.getSaveDir();
 
-                if (saveDir == null)
+                if (FileUtils.createDirectoriesIfMissing(saveDir) == false)
                 {
+                    LiteModItemScroller.logger.warn("Failed to create the data storage directory '{}'",
+                                                    saveDir.toAbsolutePath().toString());
                     return;
                 }
 
-                if (saveDir.exists() == false)
-                {
-                    if (saveDir.mkdirs() == false)
-                    {
-                        LiteModItemScroller.logger.warn("Failed to create the data storage directory '{}'", saveDir.getPath());
-                        return;
-                    }
-                }
-
-                File fileTmp  = new File(saveDir, this.getFileName() + ".tmp");
-                File fileReal = new File(saveDir, this.getFileName());
-                FileOutputStream os = new FileOutputStream(fileTmp);
+                Path fileTmp  = saveDir.resolve(this.getFileName() + ".tmp");
+                Path fileReal = saveDir.resolve(this.getFileName());
+                OutputStream os = Files.newOutputStream(fileTmp);
                 CompressedStreamTools.writeCompressed(this.writeToNBT(new NBTTagCompound()), os);
                 os.close();
 
-                if (fileReal.exists())
+                if (Files.exists(fileReal))
                 {
-                    fileReal.delete();
+                    FileUtils.delete(fileReal);
                 }
 
-                fileTmp.renameTo(fileReal);
+                FileUtils.move(fileTmp, fileReal);
                 this.dirty = false;
             }
             catch (Exception e)
