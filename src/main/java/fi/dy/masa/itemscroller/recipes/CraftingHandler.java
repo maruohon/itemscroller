@@ -77,11 +77,26 @@ public class CraftingHandler
     {
         try
         {
-            Class<? extends GuiContainer> guiClass = INVENTORY_SCREEN_CLASS_OVERRIDES.getOrDefault(screenClassName, (Class<? extends GuiContainer>) Class.forName(screenClassName));
-            Class<? extends Slot> slotClass = SLOT_CLASS_OVERRIDES.getOrDefault(slotClassName, (Class<? extends Slot>) Class.forName(slotClassName));
+            Class<? extends GuiContainer> screenClass = INVENTORY_SCREEN_CLASS_OVERRIDES.get(screenClassName);
+            Class<? extends Slot> slotClass = SLOT_CLASS_OVERRIDES.get(slotClassName);
 
-            CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(guiClass, slotClass, outputSlot), range);
-            CRAFTING_GUIS.add(guiClass);
+            if (screenClass == null)
+            {
+                screenClass = (Class<? extends GuiContainer>) Class.forName(screenClassName);
+            }
+
+            if (slotClass == null)
+            {
+                slotClass = (Class<? extends Slot>) Class.forName(slotClassName);
+            }
+
+            if (screenClass == null || slotClass == null)
+            {
+                return false;
+            }
+
+            CRAFTING_GRID_SLOTS.put(new CraftingOutputSlot(screenClass, slotClass, outputSlot), range);
+            CRAFTING_GUIS.add(screenClass);
 
             return true;
         }
