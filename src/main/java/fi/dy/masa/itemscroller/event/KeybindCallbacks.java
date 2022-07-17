@@ -4,6 +4,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.screen.slot.Slot;
+import fi.dy.masa.malilib.config.options.ConfigHotkey;
+import fi.dy.masa.malilib.gui.GuiBase;
+import fi.dy.masa.malilib.gui.Message;
+import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
+import fi.dy.masa.malilib.hotkeys.IKeybind;
+import fi.dy.masa.malilib.hotkeys.KeyAction;
+import fi.dy.masa.malilib.interfaces.IClientTickHandler;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -16,15 +25,6 @@ import fi.dy.masa.itemscroller.util.ClickPacketBuffer;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MoveAction;
-import fi.dy.masa.malilib.config.options.ConfigHotkey;
-import fi.dy.masa.malilib.gui.GuiBase;
-import fi.dy.masa.malilib.gui.Message;
-import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
-import fi.dy.masa.malilib.hotkeys.IKeybind;
-import fi.dy.masa.malilib.hotkeys.KeyAction;
-import fi.dy.masa.malilib.interfaces.IClientTickHandler;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.InfoUtils;
 
 public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
 {
@@ -214,8 +214,12 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                     for (int i = 0; i < limit; ++i)
                     {
                         InventoryUtils.tryClearCursor(gui);
+                        InventoryUtils.setInhibitCraftingOutputUpdate(true);
                         InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
+                        InventoryUtils.throwAllNonRecipeItemsToGround(recipe, gui);
                         InventoryUtils.setCraftingGridContentsUsingSwaps(gui, mc.player.getInventory(), recipe, outputSlot);
+                        InventoryUtils.setInhibitCraftingOutputUpdate(false);
+                        InventoryUtils.updateCraftingOutputSlot(outputSlot);
 
                         if (InventoryUtils.areStacksEqual(outputSlot.getStack(), recipe.getResult()) == false)
                         {
@@ -236,7 +240,7 @@ public class KeybindCallbacks implements IHotkeyCallback, IClientTickHandler
                         InventoryUtils.throwAllCraftingResultsToGround(recipe, gui);
                         InventoryUtils.throwAllNonRecipeItemsToGround(recipe, gui);
                         InventoryUtils.tryMoveItemsToFirstCraftingGrid(recipe, gui, true);
-                        InventoryUtils.setInhibitCraftingOutputUpdate(true);
+                        InventoryUtils.setInhibitCraftingOutputUpdate(false);
                         InventoryUtils.updateCraftingOutputSlot(outputSlot);
 
                         if (InventoryUtils.areStacksEqual(outputSlot.getStack(), recipe.getResult()) == false)

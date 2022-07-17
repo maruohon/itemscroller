@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -37,6 +39,7 @@ import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -47,9 +50,6 @@ import fi.dy.masa.itemscroller.recipes.RecipePattern;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.itemscroller.villager.VillagerUtils;
-import fi.dy.masa.malilib.util.GuiUtils;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntComparator;
 
 public class InventoryUtils
 {
@@ -74,7 +74,7 @@ public class InventoryUtils
                                                  CraftingInventory craftMatrix,
                                                  CraftingResultInventory inventoryCraftResult)
     {
-        if (inhibitCraftResultUpdate)
+        if (inhibitCraftResultUpdate && Configs.Generic.MASS_CRAFT_INHIBIT_MID_UPDATES.getBooleanValue())
         {
             return;
         }
