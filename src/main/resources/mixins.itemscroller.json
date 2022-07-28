@@ -13,8 +13,7 @@
 		"MixinCraftingScreenHandler",
 		"MixinGameRenderer",
 		"MixinMerchantScreen",
-		"MixinMerchantScreenHandler",
-		"MixinScreen"
+		"MixinMerchantScreenHandler"
 	],
 	"injectors": {
 		"defaultRequire": 1
