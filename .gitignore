@@ -6,3 +6,6 @@ eclipse/
 .classpath
 .project
 build.number
+run/
+.DS_Store
+launch.json
