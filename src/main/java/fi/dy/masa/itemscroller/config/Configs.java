@@ -10,9 +10,6 @@ import com.google.gson.JsonObject;
 import net.minecraft.client.gui.screen.ingame.CraftingScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.screen.slot.CraftingResultSlot;
-import fi.dy.masa.itemscroller.Reference;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler;
-import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.IConfigValue;
@@ -20,6 +17,9 @@ import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigInteger;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.itemscroller.Reference;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
 
 public class Configs implements IConfigHandler
 {
@@ -33,7 +33,11 @@ public class Configs implements IConfigHandler
         public static final ConfigBoolean DROP_RECIPE_REMAINDER                 = new ConfigBoolean("dropRecipeRemainder",                  true, "If enabled, recipe remainders are dropped.");
         public static final ConfigBoolean DROP_NON_RECIPE_ITEMS                 = new ConfigBoolean("dropNonRecipeItems",                   false, "If enabled, non recipe items in crafting grid are dropped.");
         public static final ConfigInteger MASS_CRAFT_MULTIPLIER                 = new ConfigInteger("massCraftMultiplier",                  1, 1, 50, "Specifies Masscraft operations per tick.\nKEEP IT AT 1 UNLESS YOU WANT TO CRASH CLIENT");
-        public static final ConfigInteger MASS_CRAFT_INTERVAL                   = new ConfigInteger("massCraftInterval",                    1, 1, 60, "The interval in game ticks the massCraft operation is repeated at");
+        public static final ConfigBoolean MASS_CRAFT_INHIBIT_MID_UPDATES        = new ConfigBoolean("massCraftInhibitMidUpdates",           true, "Prevent recipe output slot updates in the middle of moving items\nto the crafting grid. This should reduce CPU usage\nbecause of not constantly querying the recipe after every grid change.");
+        public static final ConfigInteger MASS_CRAFT_INTERVAL                   = new ConfigInteger("massCraftInterval",                    2, 1, 60, "The interval in game ticks the massCraft operation is repeated at");
+        public static final ConfigInteger MASS_CRAFT_ITERATIONS                 = new ConfigInteger("massCraftIterations",                  36, 1, 256, "How many massCraft iterations/attempts to do per execution.\nWith unstackable items or a full inventory and \"small recipe\"\nthis will need to be larger, as a shift + click craft to the inventory\nmight only craft 1 or 2 items per operation.");
+        public static final ConfigBoolean MASS_CRAFT_SWAPS                      = new ConfigBoolean("massCraftSwapsOnly",                   false, "Uses a newer method of filling the crafting grid,\nusing only swap slot packets.\n\nNote: Due to only using slot swap packets,\nno partial crafts are possible! And also no\nstack splitting will happen, at all.");
+        public static final ConfigInteger PACKET_RATE_LIMIT                     = new ConfigInteger("packetRateLimit",                      4, 1, 1024, "The limit of sent emulated slot click packets per game tick,\nif 'rateLimitClickPackets' is enabled");
         public static final ConfigBoolean SCROLL_CRAFT_STORE_RECIPES_TO_FILE    = new ConfigBoolean("craftingRecipesSaveToFile",            true, "If enabled, then the crafting features recipes are saved to a file\ninside minecraft/itemscroller/recipes_worldorservername.nbt.\nThis makes the recipes persistent across game restarts.");
         public static final ConfigBoolean SCROLL_CRAFT_RECIPE_FILE_GLOBAL       = new ConfigBoolean("craftingRecipesSaveFileIsGlobal",      false, "If true, then the recipe file is global, instead\n of being saved per-world or server");
         public static final ConfigBoolean REVERSE_SCROLL_DIRECTION_SINGLE       = new ConfigBoolean("reverseScrollDirectionSingle",         false, "Reverse the scrolling direction for single item mode.");
@@ -45,6 +49,7 @@ public class Configs implements IConfigHandler
         public static final ImmutableList<IConfigValue> OPTIONS = ImmutableList.of(
                 MASS_CRAFT_HOLD,
                 CRAFTING_RENDER_RECIPE_ITEMS,
+                MASS_CRAFT_INHIBIT_MID_UPDATES,
                 MASS_CRAFT_INTERVAL,
                 MOD_MAIN_TOGGLE,
                 DROP_RECIPE_REMAINDER,

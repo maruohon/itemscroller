@@ -7,16 +7,16 @@ import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import fi.dy.masa.malilib.render.InventoryOverlay;
+import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.recipes.RecipePattern;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InputUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
-import fi.dy.masa.malilib.render.InventoryOverlay;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.util.GuiUtils;
-import fi.dy.masa.malilib.util.StringUtils;
 
 public class RenderEventHandler
 {
@@ -39,7 +39,7 @@ public class RenderEventHandler
         return INSTANCE;
     }
 
-    public void onDrawBackgroundPost(MatrixStack matrixStack)
+    public void renderRecipeView()
     {
         if (GuiUtils.getCurrentScreen() instanceof HandledScreen && InputUtils.isRecipeViewOpen())
         {
@@ -51,7 +51,7 @@ public class RenderEventHandler
 
             this.calculateRecipePositions(gui);
 
-            matrixStack = RenderSystem.getModelViewStack();
+            MatrixStack matrixStack = RenderSystem.getModelViewStack();
             matrixStack.push();
             matrixStack.translate(this.recipeListX, this.recipeListY, 0);
             matrixStack.scale((float) this.scale, (float) this.scale, 1);
@@ -88,6 +88,8 @@ public class RenderEventHandler
 
     public void onDrawScreenPost(MinecraftClient mc)
     {
+        this.renderRecipeView();
+
         if (GuiUtils.getCurrentScreen() instanceof HandledScreen)
         {
             HandledScreen<?> gui = (HandledScreen<?>) this.mc.currentScreen;

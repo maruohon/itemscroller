@@ -20,6 +20,8 @@ import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.itemscroller.villager.VillagerUtils;
 import fi.dy.masa.malilib.util.GuiUtils;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntComparator;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -52,6 +54,17 @@ import net.minecraft.world.World;
 import fi.dy.masa.itemscroller.mixin.IMixinCraftingResultSlot;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparator;
+import fi.dy.masa.malilib.util.GuiUtils;
+import fi.dy.masa.itemscroller.ItemScroller;
+import fi.dy.masa.itemscroller.config.Configs;
+import fi.dy.masa.itemscroller.config.Hotkeys;
+import fi.dy.masa.itemscroller.mixin.IMixinCraftingResultSlot;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler;
+import fi.dy.masa.itemscroller.recipes.CraftingHandler.SlotRange;
+import fi.dy.masa.itemscroller.recipes.RecipePattern;
+import fi.dy.masa.itemscroller.recipes.RecipeStorage;
+import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
+import fi.dy.masa.itemscroller.villager.VillagerUtils;
 
 public class InventoryUtils {
     private static final Set<Integer> DRAGGED_SLOTS = new HashSet<>();
