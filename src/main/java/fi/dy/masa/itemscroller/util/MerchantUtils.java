@@ -1,12 +1,14 @@
 package fi.dy.masa.itemscroller.util;
 
 import io.netty.buffer.Unpooled;
+
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.inventory.ContainerMerchant;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.village.MerchantRecipeList;
-import fi.dy.masa.malilib.util.game.wrap.GameUtils;
+
+import malilib.util.game.wrap.GameUtils;
 
 public class MerchantUtils
 {

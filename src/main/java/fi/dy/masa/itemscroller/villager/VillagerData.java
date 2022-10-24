@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import fi.dy.masa.malilib.util.game.wrap.NbtWrap;
-import fi.dy.masa.malilib.util.nbt.NbtUtils;
+
+import malilib.util.game.wrap.NbtWrap;
+import malilib.util.nbt.NbtUtils;
 import fi.dy.masa.itemscroller.util.Constants;
 
 public class VillagerData

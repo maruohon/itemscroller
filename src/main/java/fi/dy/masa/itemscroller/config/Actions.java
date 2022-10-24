@@ -1,8 +1,8 @@
 package fi.dy.masa.itemscroller.config;
 
-import fi.dy.masa.malilib.action.ActionUtils;
-import fi.dy.masa.malilib.action.NamedAction;
-import fi.dy.masa.malilib.listener.EventListener;
+import malilib.action.ActionUtils;
+import malilib.action.NamedAction;
+import malilib.listener.EventListener;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.gui.ConfigScreen;
 

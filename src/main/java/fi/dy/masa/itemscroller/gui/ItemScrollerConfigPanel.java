@@ -1,6 +1,6 @@
 package fi.dy.masa.itemscroller.gui;
 
-import fi.dy.masa.malilib.gui.config.liteloader.RedirectingConfigPanel;
+import malilib.gui.config.liteloader.RedirectingConfigPanel;
 
 public class ItemScrollerConfigPanel extends RedirectingConfigPanel
 {

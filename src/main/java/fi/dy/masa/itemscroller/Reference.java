@@ -1,6 +1,6 @@
 package fi.dy.masa.itemscroller;
 
-import fi.dy.masa.malilib.util.data.ModInfo;
+import malilib.util.data.ModInfo;
 
 public class Reference
 {

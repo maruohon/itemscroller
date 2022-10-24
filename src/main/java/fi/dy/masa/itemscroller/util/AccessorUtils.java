@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
+
 import fi.dy.masa.itemscroller.mixin.IMixinGuiContainer;
 import fi.dy.masa.itemscroller.mixin.IMixinSlot;
 

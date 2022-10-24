@@ -1,8 +1,8 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
-import fi.dy.masa.malilib.gui.icon.BaseIcon;
-import fi.dy.masa.malilib.gui.icon.Icon;
-import fi.dy.masa.malilib.util.data.Identifier;
+import malilib.gui.icon.BaseIcon;
+import malilib.gui.icon.Icon;
+import malilib.util.data.Identifier;
 import fi.dy.masa.itemscroller.Reference;
 
 public class ItemScrollerIcons

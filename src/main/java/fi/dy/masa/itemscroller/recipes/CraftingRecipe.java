@@ -1,14 +1,16 @@
 package fi.dy.masa.itemscroller.recipes;
 
 import javax.annotation.Nonnull;
+
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import fi.dy.masa.malilib.util.data.IntRange;
-import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
-import fi.dy.masa.malilib.util.game.wrap.NbtWrap;
+
+import malilib.util.data.IntRange;
+import malilib.util.game.wrap.ItemWrap;
+import malilib.util.game.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 

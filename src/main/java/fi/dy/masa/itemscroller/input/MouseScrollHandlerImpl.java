@@ -4,9 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.MouseScrollHandler;
-import fi.dy.masa.malilib.util.game.wrap.GameUtils;
+
+import malilib.gui.util.GuiUtils;
+import malilib.input.MouseScrollHandler;
+import malilib.util.game.wrap.GameUtils;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;

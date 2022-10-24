@@ -3,18 +3,19 @@ package fi.dy.masa.itemscroller.gui.widgets;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.icon.DefaultIcons;
-import fi.dy.masa.malilib.gui.icon.Icon;
-import fi.dy.masa.malilib.gui.util.ScreenContext;
-import fi.dy.masa.malilib.gui.widget.list.entry.BaseDataListEntryWidget;
-import fi.dy.masa.malilib.gui.widget.list.entry.DataListEntryWidgetData;
-import fi.dy.masa.malilib.render.ItemRenderUtils;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.render.ShapeRenderUtils;
-import fi.dy.masa.malilib.render.TextRenderUtils;
-import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
+
+import malilib.gui.BaseScreen;
+import malilib.gui.icon.DefaultIcons;
+import malilib.gui.icon.Icon;
+import malilib.gui.util.ScreenContext;
+import malilib.gui.widget.list.entry.BaseDataListEntryWidget;
+import malilib.gui.widget.list.entry.DataListEntryWidgetData;
+import malilib.render.ItemRenderUtils;
+import malilib.render.RenderUtils;
+import malilib.render.ShapeRenderUtils;
+import malilib.render.TextRenderUtils;
+import malilib.util.StringUtils;
+import malilib.util.game.wrap.ItemWrap;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>

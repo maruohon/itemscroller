@@ -5,14 +5,16 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.annotation.Nonnull;
+
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.game.wrap.NbtWrap;
+
+import malilib.util.FileUtils;
+import malilib.util.StringUtils;
+import malilib.util.game.wrap.NbtWrap;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;

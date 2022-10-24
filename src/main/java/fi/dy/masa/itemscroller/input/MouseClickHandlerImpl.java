@@ -8,11 +8,12 @@ import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.math.RayTraceResult;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.MouseClickHandler;
-import fi.dy.masa.malilib.util.game.wrap.GameUtils;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
+
+import malilib.gui.BaseScreen;
+import malilib.gui.util.GuiUtils;
+import malilib.input.MouseClickHandler;
+import malilib.util.game.wrap.GameUtils;
+import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.RenderEventHandler;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;

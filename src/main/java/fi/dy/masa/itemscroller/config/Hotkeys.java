@@ -2,13 +2,14 @@ package fi.dy.masa.itemscroller.config;
 
 import java.util.List;
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.config.option.HotkeyConfig;
-import fi.dy.masa.malilib.input.CancelCondition;
-import fi.dy.masa.malilib.input.Context;
-import fi.dy.masa.malilib.input.Hotkey;
-import fi.dy.masa.malilib.input.KeyAction;
-import fi.dy.masa.malilib.input.KeyBindSettings;
-import fi.dy.masa.malilib.util.ListUtils;
+
+import malilib.config.option.HotkeyConfig;
+import malilib.input.CancelCondition;
+import malilib.input.Context;
+import malilib.input.Hotkey;
+import malilib.input.KeyAction;
+import malilib.input.KeyBindSettings;
+import malilib.util.ListUtils;
 
 public class Hotkeys
 {

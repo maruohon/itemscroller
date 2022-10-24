@@ -1,11 +1,12 @@
 package fi.dy.masa.itemscroller.gui;
 
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.config.BaseConfigScreen;
-import fi.dy.masa.malilib.gui.config.BaseConfigTab;
-import fi.dy.masa.malilib.gui.config.ConfigTab;
-import fi.dy.masa.malilib.util.data.ModInfo;
+
+import malilib.gui.BaseScreen;
+import malilib.gui.config.BaseConfigScreen;
+import malilib.gui.config.BaseConfigTab;
+import malilib.gui.config.ConfigTab;
+import malilib.util.data.ModInfo;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;

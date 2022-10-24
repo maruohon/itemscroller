@@ -1,15 +1,16 @@
 package fi.dy.masa.itemscroller.config;
 
 import com.google.common.collect.ImmutableList;
-import fi.dy.masa.malilib.config.category.BaseConfigOptionCategory;
-import fi.dy.masa.malilib.config.category.ConfigOptionCategory;
-import fi.dy.masa.malilib.config.option.BooleanConfig;
-import fi.dy.masa.malilib.config.option.ConfigOption;
-import fi.dy.masa.malilib.config.option.HotkeyedBooleanConfig;
-import fi.dy.masa.malilib.config.option.list.StringListConfig;
-import fi.dy.masa.malilib.input.Hotkey;
-import fi.dy.masa.malilib.input.KeyBindSettings;
-import fi.dy.masa.malilib.overlay.message.MessageOutput;
+
+import malilib.config.category.BaseConfigOptionCategory;
+import malilib.config.category.ConfigOptionCategory;
+import malilib.config.option.BooleanConfig;
+import malilib.config.option.ConfigOption;
+import malilib.config.option.HotkeyedBooleanConfig;
+import malilib.config.option.list.StringListConfig;
+import malilib.input.Hotkey;
+import malilib.input.KeyBindSettings;
+import malilib.overlay.message.MessageOutput;
 import fi.dy.masa.itemscroller.Reference;
 
 public class Configs

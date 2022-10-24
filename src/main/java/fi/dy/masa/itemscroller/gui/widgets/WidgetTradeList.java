@@ -2,15 +2,17 @@ package fi.dy.masa.itemscroller.gui.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
-import fi.dy.masa.malilib.gui.BaseScreen;
-import fi.dy.masa.malilib.gui.util.ScreenContext;
-import fi.dy.masa.malilib.gui.widget.InteractableWidget;
-import fi.dy.masa.malilib.gui.widget.ScrollBarWidget;
-import fi.dy.masa.malilib.render.RenderUtils;
-import fi.dy.masa.malilib.render.text.StyledTextLine;
+
+import malilib.gui.BaseScreen;
+import malilib.gui.util.ScreenContext;
+import malilib.gui.widget.InteractableWidget;
+import malilib.gui.widget.ScrollBarWidget;
+import malilib.render.RenderUtils;
+import malilib.render.text.StyledTextLine;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MerchantUtils;

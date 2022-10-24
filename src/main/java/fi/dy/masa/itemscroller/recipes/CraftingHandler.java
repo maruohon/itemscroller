@@ -9,13 +9,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiCrafting;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
-import fi.dy.masa.malilib.util.data.IntRange;
+
+import malilib.util.data.IntRange;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 
 public class CraftingHandler

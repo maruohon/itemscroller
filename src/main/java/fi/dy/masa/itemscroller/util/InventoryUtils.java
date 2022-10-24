@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiMerchant;
@@ -31,13 +32,14 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 import net.minecraft.world.World;
-import fi.dy.masa.malilib.gui.util.GuiUtils;
-import fi.dy.masa.malilib.input.Keys;
-import fi.dy.masa.malilib.util.StringUtils;
-import fi.dy.masa.malilib.util.data.IntRange;
-import fi.dy.masa.malilib.util.game.wrap.GameUtils;
-import fi.dy.masa.malilib.util.game.wrap.ItemWrap;
-import fi.dy.masa.malilib.util.inventory.InventoryScreenUtils;
+
+import malilib.gui.util.GuiUtils;
+import malilib.input.Keys;
+import malilib.util.StringUtils;
+import malilib.util.data.IntRange;
+import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.ItemWrap;
+import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.LiteModItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -231,7 +233,7 @@ public class InventoryUtils
 
     public static boolean dragMoveItems(GuiContainer gui, MoveAction action, boolean isClick, int mouseX, int mouseY)
     {
-        InventoryPlayer inventory = fi.dy.masa.malilib.util.inventory.InventoryUtils.getPlayerInventory();
+        InventoryPlayer inventory = malilib.util.inventory.InventoryUtils.getPlayerInventory();
 
         if (isStackEmpty(inventory.getItemStack()) == false)
         {
