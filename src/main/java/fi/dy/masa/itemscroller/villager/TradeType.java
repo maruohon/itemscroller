@@ -1,12 +1,13 @@
 package fi.dy.masa.itemscroller.villager;
 
 import javax.annotation.Nullable;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 
 public class TradeType
@@ -38,9 +39,9 @@ public class TradeType
     {
         NbtCompound tag = new NbtCompound();
 
-        tag.putString("Buy1", Registry.ITEM.getId(this.buyItem1).toString());
-        tag.putString("Buy2", Registry.ITEM.getId(this.buyItem2).toString());
-        tag.putString("Sell", Registry.ITEM.getId(this.sellItem).toString());
+        tag.putString("Buy1", getNameForItem(this.buyItem1));
+        tag.putString("Buy2", getNameForItem(this.buyItem2));
+        tag.putString("Sell", getNameForItem(this.sellItem));
 
         return tag;
     }
@@ -65,11 +66,23 @@ public class TradeType
         try
         {
             Identifier id = new Identifier(name);
-            return Registry.ITEM.get(id);
+            return Registries.ITEM.get(id);
         }
         catch (Exception e)
         {
             return Items.AIR;
+        }
+    }
+
+    public static String getNameForItem(Item item)
+    {
+        try
+        {
+            return Registries.ITEM.getId(item).toString();
+        }
+        catch (Exception e)
+        {
+            return "?";
         }
     }
 

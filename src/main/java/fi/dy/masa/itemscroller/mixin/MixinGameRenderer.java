@@ -16,7 +16,7 @@ public abstract class MixinGameRenderer
 
     @Inject(method = "render(FJZ)V",
             at = @At(value = "INVOKE", shift = Shift.AFTER,
-                     target = "Lnet/minecraft/client/gui/screen/Screen;render(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
+                     target = "Lnet/minecraft/client/gui/screen/Screen;renderWithTooltip(Lnet/minecraft/client/util/math/MatrixStack;IIF)V"))
     private void onDrawScreenPost(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo ci)
     {
         RenderEventHandler.instance().onDrawScreenPost(this.client);

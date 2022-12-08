@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparator;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -23,10 +24,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.CraftingResultSlot;
@@ -34,12 +35,11 @@ import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.screen.slot.TradeOutputSlot;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import fi.dy.masa.malilib.util.GuiUtils;
+
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -50,6 +50,7 @@ import fi.dy.masa.itemscroller.recipes.RecipePattern;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
 import fi.dy.masa.itemscroller.villager.VillagerDataStorage;
 import fi.dy.masa.itemscroller.villager.VillagerUtils;
+import fi.dy.masa.malilib.util.GuiUtils;
 
 public class InventoryUtils
 {
@@ -141,7 +142,7 @@ public class InventoryUtils
     {
         if (isStackEmpty(stack) == false)
         {
-            Identifier rl = Registry.ITEM.getId(stack.getItem());
+            Identifier rl = Registries.ITEM.getId(stack.getItem());
             String idStr = rl != null ? rl.toString() : "null";
             String displayName = stack.getName().getString();
             String nbtStr = stack.getNbt() != null ? stack.getNbt().toString() : "<no NBT>";
@@ -387,7 +388,7 @@ public class InventoryUtils
         {
             if (gui instanceof CreativeInventoryScreen)
             {
-                boolean isPlayerInv = ((CreativeInventoryScreen) gui).getSelectedTab() == ItemGroup.INVENTORY.getIndex();
+                boolean isPlayerInv = ((CreativeInventoryScreen) gui).isInventoryTabSelected(); // TODO 1.19.3+
                 int slotNumber = isPlayerInv ? AccessorUtils.getSlotIndex(slot) : slot.id;
                 slotNumberLast = slotNumber;
             }
@@ -487,7 +488,7 @@ public class InventoryUtils
     {
         CreativeInventoryScreen guiCreative = (CreativeInventoryScreen) gui;
         Slot slot = AccessorUtils.getSlotAtPosition(gui, x, y);
-        boolean isPlayerInv = guiCreative.getSelectedTab() == ItemGroup.INVENTORY.getIndex();
+        boolean isPlayerInv = guiCreative.isInventoryTabSelected(); // TODO 1.19.3+
 
         // Only allow dragging from the hotbar slots
         if (slot == null || (slot.getClass() != Slot.class && isPlayerInv == false))
@@ -835,7 +836,7 @@ public class InventoryUtils
 
         // Try to move the temporary single-item stack via the shift-click handler method
         slot.setStack(stack);
-        container.transferSlot(mc.player, slot.id);
+        container.quickMove(mc.player, slot.id);
 
         // Successfully moved the item somewhere, now we want to check where it went
         if (slot.hasStack() == false)
