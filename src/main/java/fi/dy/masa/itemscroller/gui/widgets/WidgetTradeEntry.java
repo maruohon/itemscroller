@@ -66,17 +66,17 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
         if (ItemWrap.notEmpty(buy1))
         {
-            ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f);
         }
 
         if (ItemWrap.notEmpty(buy2))
         {
-            ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f);
         }
 
         if (ItemWrap.notEmpty(sell))
         {
-            ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f, this.mc);
+            ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f);
         }
     }
 
@@ -100,7 +100,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(buy1))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1);
                 }
             }
             else if (mouseX >= x + 22 && mouseX <= x + 22 + 16)
@@ -109,7 +109,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(buy2))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2);
                 }
             }
             else if (mouseX >= x + 60 && mouseX <= x + 60 + 16)
@@ -118,7 +118,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(sell))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell);
                 }
             }
 

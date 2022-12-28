@@ -35,8 +35,8 @@ import net.minecraft.world.World;
 
 import malilib.gui.util.GuiUtils;
 import malilib.input.Keys;
-import malilib.util.StringUtils;
 import malilib.util.data.IntRange;
+import malilib.util.game.ItemUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.game.wrap.ItemWrap;
 import malilib.util.inventory.InventoryScreenUtils;
@@ -92,7 +92,7 @@ public class InventoryUtils
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
         Object inv = slot.inventory;
-        String stackStr = StringUtils.getStackString(slot.getStack());
+        String stackStr = ItemUtils.getStackString(slot.getStack());
 
         LiteModItemScroller.logger.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
                 "slot class: %s, inv class: %s, Container's slot list has slot: %s, stack: %s, numSlots: %d",
@@ -233,7 +233,7 @@ public class InventoryUtils
 
     public static boolean dragMoveItems(GuiContainer gui, MoveAction action, boolean isClick, int mouseX, int mouseY)
     {
-        InventoryPlayer inventory = malilib.util.inventory.InventoryUtils.getPlayerInventory();
+        InventoryPlayer inventory = GameUtils.getPlayerInventory();
 
         if (isStackEmpty(inventory.getItemStack()) == false)
         {

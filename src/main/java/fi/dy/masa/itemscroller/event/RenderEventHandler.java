@@ -110,7 +110,7 @@ public class RenderEventHandler
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack);
                 }
             }
         }
@@ -153,7 +153,7 @@ public class RenderEventHandler
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, this.mc);
+            ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack);
         }
     }
 
