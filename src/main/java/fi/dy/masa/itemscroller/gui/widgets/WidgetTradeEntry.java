@@ -8,6 +8,7 @@ import malilib.gui.BaseScreen;
 import malilib.gui.icon.DefaultIcons;
 import malilib.gui.icon.Icon;
 import malilib.gui.util.ScreenContext;
+import malilib.gui.widget.IconWidget;
 import malilib.gui.widget.list.entry.BaseDataListEntryWidget;
 import malilib.gui.widget.list.entry.DataListEntryWidgetData;
 import malilib.render.ItemRenderUtils;
@@ -36,7 +37,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         int height = this.getHeight();
         boolean hovered = this.isMouseOver(ctx.mouseX, ctx.mouseY);
 
-        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, true, hovered);
+        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, IconWidget.getVariantIndex(true, hovered));
 
         if (selected)
         {
