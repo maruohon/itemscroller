@@ -160,7 +160,7 @@ public abstract class MixinMerchantScreen extends HandledScreen<MerchantScreenHa
                 int buttonsStartY = screenY + 16 + 2;
                 int x = buttonsStartX + 89 - 8;
                 int y = buttonsStartY + 2;
-                float z = this.getZOffset() + 300;
+                float z = 300;
                 IGuiIcon icon = favoriteData.isGlobal ? ItemScrollerIcons.STAR_5_PURPLE : ItemScrollerIcons.STAR_5_YELLOW;
 
                 for (int i = 0; i < (numFavorites - this.indexStartOffset); ++i)

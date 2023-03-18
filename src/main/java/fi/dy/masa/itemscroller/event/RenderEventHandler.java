@@ -302,9 +302,10 @@ public class RenderEventHandler
 
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
-            this.mc.getItemRenderer().zOffset += 100;
-            this.mc.getItemRenderer().renderInGui(stack, x, y);
-            this.mc.getItemRenderer().zOffset -= 100;
+
+            MatrixStack matrixStack = new MatrixStack();
+            matrixStack.translate(0, 0, 100.f);
+            this.mc.getItemRenderer().renderInGui(matrixStack, stack, x, y);
         }
     }
 

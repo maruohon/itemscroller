@@ -124,7 +124,7 @@ public class InventoryUtils
                      ((ClientPlayerEntity) player).getRecipeBook().contains(recipe)))
                 {
                     inventoryCraftResult.setLastRecipe(recipe);
-                    stack = recipe.craft(craftMatrix);
+                    stack = recipe.craft(craftMatrix, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager());
                 }
 
                 if (setEmptyStack || stack.isEmpty() == false)
@@ -835,7 +835,7 @@ public class InventoryUtils
         ItemStack[] originalStacks = getOriginalStacks(container);
 
         // Try to move the temporary single-item stack via the shift-click handler method
-        slot.setStack(stack);
+        slot.setStackNoCallbacks(stack);
         container.quickMove(mc.player, slot.id);
 
         // Successfully moved the item somewhere, now we want to check where it went
@@ -858,7 +858,7 @@ public class InventoryUtils
         }
 
         // Restore the original stack to the slot under the cursor (on the client side)
-        slot.setStack(stackOrig);
+        slot.setStackNoCallbacks(stackOrig);
 
         return false;
     }
@@ -2117,7 +2117,7 @@ public class InventoryUtils
             if (areStacksEqual(stackSlot, originalStacks[i]) == false ||
                 (isStackEmpty(stackSlot) == false && getStackSize(stackSlot) != getStackSize(originalStacks[i])))
             {
-                container.getSlot(i).setStack(originalStacks[i]);
+                container.getSlot(i).setStackNoCallbacks(originalStacks[i]);
             }
         }
     }

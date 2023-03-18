@@ -3,7 +3,7 @@ package fi.dy.masa.itemscroller.util;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 
 public class ClickPacketBuffer
 {
