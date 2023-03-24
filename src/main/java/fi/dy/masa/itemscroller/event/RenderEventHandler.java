@@ -10,6 +10,7 @@ import net.minecraft.util.math.Vec3d;
 
 import malilib.gui.util.GuiUtils;
 import malilib.render.ItemRenderUtils;
+import malilib.render.RenderContext;
 import malilib.render.RenderUtils;
 import malilib.render.ShapeRenderUtils;
 import malilib.util.StringUtils;
@@ -69,7 +70,7 @@ public class RenderEventHandler
                 int row = i % this.recipesPerColumn;
                 int column = i / this.recipesPerColumn;
 
-                this.renderStoredRecipeStack(stack, recipeId, row, column, gui, selected);
+                this.renderStoredRecipeStack(stack, recipeId, row, column, selected);
             }
 
             if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
@@ -79,7 +80,7 @@ public class RenderEventHandler
                 final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
                 CraftingRecipe recipe = recipeId >= 0 ? recipes.getRecipe(recipeId) : recipes.getSelectedRecipe();
 
-                this.renderRecipeItems(recipe, recipes.getRecipeCountPerPage(), gui);
+                this.renderRecipeItems(recipe);
             }
 
             GlStateManager.popMatrix();
@@ -97,20 +98,21 @@ public class RenderEventHandler
             final int mouseX = InputUtils.getMouseX();
             final int mouseY = InputUtils.getMouseY();
             final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
+            RenderContext ctx = RenderContext.DUMMY;
 
             if (recipeId >= 0)
             {
                 CraftingRecipe recipe = recipes.getRecipe(recipeId);
-                this.renderHoverTooltip(mouseX, mouseY, recipe, gui);
+                this.renderHoverTooltip(mouseX, mouseY, recipe, ctx);
             }
             else if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
             {
                 CraftingRecipe recipe = recipes.getSelectedRecipe();
-                ItemStack stack = this.getHoveredRecipeIngredient(mouseX, mouseY, recipe, recipes.getRecipeCountPerPage(), gui);
+                ItemStack stack = this.getHoveredRecipeIngredient(mouseX, mouseY, recipe);
 
                 if (InventoryUtils.isStackEmpty(stack) == false)
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, ctx);
                 }
             }
         }
@@ -138,7 +140,7 @@ public class RenderEventHandler
         // assume a maximum of 3x3 recipe size for now... thus columns + 3 stacks rendered horizontally
         double gapScaleHorizontal = (1D - (double) gapHorizontal / (double) (stackBaseHeight + gapHorizontal));
         int maxStackDimensionsHorizontal = (int) (((usableWidth - (this.columns * (this.numberTextWidth + this.gapColumn))) / (this.columns + 3 + 0.8)) * gapScaleHorizontal);
-        int stackDimensions = (int) Math.min(maxStackDimensionsVertical, maxStackDimensionsHorizontal);
+        int stackDimensions = Math.min(maxStackDimensionsVertical, maxStackDimensionsHorizontal);
 
         this.scale = (int) Math.ceil(((double) stackDimensions / (double) stackBaseHeight));
         this.entryHeight = stackBaseHeight + gapVertical;
@@ -147,13 +149,13 @@ public class RenderEventHandler
         this.columnWidth = stackBaseHeight + this.numberTextWidth + this.gapColumn;
     }
 
-    private void renderHoverTooltip(int mouseX, int mouseY, CraftingRecipe recipe, GuiContainer gui)
+    private void renderHoverTooltip(int mouseX, int mouseY, CraftingRecipe recipe, RenderContext ctx)
     {
         ItemStack stack = recipe.getResult();
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack);
+            ItemRenderUtils.renderStackToolTip(mouseX, mouseY, 10, stack, ctx);
         }
     }
 
@@ -186,7 +188,7 @@ public class RenderEventHandler
         return -1;
     }
 
-    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, GuiContainer gui, boolean selected)
+    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, boolean selected)
     {
         final FontRenderer font = this.mc.fontRenderer;
         final String indexStr = String.valueOf(recipeId + 1);
@@ -208,7 +210,7 @@ public class RenderEventHandler
         GlStateManager.popMatrix();
     }
 
-    private void renderRecipeItems(CraftingRecipe recipe, int recipeCountPerPage, GuiContainer gui)
+    private void renderRecipeItems(CraftingRecipe recipe)
     {
         ItemStack[] items = recipe.getRecipeItems();
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
@@ -227,7 +229,7 @@ public class RenderEventHandler
         }
     }
 
-    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, CraftingRecipe recipe, int recipeCountPerPage, GuiContainer gui)
+    private ItemStack getHoveredRecipeIngredient(int mouseX, int mouseY, CraftingRecipe recipe)
     {
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
         int scaledStackDimensions = (int) (16 * this.scale);

@@ -67,17 +67,17 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
         if (ItemWrap.notEmpty(buy1))
         {
-            ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f);
+            ItemRenderUtils.renderStackAt(buy1, x +  4, y + 2, z, 1f, ctx);
         }
 
         if (ItemWrap.notEmpty(buy2))
         {
-            ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f);
+            ItemRenderUtils.renderStackAt(buy2, x + 22, y + 2, z, 1f, ctx);
         }
 
         if (ItemWrap.notEmpty(sell))
         {
-            ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f);
+            ItemRenderUtils.renderStackAt(sell, x + 60, y + 2, z, 1f, ctx);
         }
     }
 
@@ -101,7 +101,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(buy1))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy1, ctx);
                 }
             }
             else if (mouseX >= x + 22 && mouseX <= x + 22 + 16)
@@ -110,7 +110,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(buy2))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, buy2, ctx);
                 }
             }
             else if (mouseX >= x + 60 && mouseX <= x + 60 + 16)
@@ -119,7 +119,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
 
                 if (ItemWrap.notEmpty(sell))
                 {
-                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell);
+                    ItemRenderUtils.renderStackToolTip(mouseX, mouseY, z, sell, ctx);
                 }
             }
 
@@ -128,7 +128,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
                 int uses = recipe.getToolUses();
                 int max = recipe.getMaxTradeUses();
                 String text = StringUtils.translate("itemscroller.label.misc.trade_uses", uses, max);
-                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, text);
+                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, text, ctx);
             }
         }
     }
