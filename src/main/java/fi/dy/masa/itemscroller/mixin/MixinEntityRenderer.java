@@ -13,12 +13,10 @@ import fi.dy.masa.itemscroller.event.RenderEventHandler;
 @Mixin(EntityRenderer.class)
 public abstract class MixinEntityRenderer
 {
-    @Inject(method = "updateCameraAndRender(FJ)V", at = {
-            @At(value = "INVOKE", shift = Shift.AFTER, target = "Lnet/minecraftforge/client/ForgeHooksClient;drawScreen(Lnet/minecraft/client/gui/GuiScreen;IIF)V"),
-            @At(value = "INVOKE", shift = Shift.AFTER, target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V")
-            },
-            require = 1, allow = 1)
-    private void onDrawScreenPost(float partialTicks, long nanoTime, CallbackInfo ci)
+    @Inject(method = "updateCameraAndRender(FJ)V", allow = 1,
+            at = @At(value = "INVOKE", shift = Shift.AFTER,
+                     target = "Lnet/minecraft/client/gui/GuiScreen;drawScreen(IIF)V"))
+    private void itemscroller_onDrawScreenPost(float partialTicks, long nanoTime, CallbackInfo ci)
     {
         RenderEventHandler.instance().onDrawScreenPost();
     }
