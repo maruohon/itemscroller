@@ -15,7 +15,7 @@ import malilib.render.ItemRenderUtils;
 import malilib.render.RenderUtils;
 import malilib.render.ShapeRenderUtils;
 import malilib.render.TextRenderUtils;
-import malilib.util.StringUtils;
+import malilib.render.text.StyledText;
 import malilib.util.game.wrap.ItemWrap;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 
@@ -127,8 +127,8 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             {
                 int uses = recipe.getToolUses();
                 int max = recipe.getMaxTradeUses();
-                String text = StringUtils.translate("itemscroller.label.misc.trade_uses", uses, max);
-                TextRenderUtils.renderHoverText(mouseX + 6, mouseY + 18, z, text, ctx);
+                StyledText text = StyledText.translate("itemscroller.label.misc.trade_uses", uses, max);
+                TextRenderUtils.renderStyledHoverText(mouseX + 6, mouseY + 18, z, text, ctx);
             }
         }
     }
