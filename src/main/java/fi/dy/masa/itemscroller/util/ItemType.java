@@ -58,7 +58,7 @@ public class ItemType
                 return false;
             }
 
-            return ItemStack.areNbtEqual(this.stack, other.stack);
+            return ItemStack.canCombine(this.stack, other.stack);
         }
     }
 
