@@ -3,8 +3,9 @@ package fi.dy.masa.itemscroller.util;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import net.minecraft.item.ItemStack;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+
+import net.minecraft.item.ItemStack;
 
 /**
  * Wrapper class for ItemStack, which implements equals()
@@ -47,19 +48,7 @@ public class ItemType
 
         ItemType other = (ItemType) obj;
 
-        if (InventoryUtils.isStackEmpty(this.stack) || InventoryUtils.isStackEmpty(other.stack))
-        {
-            return InventoryUtils.isStackEmpty(this.stack) == InventoryUtils.isStackEmpty(other.stack);
-        }
-        else
-        {
-            if (this.stack.getItem() != other.stack.getItem())
-            {
-                return false;
-            }
-
-            return ItemStack.canCombine(this.stack, other.stack);
-        }
+        return ItemStack.canCombine(this.stack, other.stack);
     }
 
     /**
