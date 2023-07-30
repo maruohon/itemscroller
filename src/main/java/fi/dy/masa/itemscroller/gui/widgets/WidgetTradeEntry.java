@@ -31,17 +31,17 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         this.data = data;
     }
 
-    public void renderAt(int x, int y, float z, ScreenContext ctx, boolean selected)
+    public void renderAt(int x, int y, float z, boolean selected, ScreenContext ctx)
     {
         int width = this.getWidth();
         int height = this.getHeight();
         boolean hovered = this.isMouseOver(ctx.mouseX, ctx.mouseY);
 
-        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, IconWidget.getVariantIndex(true, hovered));
+        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, IconWidget.getVariantIndex(true, hovered), ctx);
 
         if (selected)
         {
-            ShapeRenderUtils.renderOutline(x, y, z, width, height, 1, 0xFFFFB000);
+            ShapeRenderUtils.renderOutline(x, y, z, width, height, 1, 0xFFFFB000, ctx);
         }
 
         MerchantRecipe recipe = this.getData();
@@ -51,12 +51,12 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         GlStateManager.enableAlpha();
 
         // Trade arrow
-        icon.renderAt(x + 44, y + 5, z);
+        icon.renderAt(x + 44, y + 5, z, ctx);
 
         // This entry has been favorited
         if (this.data.getFavorites().contains(this.getDataListIndex()))
         {
-            ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z);
+            ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z, ctx);
         }
 
         GlStateManager.disableBlend();

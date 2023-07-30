@@ -13,6 +13,8 @@ import malilib.render.ItemRenderUtils;
 import malilib.render.RenderContext;
 import malilib.render.RenderUtils;
 import malilib.render.ShapeRenderUtils;
+import malilib.render.buffer.VanillaWrappingVertexBuilder;
+import malilib.render.buffer.VertexBuilder;
 import malilib.util.StringUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.inventory.InventoryScreenUtils;
@@ -46,6 +48,8 @@ public class RenderEventHandler
 
     public void onDrawBackgroundPost()
     {
+        RenderContext ctx = RenderContext.DUMMY;
+
         if (GuiUtils.getCurrentScreen() instanceof GuiContainer && InputUtils.isRecipeViewOpen())
         {
             GuiContainer gui = (GuiContainer) GuiUtils.getCurrentScreen();
@@ -70,7 +74,7 @@ public class RenderEventHandler
                 int row = i % this.recipesPerColumn;
                 int column = i / this.recipesPerColumn;
 
-                this.renderStoredRecipeStack(stack, recipeId, row, column, selected);
+                this.renderStoredRecipeStack(stack, recipeId, row, column, selected, ctx);
             }
 
             if (Configs.Generic.CRAFTING_RENDER_RECIPE_ITEMS.getBooleanValue())
@@ -80,7 +84,7 @@ public class RenderEventHandler
                 final int recipeId = this.getHoveredRecipeId(mouseX, mouseY, recipes, gui);
                 CraftingRecipe recipe = recipeId >= 0 ? recipes.getRecipe(recipeId) : recipes.getSelectedRecipe();
 
-                this.renderRecipeItems(recipe);
+                this.renderRecipeItems(recipe, ctx);
             }
 
             GlStateManager.popMatrix();
@@ -188,14 +192,14 @@ public class RenderEventHandler
         return -1;
     }
 
-    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, boolean selected)
+    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, boolean selected, RenderContext ctx)
     {
         final FontRenderer font = this.mc.fontRenderer;
         final String indexStr = String.valueOf(recipeId + 1);
 
         int x = column * this.columnWidth + this.gapColumn + this.numberTextWidth;
         int y = row * this.entryHeight;
-        this.renderStackAt(stack, x, y, selected);
+        this.renderStackAt(stack, x, y, selected, ctx);
 
         double scale = 0.75;
         x = x - (int) (font.getStringWidth(indexStr) * scale) - 2;
@@ -210,7 +214,7 @@ public class RenderEventHandler
         GlStateManager.popMatrix();
     }
 
-    private void renderRecipeItems(CraftingRecipe recipe)
+    private void renderRecipeItems(CraftingRecipe recipe, RenderContext ctx)
     {
         ItemStack[] items = recipe.getRecipeItems();
         final int recipeDimensions = (int) Math.ceil(Math.sqrt(recipe.getRecipeLength()));
@@ -224,7 +228,7 @@ public class RenderEventHandler
                 int xOff = col * 17;
                 int yOff = row * 17;
 
-                this.renderStackAt(items[i], x + xOff, y + yOff, false);
+                this.renderStackAt(items[i], x + xOff, y + yOff, false, ctx);
             }
         }
     }
@@ -261,28 +265,32 @@ public class RenderEventHandler
         return ItemStack.EMPTY;
     }
 
-    private void renderStackAt(ItemStack stack, int x, int y, boolean border)
+    private void renderStackAt(ItemStack stack, int x, int y, boolean border, RenderContext ctx)
     {
         GlStateManager.pushMatrix();
         GlStateManager.disableLighting();
         final int w = 16;
         int z = 10;
 
+        VertexBuilder builder = VanillaWrappingVertexBuilder.coloredQuads();
+
         if (border)
         {
             // Draw a light/white border around the stack
-            ShapeRenderUtils.renderRectangle(x - 1, y - 1, z, w + 1, 1    , 0xFFFFFFFF);
-            ShapeRenderUtils.renderRectangle(x - 1, y    , z, 1    , w + 1, 0xFFFFFFFF);
-            ShapeRenderUtils.renderRectangle(x + w, y - 1, z, 1    , w + 1, 0xFFFFFFFF);
-            ShapeRenderUtils.renderRectangle(x    , y + w, z, w + 1, 1    , 0xFFFFFFFF);
+            ShapeRenderUtils.renderRectangle(x - 1, y - 1, z, w + 1, 1    , 0xFFFFFFFF, builder);
+            ShapeRenderUtils.renderRectangle(x - 1, y    , z, 1    , w + 1, 0xFFFFFFFF, builder);
+            ShapeRenderUtils.renderRectangle(x + w, y - 1, z, 1    , w + 1, 0xFFFFFFFF, builder);
+            ShapeRenderUtils.renderRectangle(x    , y + w, z, w + 1, 1    , 0xFFFFFFFF, builder);
 
-            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF); // light background for the item
+            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF, builder); // light background for the item
 
         }
         else
         {
-            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF); // light background for the item
+            ShapeRenderUtils.renderRectangle(x, y, z, w, w, 0x20FFFFFF, builder); // light background for the item
         }
+
+        builder.draw();
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
