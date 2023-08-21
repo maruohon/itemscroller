@@ -60,7 +60,7 @@ public abstract class MixinMerchantScreen extends HandledScreen<MerchantScreenHa
     }
 
     @Inject(method = "mouseScrolled", at = @At("RETURN"))
-    private void onMouseScrollPost(double mouseX, double mouseY, double amount, CallbackInfoReturnable<Boolean> cir)
+    private void onMouseScrollPost(double mouseX, double mouseY, double horizontalAmount, double verticalAmount, CallbackInfoReturnable<Boolean> cir)
     {
         if (Configs.Toggles.VILLAGER_TRADE_FEATURES.getBooleanValue() &&
             Configs.Generic.VILLAGER_TRADE_LIST_REMEMBER_SCROLL.getBooleanValue() &&
