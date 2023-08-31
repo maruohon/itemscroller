@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparator;
 
+import net.minecraft.class_8786;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -110,20 +111,22 @@ public class InventoryUtils
         {
             ItemStack stack = ItemStack.EMPTY;
             CraftingRecipe recipe = Configs.Generic.USE_RECIPE_CACHING.getBooleanValue() ? lastRecipe : null;
+            class_8786<?> recipeHolder = null;
 
             if (recipe == null || recipe.matches(craftMatrix, world) == false)
             {
-                Optional<CraftingRecipe> optional = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftMatrix, world);
-                recipe = optional.isPresent() ? optional.get() : null;
+                Optional<class_8786<CraftingRecipe>> optional = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftMatrix, world);
+                recipe = optional.map(class_8786::comp_1933).orElse(null);
+                recipeHolder = optional.orElse(null);
             }
 
             if (recipe != null)
             {
                 if ((recipe.isIgnoredInRecipeBook() ||
                      world.getGameRules().getBoolean(GameRules.DO_LIMITED_CRAFTING) == false ||
-                     ((ClientPlayerEntity) player).getRecipeBook().contains(recipe)))
+                     ((ClientPlayerEntity) player).getRecipeBook().contains(recipeHolder)))
                 {
-                    inventoryCraftResult.setLastRecipe(recipe);
+                    inventoryCraftResult.setLastRecipe(recipeHolder);
                     stack = recipe.craft(craftMatrix, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager());
                 }
 
