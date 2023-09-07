@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparator;
 
-import net.minecraft.class_8786;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -27,6 +26,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.CraftingRecipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.MerchantScreenHandler;
@@ -111,22 +111,22 @@ public class InventoryUtils
         {
             ItemStack stack = ItemStack.EMPTY;
             CraftingRecipe recipe = Configs.Generic.USE_RECIPE_CACHING.getBooleanValue() ? lastRecipe : null;
-            class_8786<?> recipeHolder = null;
+            RecipeEntry<?> recipeEntry = null;
 
             if (recipe == null || recipe.matches(craftMatrix, world) == false)
             {
-                Optional<class_8786<CraftingRecipe>> optional = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftMatrix, world);
-                recipe = optional.map(class_8786::comp_1933).orElse(null);
-                recipeHolder = optional.orElse(null);
+                Optional<RecipeEntry<CraftingRecipe>> optional = world.getRecipeManager().getFirstMatch(RecipeType.CRAFTING, craftMatrix, world);
+                recipe = optional.map(RecipeEntry::value).orElse(null);
+                recipeEntry = optional.orElse(null);
             }
 
             if (recipe != null)
             {
                 if ((recipe.isIgnoredInRecipeBook() ||
                      world.getGameRules().getBoolean(GameRules.DO_LIMITED_CRAFTING) == false ||
-                     ((ClientPlayerEntity) player).getRecipeBook().contains(recipeHolder)))
+                     ((ClientPlayerEntity) player).getRecipeBook().contains(recipeEntry)))
                 {
-                    inventoryCraftResult.setLastRecipe(recipeHolder);
+                    inventoryCraftResult.setLastRecipe(recipeEntry);
                     stack = recipe.craft(craftMatrix, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager());
                 }
 
