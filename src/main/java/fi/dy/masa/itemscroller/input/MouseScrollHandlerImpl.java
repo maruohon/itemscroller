@@ -47,7 +47,7 @@ public class MouseScrollHandlerImpl implements MouseScrollHandler
 
                     if (widget != null && widget.isMouseOver(mouseX, mouseY))
                     {
-                        widget.tryMouseScroll(mouseX, mouseY, dWheel);
+                        widget.tryMouseScroll(mouseX, mouseY, dWheel, 0.0);
                         return true;
                     }
                 }

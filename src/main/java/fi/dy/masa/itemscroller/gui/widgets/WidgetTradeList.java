@@ -129,9 +129,9 @@ public class WidgetTradeList extends InteractableWidget
     }
 
     @Override
-    protected boolean onMouseScrolled(int mouseX, int mouseY, double mouseWheelDelta)
+    protected boolean onMouseScrolled(int mouseX, int mouseY, double verticalWheelDelta, double horizontalWheelDelta)
     {
-        this.scrollBar.offsetValue(mouseWheelDelta < 0 ? 1 : -1);
+        this.scrollBar.offsetValue(verticalWheelDelta < 0.0 ? 1 : -1);
         return true;
     }
 
