@@ -10,19 +10,22 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.screen.MerchantScreenHandler;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOfferList;
+
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.util.Constants;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 
 public class VillagerDataStorage
 {
@@ -214,7 +217,7 @@ public class VillagerDataStorage
             if (file.exists() && file.isFile() && file.canRead())
             {
                 FileInputStream is = new FileInputStream(file);
-                this.readFromNBT(NbtIo.readCompressed(is));
+                this.readFromNBT(NbtIo.readCompressed(is, NbtTagSizeTracker.ofUnlimitedBytes()));
                 is.close();
             }
         }
