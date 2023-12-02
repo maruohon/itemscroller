@@ -53,7 +53,7 @@ public class MouseClickHandlerImpl implements MouseClickHandler
                 VillagerDataStorage storage = VillagerDataStorage.INSTANCE;
                 RayTraceResult hitResult = GameUtils.getHitResult();
 
-                if (GuiUtils.getCurrentScreen() == null && hitResult != null &&
+                if (GuiUtils.noScreenOpen() && hitResult != null &&
                     hitResult.typeOfHit == RayTraceResult.Type.ENTITY &&
                     hitResult.entityHit instanceof EntityVillager)
                 {

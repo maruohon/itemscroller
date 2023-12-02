@@ -29,7 +29,7 @@ public class InputUtils
 
     public static boolean isRecipeViewOpen()
     {
-        return GuiUtils.getCurrentScreen() != null &&
+        return GuiUtils.isScreenOpen() &&
                Hotkeys.SHOW_RECIPES.getKeyBind().isKeyBindHeld() &&
                Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() &&
                CraftingHandler.isCraftingGui(GuiUtils.getCurrentScreen());
