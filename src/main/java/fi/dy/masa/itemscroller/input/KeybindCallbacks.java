@@ -14,7 +14,7 @@ import malilib.input.KeyBind;
 import malilib.input.callback.HotkeyCallback;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.inventory.InventoryScreenUtils;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Actions;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -130,7 +130,7 @@ public class KeybindCallbacks implements HotkeyCallback
             }
             else
             {
-                LiteModItemScroller.logger.info("GUI class: {}", gui.getClass().getName());
+                ItemScroller.LOGGER.info("GUI class: {}", gui.getClass().getName());
             }
 
             return ActionResult.SUCCESS;

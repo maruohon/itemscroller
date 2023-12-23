@@ -17,7 +17,7 @@ import net.minecraft.nbt.NBTTagList;
 import malilib.util.FileUtils;
 import malilib.util.StringUtils;
 import malilib.util.game.wrap.NbtWrap;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.Reference;
 import fi.dy.masa.itemscroller.util.Constants;
 
@@ -166,7 +166,7 @@ public class VillagerDataStorage
         }
         catch (Exception e)
         {
-            LiteModItemScroller.logger.warn("Failed to read villager data from file", e);
+            ItemScroller.LOGGER.warn("Failed to read villager data from file", e);
         }
     }
 
@@ -180,8 +180,8 @@ public class VillagerDataStorage
 
                 if (FileUtils.createDirectoriesIfMissing(saveDir) == false)
                 {
-                    LiteModItemScroller.logger.warn("Failed to create the data storage directory '{}'",
-                                                    saveDir.toAbsolutePath().toString());
+                    ItemScroller.LOGGER.warn("Failed to create the data storage directory '{}'",
+                                             saveDir.toAbsolutePath().toString());
                     return;
                 }
 
@@ -201,7 +201,7 @@ public class VillagerDataStorage
             }
             catch (Exception e)
             {
-                LiteModItemScroller.logger.warn("Failed to write villager data to file!", e);
+                ItemScroller.LOGGER.warn("Failed to write villager data to file!", e);
             }
         }
     }

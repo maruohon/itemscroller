@@ -40,7 +40,7 @@ import malilib.util.game.ItemUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.game.wrap.ItemWrap;
 import malilib.util.inventory.InventoryScreenUtils;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
 import fi.dy.masa.itemscroller.recipes.CraftingHandler;
@@ -86,7 +86,7 @@ public class InventoryUtils
     {
         if (slot == null)
         {
-            LiteModItemScroller.logger.info("slot was null");
+            ItemScroller.LOGGER.info("slot was null");
             return;
         }
 
@@ -94,7 +94,7 @@ public class InventoryUtils
         Object inv = slot.inventory;
         String stackStr = ItemUtils.getStackString(slot.getStack());
 
-        LiteModItemScroller.logger.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
+        ItemScroller.LOGGER.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
                 "slot class: %s, inv class: %s, Container's slot list has slot: %s, stack: %s, numSlots: %d",
                 slot.slotNumber, AccessorUtils.getSlotIndex(slot), slot.getHasStack(), slot.getClass().getName(),
                 inv != null ? inv.getClass().getName() : "<null>", hasSlot ? " true" : "false", stackStr,
@@ -2361,8 +2361,8 @@ public class InventoryUtils
             }
             catch (Exception e)
             {
-                LiteModItemScroller.logger.warn("Exception while emulating a slot click: gui: '{}', slotNum: {}, mouseButton; {}, ClickType: {}",
-                        gui.getClass().getName(), slotNum, mouseButton, type, e);
+                ItemScroller.LOGGER.warn("Exception while emulating a slot click: gui: '{}', slotNum: {}, mouseButton; {}, ClickType: {}",
+                                         gui.getClass().getName(), slotNum, mouseButton, type, e);
             }
         }
     }
@@ -2375,7 +2375,7 @@ public class InventoryUtils
         }
         catch (Exception e)
         {
-            LiteModItemScroller.logger.warn("Exception while emulating a slot click: gui: '{}', slotNum: {}, mouseButton; {}, ClickType: {}",
+            ItemScroller.LOGGER.warn("Exception while emulating a slot click: gui: '{}', slotNum: {}, mouseButton; {}, ClickType: {}",
                     gui.getClass().getName(), slotNum, mouseButton, type, e);
         }
     }

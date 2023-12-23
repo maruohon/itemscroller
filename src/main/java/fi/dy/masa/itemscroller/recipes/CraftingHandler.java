@@ -18,7 +18,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.inventory.SlotCrafting;
 
 import malilib.util.data.IntRange;
-import fi.dy.masa.itemscroller.LiteModItemScroller;
+import fi.dy.masa.itemscroller.ItemScroller;
 
 public class CraftingHandler
 {
@@ -65,12 +65,12 @@ public class CraftingHandler
             }
             else
             {
-                LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
+                ItemScroller.LOGGER.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
             }
         }
         catch (Exception e)
         {
-            LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
+            ItemScroller.LOGGER.warn("addCraftingGridDefinition(): Failed to parse definition: '{}'", str);
         }
     }
 
@@ -104,7 +104,7 @@ public class CraftingHandler
         }
         catch (Exception e)
         {
-            LiteModItemScroller.logger.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: screen: '{}', slot: '{}', outputSlot: {}, grid slot range: {}",
+            ItemScroller.LOGGER.warn("addCraftingGridDefinition(): Failed to find classes for grid definition: screen: '{}', slot: '{}', outputSlot: {}, grid slot range: {}",
                                             screenClassName, slotClassName, outputSlot, range);
         }
 
