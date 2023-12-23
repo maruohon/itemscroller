@@ -50,10 +50,4 @@ public class LiteModItemScroller implements LiteMod, Configurable, Tickable
     public void upgradeSettings(String version, File configPath, File oldConfigPath)
     {
     }
-
-    @Override
-    public void onTick(Minecraft mc, float partialTicks, boolean inGame, boolean clock)
-    {
-        KeybindCallbacks.INSTANCE.onTick(mc);
-    }
 }

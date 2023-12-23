@@ -139,8 +139,10 @@ public class KeybindCallbacks implements HotkeyCallback
         return ActionResult.PASS;
     }
 
-    public void onTick(Minecraft mc)
+    public void onTick()
     {
+        Minecraft mc = GameUtils.getClient();
+
         if (mc.player != null &&
             Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() &&
             GuiUtils.getCurrentScreen() instanceof GuiContainer &&

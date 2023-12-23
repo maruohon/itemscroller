@@ -33,6 +33,7 @@ public class InitHandler implements InitializationHandler
         Registry.INPUT_DISPATCHER.registerMouseClickHandler(new MouseClickHandlerImpl());
         Registry.INPUT_DISPATCHER.registerMouseScrollHandler(new MouseScrollHandlerImpl());
         Registry.INPUT_DISPATCHER.registerMouseMoveHandler(new MouseMoveHandlerImpl());
+        Registry.TICK_EVENT_DISPATCHER.registerClientTickHandler(KeybindCallbacks.INSTANCE::onTick);
 
         ClientWorldChangeHandler listener = new ClientWorldChangeHandler();
         Registry.CLIENT_WORLD_CHANGE_EVENT_DISPATCHER.registerClientWorldChangeHandler(listener);
