@@ -2,8 +2,7 @@
 	"required": true,
 	"package": "fi.dy.masa.itemscroller.mixin",
 	"compatibilityLevel": "JAVA_8",
-	"refmap": "mixins.itemscroller.refmap.json",
-	"minVersion": "0.7",
+	"minVersion": "0.8",
 	"client": [
 		"IMixinGuiContainer",
 		"IMixinSlot",
