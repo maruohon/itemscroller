@@ -6,13 +6,13 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.inventory.Slot;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 
 import malilib.gui.BaseScreen;
 import malilib.gui.util.GuiUtils;
 import malilib.input.KeyboardInputHandler;
 import malilib.input.Keys;
+import malilib.util.MathUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -40,7 +40,7 @@ public class KeyboardInputHandlerImpl implements KeyboardInputHandler
 
             if (keyCode >= Keys.KEY_1 && keyCode <= Keys.KEY_9)
             {
-                index = MathHelper.clamp(keyCode - Keys.KEY_1, 0, 8);
+                index = MathUtils.clamp(keyCode - Keys.KEY_1, 0, 8);
             }
             else if (keyCode == Keys.KEY_UP && oldIndex > 0)
             {
