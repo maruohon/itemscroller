@@ -6,7 +6,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3d;
 
 import malilib.gui.util.GuiUtils;
 import malilib.render.ItemRenderUtils;
@@ -18,6 +17,7 @@ import malilib.render.buffer.VertexBuilder;
 import malilib.util.StringUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.inventory.InventoryScreenUtils;
+import malilib.util.position.Vec3d;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.recipes.CraftingRecipe;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -27,8 +27,8 @@ import fi.dy.masa.itemscroller.util.InventoryUtils;
 public class RenderEventHandler
 {
     private static final RenderEventHandler INSTANCE = new RenderEventHandler();
-    private static final Vec3d LIGHT0_POS = (new Vec3d( 0.2D, 1.0D, -0.7D)).normalize();
-    private static final Vec3d LIGHT1_POS = (new Vec3d(-0.2D, 1.0D,  0.7D)).normalize();
+    private static final Vec3d LIGHT0_POS = Vec3d.normalized( 0.2D, 1.0D, -0.7D);
+    private static final Vec3d LIGHT1_POS = Vec3d.normalized(-0.2D, 1.0D,  0.7D);
 
     private final Minecraft mc = GameUtils.getClient();
     private int recipeListX;

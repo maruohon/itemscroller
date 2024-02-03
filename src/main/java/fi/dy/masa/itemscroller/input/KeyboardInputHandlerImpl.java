@@ -6,7 +6,6 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.inventory.Slot;
-import net.minecraft.util.math.RayTraceResult;
 
 import malilib.gui.BaseScreen;
 import malilib.gui.util.GuiUtils;
@@ -15,6 +14,7 @@ import malilib.input.Keys;
 import malilib.util.MathUtils;
 import malilib.util.game.wrap.GameUtils;
 import malilib.util.inventory.InventoryScreenUtils;
+import malilib.util.position.HitResult;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.event.RenderEventHandler;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
@@ -91,13 +91,13 @@ public class KeyboardInputHandlerImpl implements KeyboardInputHandler
             if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
             {
                 VillagerDataStorage storage = VillagerDataStorage.INSTANCE;
-                RayTraceResult hitResult = GameUtils.getHitResult();
+                HitResult hitResult = GameUtils.getHitResult();
 
-                if (GuiUtils.noScreenOpen() && hitResult != null &&
-                    hitResult.typeOfHit == RayTraceResult.Type.ENTITY &&
-                    hitResult.entityHit instanceof EntityVillager)
+                if (GuiUtils.noScreenOpen() &&
+                    hitResult.type == HitResult.Type.ENTITY &&
+                    hitResult.entity instanceof EntityVillager)
                 {
-                    storage.setLastInteractedUUID(hitResult.entityHit.getUniqueID());
+                    storage.setLastInteractedUUID(hitResult.entity.getUniqueID());
                 }
                 else if (GuiUtils.getCurrentScreen() instanceof GuiMerchant && storage.hasInteractionTarget())
                 {
