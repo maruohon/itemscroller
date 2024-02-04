@@ -1,6 +1,5 @@
 package fi.dy.masa.itemscroller.gui.widgets;
 
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.village.MerchantRecipe;
 
@@ -12,11 +11,11 @@ import malilib.gui.widget.IconWidget;
 import malilib.gui.widget.list.entry.BaseDataListEntryWidget;
 import malilib.gui.widget.list.entry.DataListEntryWidgetData;
 import malilib.render.ItemRenderUtils;
-import malilib.render.RenderUtils;
 import malilib.render.ShapeRenderUtils;
 import malilib.render.TextRenderUtils;
 import malilib.render.text.StyledText;
 import malilib.util.game.wrap.ItemWrap;
+import malilib.util.game.wrap.RenderWrap;
 import fi.dy.masa.itemscroller.villager.VillagerData;
 
 public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
@@ -47,8 +46,8 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         MerchantRecipe recipe = this.getData();
         Icon icon = recipe.isRecipeDisabled() ? ItemScrollerIcons.TRADE_ARROW_LOCKED : ItemScrollerIcons.TRADE_ARROW_AVAILABLE;
 
-        RenderUtils.setupBlend();
-        GlStateManager.enableAlpha();
+        RenderWrap.setupBlendSeparate();
+        RenderWrap.enableAlpha();
 
         // Trade arrow
         icon.renderAt(x + 44, y + 5, z, ctx);
@@ -59,7 +58,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
             ItemScrollerIcons.STAR_5.renderAt(x + 80, y + 2, z, ctx);
         }
 
-        GlStateManager.disableBlend();
+        RenderWrap.disableBlend();
 
         ItemStack buy1 = recipe.getItemToBuy();
         ItemStack buy2 = recipe.getSecondItemToBuy();

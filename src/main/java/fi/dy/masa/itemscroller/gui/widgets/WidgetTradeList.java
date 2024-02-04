@@ -11,8 +11,8 @@ import malilib.gui.BaseScreen;
 import malilib.gui.util.ScreenContext;
 import malilib.gui.widget.InteractableWidget;
 import malilib.gui.widget.ScrollBarWidget;
-import malilib.render.RenderUtils;
 import malilib.render.text.StyledTextLine;
+import malilib.util.game.wrap.RenderWrap;
 import fi.dy.masa.itemscroller.util.AccessorUtils;
 import fi.dy.masa.itemscroller.util.InventoryUtils;
 import fi.dy.masa.itemscroller.util.MerchantUtils;
@@ -148,7 +148,7 @@ public class WidgetTradeList extends InteractableWidget
             currentPage = Math.min(currentPage, this.recipeList.size() - 1);
             this.updateDataStorage(currentPage);
 
-            RenderUtils.disableItemLighting();
+            RenderWrap.disableItemLighting();
 
             // Background
             ItemScrollerIcons.TRADE_LIST_BACKGROUND.renderAt(x, y, this.getZ(), ctx);

@@ -1,5 +1,7 @@
 package fi.dy.masa.itemscroller.event;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -10,12 +12,12 @@ import net.minecraft.item.ItemStack;
 import malilib.gui.util.GuiUtils;
 import malilib.render.ItemRenderUtils;
 import malilib.render.RenderContext;
-import malilib.render.RenderUtils;
 import malilib.render.ShapeRenderUtils;
 import malilib.render.buffer.VanillaWrappingVertexBuilder;
 import malilib.render.buffer.VertexBuilder;
 import malilib.util.StringUtils;
 import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.RenderWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import malilib.util.position.Vec3d;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -60,9 +62,9 @@ public class RenderEventHandler
 
             this.calculateRecipePositions(gui);
 
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(this.recipeListX, this.recipeListY, 0);
-            GlStateManager.scale(this.scale, this.scale, 1);
+            RenderWrap.pushMatrix(ctx);
+            RenderWrap.translate(this.recipeListX, this.recipeListY, 0, ctx);
+            RenderWrap.scale(this.scale, this.scale, 1, ctx);
 
             String str = StringUtils.translate("itemscroller.label.misc.recipe_page", (first / countPerPage) + 1, recipes.getTotalRecipeCount() / countPerPage);
             this.mc.fontRenderer.drawString(str, 16, -12, 0xC0C0C0C0);
@@ -87,8 +89,8 @@ public class RenderEventHandler
                 this.renderRecipeItems(recipe, ctx);
             }
 
-            GlStateManager.popMatrix();
-            GlStateManager.enableBlend(); // Fixes the crafting book icon rendering
+            RenderWrap.popMatrix(ctx);
+            RenderWrap.enableBlend(); // Fixes the crafting book icon rendering
         }
     }
 
@@ -192,7 +194,8 @@ public class RenderEventHandler
         return -1;
     }
 
-    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column, boolean selected, RenderContext ctx)
+    private void renderStoredRecipeStack(ItemStack stack, int recipeId, int row, int column,
+                                         boolean selected, RenderContext ctx)
     {
         final FontRenderer font = this.mc.fontRenderer;
         final String indexStr = String.valueOf(recipeId + 1);
@@ -205,13 +208,13 @@ public class RenderEventHandler
         x = x - (int) (font.getStringWidth(indexStr) * scale) - 2;
         y = row * this.entryHeight + this.entryHeight / 2 - font.FONT_HEIGHT / 2;
 
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(x, y, 0);
-        GlStateManager.scale(scale, scale, 0);
+        RenderWrap.pushMatrix(ctx);
+        RenderWrap.translate(x, y, 0, ctx);
+        RenderWrap.scale(scale, scale, 0, ctx);
 
         font.drawString(indexStr, 0, 0, 0xC0C0C0);
 
-        GlStateManager.popMatrix();
+        RenderWrap.popMatrix(ctx);
     }
 
     private void renderRecipeItems(CraftingRecipe recipe, RenderContext ctx)
@@ -267,8 +270,8 @@ public class RenderEventHandler
 
     private void renderStackAt(ItemStack stack, int x, int y, boolean border, RenderContext ctx)
     {
-        GlStateManager.pushMatrix();
-        GlStateManager.disableLighting();
+        RenderWrap.pushMatrix(ctx);
+        RenderWrap.disableLighting();
         final int w = 16;
         int z = 10;
 
@@ -294,7 +297,7 @@ public class RenderEventHandler
 
         if (InventoryUtils.isStackEmpty(stack) == false)
         {
-            enableGUIStandardItemLighting((float) this.scale);
+            enableGUIStandardItemLighting((float) this.scale, ctx);
 
             stack = stack.copy();
             InventoryUtils.setStackSize(stack, 1);
@@ -303,20 +306,20 @@ public class RenderEventHandler
             this.mc.getRenderItem().zLevel -= 100;
         }
 
-        RenderUtils.disableItemLighting();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
+        RenderWrap.disableItemLighting();
+        RenderWrap.disableBlend();
+        RenderWrap.popMatrix(ctx);
     }
 
-    public static void enableGUIStandardItemLighting(float scale)
+    public static void enableGUIStandardItemLighting(float scale, RenderContext ctx)
     {
-        GlStateManager.pushMatrix();
-        GlStateManager.rotate(-30.0F, 0.0F, 1.0F, 0.0F);
-        GlStateManager.rotate(165.0F, 1.0F, 0.0F, 0.0F);
+        RenderWrap.pushMatrix(ctx);
+        RenderWrap.rotate(-30.0F, 0.0F, 1.0F, 0.0F, ctx);
+        RenderWrap.rotate(165.0F, 1.0F, 0.0F, 0.0F, ctx);
 
         enableStandardItemLighting(scale);
 
-        GlStateManager.popMatrix();
+        RenderWrap.popMatrix(ctx);
     }
 
     public static void enableStandardItemLighting(float scale)
@@ -336,7 +339,7 @@ public class RenderEventHandler
         GlStateManager.glLight(16385, 4609, RenderHelper.setColorBuffer(lightStrength, lightStrength, lightStrength, 1.0F));
         GlStateManager.glLight(16385, 4608, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
         GlStateManager.glLight(16385, 4610, RenderHelper.setColorBuffer(0.0F, 0.0F, 0.0F, 1.0F));
-        GlStateManager.shadeModel(7424);
+        GlStateManager.shadeModel(GL11.GL_FLAT);
 
         float ambientLightStrength = 0.4F;
         GlStateManager.glLightModel(2899, RenderHelper.setColorBuffer(ambientLightStrength, ambientLightStrength, ambientLightStrength, 1.0F));
