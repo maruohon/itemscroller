@@ -7,7 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainerCreative;
 
 import malilib.gui.util.GuiUtils;
 import malilib.input.MouseScrollHandler;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.gui.widgets.WidgetTradeList;
 import fi.dy.masa.itemscroller.recipes.RecipeStorage;
@@ -30,7 +30,7 @@ public class MouseScrollHandlerImpl implements MouseScrollHandler
             InventoryUtils.stopDragging();
         }
 
-        Minecraft mc = GameUtils.getClient();
+        Minecraft mc = GameWrap.getClient();
         boolean cancel = false;
 
         if (Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() && mc.player != null)

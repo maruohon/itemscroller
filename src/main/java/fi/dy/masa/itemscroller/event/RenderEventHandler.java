@@ -16,7 +16,7 @@ import malilib.render.ShapeRenderUtils;
 import malilib.render.buffer.VanillaWrappingVertexBuilder;
 import malilib.render.buffer.VertexBuilder;
 import malilib.util.StringUtils;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.game.wrap.RenderWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import malilib.util.position.Vec3d;
@@ -32,7 +32,7 @@ public class RenderEventHandler
     private static final Vec3d LIGHT0_POS = Vec3d.normalized( 0.2D, 1.0D, -0.7D);
     private static final Vec3d LIGHT1_POS = Vec3d.normalized(-0.2D, 1.0D,  0.7D);
 
-    private final Minecraft mc = GameUtils.getClient();
+    private final Minecraft mc = GameWrap.getClient();
     private int recipeListX;
     private int recipeListY;
     private int recipesPerColumn;

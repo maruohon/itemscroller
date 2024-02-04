@@ -12,7 +12,7 @@ import malilib.gui.util.GuiUtils;
 import malilib.input.KeyboardInputHandler;
 import malilib.input.Keys;
 import malilib.util.MathUtils;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import malilib.util.position.HitResult;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -78,7 +78,7 @@ public class KeyboardInputHandlerImpl implements KeyboardInputHandler
             InventoryUtils.stopDragging();
         }
 
-        Minecraft mc = GameUtils.getClient();
+        Minecraft mc = GameWrap.getClient();
         boolean cancel = false;
 
         if (Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() && mc.player != null)
@@ -91,7 +91,7 @@ public class KeyboardInputHandlerImpl implements KeyboardInputHandler
             if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
             {
                 VillagerDataStorage storage = VillagerDataStorage.INSTANCE;
-                HitResult hitResult = GameUtils.getHitResult();
+                HitResult hitResult = GameWrap.getHitResult();
 
                 if (GuiUtils.noScreenOpen() &&
                     hitResult.type == HitResult.Type.ENTITY &&

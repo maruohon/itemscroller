@@ -11,7 +11,7 @@ import net.minecraft.inventory.Slot;
 import malilib.gui.BaseScreen;
 import malilib.gui.util.GuiUtils;
 import malilib.input.MouseClickHandler;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import malilib.util.position.HitResult;
 import fi.dy.masa.itemscroller.config.Configs;
@@ -38,7 +38,7 @@ public class MouseClickHandlerImpl implements MouseClickHandler
             InventoryUtils.stopDragging();
         }
 
-        Minecraft mc = GameUtils.getClient();
+        Minecraft mc = GameWrap.getClient();
         boolean cancel = false;
 
         if (Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() && mc.player != null)
@@ -51,7 +51,7 @@ public class MouseClickHandlerImpl implements MouseClickHandler
             if (Configs.Toggles.VILLAGER_TRADE_LIST.getBooleanValue())
             {
                 VillagerDataStorage storage = VillagerDataStorage.INSTANCE;
-                HitResult hitResult = GameUtils.getHitResult();
+                HitResult hitResult = GameWrap.getHitResult();
 
                 if (GuiUtils.noScreenOpen() &&
                     hitResult.type == HitResult.Type.ENTITY &&
@@ -140,8 +140,8 @@ public class MouseClickHandlerImpl implements MouseClickHandler
     public static boolean canOperateIn(GuiScreen screen)
     {
         return Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() &&
-               GameUtils.getClientPlayer() != null &&
-               GameUtils.getClientWorld() != null &&
+               GameWrap.getClientPlayer() != null &&
+               GameWrap.getClientWorld() != null &&
                screen instanceof GuiContainer &&
                Configs.Lists.GUI_BLACKLIST.getValue().contains(screen.getClass().getName()) == false;
     }

@@ -36,8 +36,7 @@ import net.minecraft.world.World;
 import malilib.gui.util.GuiUtils;
 import malilib.input.Keys;
 import malilib.util.data.IntRange;
-import malilib.util.game.ItemUtils;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.game.wrap.ItemWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.ItemScroller;
@@ -92,7 +91,7 @@ public class InventoryUtils
 
         boolean hasSlot = gui.inventorySlots.inventorySlots.contains(slot);
         Object inv = slot.inventory;
-        String stackStr = ItemUtils.getStackString(slot.getStack());
+        String stackStr = ItemWrap.getStackString(slot.getStack());
 
         ItemScroller.LOGGER.info(String.format("slot: slotNumber: %d, getSlotIndex(): %d, getHasStack(): %s, " +
                 "slot class: %s, inv class: %s, Container's slot list has slot: %s, stack: %s, numSlots: %d",
@@ -133,7 +132,7 @@ public class InventoryUtils
     public static boolean canShiftPlaceItems(GuiContainer gui)
     {
         Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
-        ItemStack stackCursor = GameUtils.getClientPlayer().inventory.getItemStack();
+        ItemStack stackCursor = GameWrap.getClientPlayer().inventory.getItemStack();
 
         // The target slot needs to be an empty, valid slot, and there needs to be items in the cursor
         return slot != null && isStackEmpty(stackCursor) == false && isValidSlot(slot, gui, false) &&
@@ -145,7 +144,7 @@ public class InventoryUtils
         Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
 
         // We require an empty cursor
-        if (slot == null || isStackEmpty(GameUtils.getClientPlayer().inventory.getItemStack()) == false)
+        if (slot == null || isStackEmpty(GameWrap.getClientPlayer().inventory.getItemStack()) == false)
         {
             return false;
         }
@@ -233,7 +232,7 @@ public class InventoryUtils
 
     public static boolean dragMoveItems(GuiContainer gui, MoveAction action, boolean isClick, int mouseX, int mouseY)
     {
-        InventoryPlayer inventory = GameUtils.getPlayerInventory();
+        InventoryPlayer inventory = GameWrap.getPlayerInventory();
 
         if (isStackEmpty(inventory.getItemStack()) == false)
         {
@@ -345,7 +344,7 @@ public class InventoryUtils
 
         Slot slot = AccessorUtils.getSlotAtPosition(gui, x, y);
         MoveAmount amount = InputUtils.getMoveAmount(action);
-        boolean flag = slot != null && isValidSlot(slot, gui, true) && slot.canTakeStack(GameUtils.getClientPlayer());
+        boolean flag = slot != null && isValidSlot(slot, gui, true) && slot.canTakeStack(GameWrap.getClientPlayer());
         //boolean cancel = flag && (amount == MoveAmount.LEAVE_ONE || amount == MoveAmount.MOVE_ONE);
 
         if (flag && slot.slotNumber != slotNumberLast &&
@@ -419,7 +418,7 @@ public class InventoryUtils
         }
 
         MoveAmount amount = InputUtils.getMoveAmount(action);
-        boolean flag = slot != null && isValidSlot(slot, gui, true) && slot.canTakeStack(GameUtils.getClientPlayer());
+        boolean flag = slot != null && isValidSlot(slot, gui, true) && slot.canTakeStack(GameWrap.getClientPlayer());
         boolean cancel = flag && (amount == MoveAmount.LEAVE_ONE || amount == MoveAmount.MOVE_ONE);
         // The player inventory tab of the creative inventory uses stupid wrapped
         // slots that all have slotNumber = 0 on the outer instance ;_;
@@ -521,7 +520,7 @@ public class InventoryUtils
 
     public static boolean shiftDropItems(GuiContainer gui)
     {
-        ItemStack stackReference = GameUtils.getClientPlayer().inventory.getItemStack();
+        ItemStack stackReference = GameWrap.getClientPlayer().inventory.getItemStack();
 
         if (isStackEmpty(stackReference) == false && sourceSlot != null)
         {
@@ -712,7 +711,7 @@ public class InventoryUtils
     {
         ItemStack stackOrig = slot.getStack();
         Container container = gui.inventorySlots;
-        EntityPlayer player = GameUtils.getClientPlayer();
+        EntityPlayer player = GameWrap.getClientPlayer();
 
         if (isStackEmpty(player.inventory.getItemStack()) == false || slot.canTakeStack(player) == false ||
             (getStackSize(stackOrig) > 1 && slot.isItemValid(stackOrig) == false))
@@ -762,7 +761,7 @@ public class InventoryUtils
 
     private static boolean tryMoveAllButOneItemToOtherInventory(Slot slot, GuiContainer gui)
     {
-        EntityPlayer player = GameUtils.getClientPlayer();
+        EntityPlayer player = GameWrap.getClientPlayer();
         ItemStack stackOrig = slot.getStack().copy();
 
         if (getStackSize(stackOrig) == 1 || getStackSize(stackOrig) > stackOrig.getMaxStackSize() ||
@@ -899,7 +898,7 @@ public class InventoryUtils
             ItemStack stackTmp = slotTmp.getStack();
 
             if (areSlotsInSameInventory(slotTmp, slot) == false &&
-                isStackEmpty(stackTmp) == false && slotTmp.canTakeStack(GameUtils.getClientPlayer()) &&
+                isStackEmpty(stackTmp) == false && slotTmp.canTakeStack(GameWrap.getClientPlayer()) &&
                 (getStackSize(stackTmp) == 1 || slotTmp.isItemValid(stackTmp)))
             {
                 if (areStacksEqual(stackTmp, stackOrig))
@@ -973,7 +972,7 @@ public class InventoryUtils
 
     public static void tryMoveItemsToMerchantBuySlots(GuiMerchant gui, boolean fillStacks)
     {
-        MerchantRecipeList list = gui.getMerchant().getRecipes(GameUtils.getClientPlayer());
+        MerchantRecipeList list = gui.getMerchant().getRecipes(GameWrap.getClientPlayer());
         int index = AccessorUtils.getSelectedMerchantRecipe(gui);
 
         if (list == null || list.size() <= index)
@@ -1016,7 +1015,7 @@ public class InventoryUtils
 
         if (isStackEmpty(existingStack) || areStacksEqual(buyStack, existingStack))
         {
-            moveItemsFromInventory(gui, slotNum, GameUtils.getClientPlayer().inventory, buyStack, fillStacks);
+            moveItemsFromInventory(gui, slotNum, GameWrap.getClientPlayer().inventory, buyStack, fillStacks);
         }
     }
 
@@ -1302,7 +1301,7 @@ public class InventoryUtils
         }
 
         Container container = gui.inventorySlots;
-        EntityPlayer player = GameUtils.getClientPlayer();
+        EntityPlayer player = GameWrap.getClientPlayer();
         int slotNum;
         int slotReturn = -1;
         int sizeOrig;
@@ -1378,7 +1377,7 @@ public class InventoryUtils
     public static void rightClickCraftOneStack(GuiContainer gui)
     {
         Slot slot = InventoryScreenUtils.getSlotUnderMouse(gui);
-        InventoryPlayer inv = GameUtils.getClientPlayer().inventory;
+        InventoryPlayer inv = GameWrap.getClientPlayer().inventory;
         ItemStack stackCursor = inv.getItemStack();
 
         if (slot == null || slot.getHasStack() == false ||
@@ -1478,7 +1477,7 @@ public class InventoryUtils
 
     private static int putSingleItemIntoSlots(GuiContainer gui, List<Integer> targetSlots, int startIndex)
     {
-        ItemStack stackInCursor = GameUtils.getClientPlayer().inventory.getItemStack();
+        ItemStack stackInCursor = GameWrap.getClientPlayer().inventory.getItemStack();
 
         if (isStackEmpty(stackInCursor))
         {
@@ -1510,7 +1509,7 @@ public class InventoryUtils
     {
         leftClickSlot(gui, slot.slotNumber);
 
-        ItemStack stackCursor = GameUtils.getClientPlayer().inventory.getItemStack();
+        ItemStack stackCursor = GameWrap.getClientPlayer().inventory.getItemStack();
 
         if (isStackEmpty(stackCursor) == false)
         {
@@ -1527,7 +1526,7 @@ public class InventoryUtils
     private static void moveOneRecipeItemIntoCraftingGrid(GuiContainer gui, Slot slotGridFirst, ItemStack ingredientReference, List<Integer> targetSlots)
     {
         Container container = gui.inventorySlots;
-        EntityPlayer player = GameUtils.getClientPlayer();
+        EntityPlayer player = GameWrap.getClientPlayer();
         int index = 0;
         int slotNum = -1;
         int slotCount = targetSlots.size();
@@ -1573,7 +1572,7 @@ public class InventoryUtils
 
     private static boolean moveItemFromCursorToSlots(GuiContainer gui, List<Integer> slotNumbers)
     {
-        InventoryPlayer inv = GameUtils.getClientPlayer().inventory;
+        InventoryPlayer inv = GameWrap.getClientPlayer().inventory;
 
         for (int slotNum : slotNumbers)
         {
@@ -1892,7 +1891,7 @@ public class InventoryUtils
 
     private static void clickSlotsToMoveItemsFromSlot(Slot slotFrom, GuiContainer gui, boolean toOtherInventory)
     {
-        EntityPlayer player = GameUtils.getClientPlayer();
+        EntityPlayer player = GameWrap.getClientPlayer();
         // Left click to pick up the found source stack
         leftClickSlot(gui, slotFrom.slotNumber);
 
@@ -1950,7 +1949,7 @@ public class InventoryUtils
         rightClickSlot(gui, slotTo);
 
         // If there are items left in the cursor, then return them back to the original slot
-        if (isStackEmpty(GameUtils.getClientPlayer().inventory.getItemStack()) == false)
+        if (isStackEmpty(GameWrap.getClientPlayer().inventory.getItemStack()) == false)
         {
             // Left click again on the from-slot to return the rest of the items to it
             leftClickSlot(gui, slotFrom);
@@ -1990,7 +1989,7 @@ public class InventoryUtils
         // ... and then shift-click on the slot
         shiftClickSlot(gui, slotFrom);
 
-        if (isStackEmpty(GameUtils.getClientPlayer().inventory.getItemStack()) == false)
+        if (isStackEmpty(GameWrap.getClientPlayer().inventory.getItemStack()) == false)
         {
             // ... and then return the rest of the items
             leftClickSlot(gui, slotFrom);
@@ -2005,7 +2004,7 @@ public class InventoryUtils
      */
     private static boolean clickSlotsToMoveItems(GuiContainer gui, int slotFrom, int slotTo)
     {
-        InventoryPlayer inventory = GameUtils.getClientPlayer().inventory;
+        InventoryPlayer inventory = GameWrap.getClientPlayer().inventory;
         //System.out.println("clickSlotsToMoveItems(from: " + slotFrom + ", to: " + slotTo + ")");
 
         // Left click to take items
@@ -2081,7 +2080,7 @@ public class InventoryUtils
     public static boolean tryMoveItemsVertically(GuiContainer gui, Slot slot, boolean moveUp, MoveAmount amount)
     {
         // We require an empty cursor
-        if (slot == null || isStackEmpty(GameUtils.getClientPlayer().inventory.getItemStack()) == false)
+        if (slot == null || isStackEmpty(GameWrap.getClientPlayer().inventory.getItemStack()) == false)
         {
             return false;
         }
@@ -2138,7 +2137,7 @@ public class InventoryUtils
 
     private static Slot moveStackToSlots(GuiContainer gui, Slot slotFrom, List<Integer> slotsTo, boolean leaveOne)
     {
-        InventoryPlayer inv = GameUtils.getClientPlayer().inventory;
+        InventoryPlayer inv = GameWrap.getClientPlayer().inventory;
         Slot lastSlot = null;
 
         // Empty slot, nothing to do
@@ -2184,7 +2183,7 @@ public class InventoryUtils
 
     private static void moveOneItemToFirstValidSlot(GuiContainer gui, Slot slotFrom, List<Integer> slotsTo)
     {
-        InventoryPlayer inv = GameUtils.getClientPlayer().inventory;
+        InventoryPlayer inv = GameWrap.getClientPlayer().inventory;
 
         // Pick up half of the the stack
         rightClickSlot(gui, slotFrom.slotNumber);
@@ -2356,8 +2355,7 @@ public class InventoryUtils
         {
             try
             {
-                Minecraft mc = GameUtils.getClient();
-                mc.playerController.windowClick(gui.inventorySlots.windowId, slotNum, mouseButton, type, mc.player);
+                malilib.util.inventory.InventoryUtils.clickSlot(gui.inventorySlots, slotNum, mouseButton, type);
             }
             catch (Exception e)
             {
@@ -2434,7 +2432,7 @@ public class InventoryUtils
 
     private static void dragSplitItemsIntoSlots(GuiContainer gui, List<Integer> targetSlots)
     {
-        ItemStack stackInCursor = GameUtils.getClientPlayer().inventory.getItemStack();
+        ItemStack stackInCursor = GameWrap.getClientPlayer().inventory.getItemStack();
 
         if (isStackEmpty(stackInCursor))
         {

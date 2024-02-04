@@ -8,13 +8,13 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.village.MerchantRecipeList;
 
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 
 public class MerchantUtils
 {
     public static void changeTradePage(GuiMerchant gui, int page)
     {
-        MerchantRecipeList trades = gui.getMerchant().getRecipes(GameUtils.getClientPlayer());
+        MerchantRecipeList trades = gui.getMerchant().getRecipes(GameWrap.getClientPlayer());
 
         // The trade list is unfortunately synced after the GUI
         // opens, so the trade list can be null here when we want to
@@ -27,6 +27,6 @@ public class MerchantUtils
         ((ContainerMerchant) gui.inventorySlots).setCurrentRecipeIndex(page);
         PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
         packetbuffer.writeInt(page);
-        GameUtils.getClient().getConnection().sendPacket(new CPacketCustomPayload("MC|TrSel", packetbuffer));
+        GameWrap.getClient().getConnection().sendPacket(new CPacketCustomPayload("MC|TrSel", packetbuffer));
     }
 }

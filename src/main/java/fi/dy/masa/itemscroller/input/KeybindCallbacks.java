@@ -12,7 +12,7 @@ import malilib.input.ActionResult;
 import malilib.input.KeyAction;
 import malilib.input.KeyBind;
 import malilib.input.callback.HotkeyCallback;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.ItemScroller;
 import fi.dy.masa.itemscroller.config.Actions;
@@ -48,7 +48,7 @@ public class KeybindCallbacks implements HotkeyCallback
     @Override
     public ActionResult onKeyAction(KeyAction action, KeyBind key)
     {
-        Minecraft mc = GameUtils.getClient();
+        Minecraft mc = GameWrap.getClient();
 
         if (mc.player == null)
         {
@@ -141,7 +141,7 @@ public class KeybindCallbacks implements HotkeyCallback
 
     public void onTick()
     {
-        Minecraft mc = GameUtils.getClient();
+        Minecraft mc = GameWrap.getClient();
 
         if (mc.player != null &&
             Configs.Toggles.MOD_FEATURES_ENABLED.getBooleanValue() &&

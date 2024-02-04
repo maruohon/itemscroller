@@ -7,7 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 
 import malilib.gui.util.GuiUtils;
 import malilib.input.KeyBind;
-import malilib.util.game.wrap.GameUtils;
+import malilib.util.game.wrap.GameWrap;
 import malilib.util.inventory.InventoryScreenUtils;
 import fi.dy.masa.itemscroller.config.Configs;
 import fi.dy.masa.itemscroller.config.Hotkeys;
@@ -145,16 +145,16 @@ public class InputUtils
 
     public static boolean isAttack(int keyCode)
     {
-        return keyCode == GameUtils.getClient().gameSettings.keyBindAttack.getKeyCode();
+        return keyCode == GameWrap.getClient().gameSettings.keyBindAttack.getKeyCode();
     }
 
     public static boolean isUse(int keyCode)
     {
-        return keyCode == GameUtils.getClient().gameSettings.keyBindUseItem.getKeyCode();
+        return keyCode == GameWrap.getClient().gameSettings.keyBindUseItem.getKeyCode();
     }
 
     public static boolean isPickBlock(int keyCode)
     {
-        return keyCode == GameUtils.getClient().gameSettings.keyBindPickBlock.getKeyCode();
+        return keyCode == GameWrap.getClient().gameSettings.keyBindPickBlock.getKeyCode();
     }
 }
