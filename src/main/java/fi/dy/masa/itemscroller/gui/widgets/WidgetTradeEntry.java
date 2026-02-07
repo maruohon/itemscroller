@@ -36,7 +36,7 @@ public class WidgetTradeEntry extends BaseDataListEntryWidget<MerchantRecipe>
         int height = this.getHeight();
         boolean hovered = this.isMouseOver(ctx.mouseX, ctx.mouseY);
 
-        DefaultIcons.BUTTON_BACKGROUND.renderFourSplicedAt(x, y, z, width, height, IconWidget.getVariantIndex(true, hovered), ctx);
+        DefaultIcons.BUTTON_BACKGROUND.renderFourSlicedAt(x, y, z, width, height, IconWidget.getVariantIndex(true, hovered), ctx);
 
         if (selected)
         {
